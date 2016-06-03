@@ -5,7 +5,7 @@ Game *Game::mInstance = NULL;
 
 Game::Game()
 {
-
+    mScreen = NULL;
 }
 
 Game::~Game()
@@ -19,7 +19,26 @@ void Game::start()
 {
     std::cout << "Game started.\n";
 
+    initScreen();
     loadlevel();
+
+    mainLoop();
+}
+
+void Game::initScreen()
+{
+
+    //configure context settings
+    mScreenContext.depthBits = 24;
+    mScreenContext.stencilBits = 8;
+    mScreenContext.antialiasingLevel = 4;
+    mScreenContext.majorVersion = 3;
+    mScreenContext.minorVersion = 0;
+
+    //create render window
+    mScreen = new sf::RenderWindow(sf::VideoMode(640,480,32), "UW Proj", sf::Style::Default, mScreenContext);
+
+
 }
 
 void Game::loadlevel()
@@ -126,53 +145,42 @@ void Game::loadlevel()
 
     }
 
-    //print a test part of the first level
-    int posx = 29;
-    int posy = 2;
+    //print level 1 debug
+    mLevels[0].printDebug();
 
-    //flip map's y axis for drawing with 0,0 being top left
-    for(int i = TILE_ROWS - 1; i >= 0; i--)
-    {
-        std::cout << "\n";
-        for(int n = 0; n < 64; n++)
-        {
-            Tile *tile = mLevels[0].getTile(n, i);
-            char tchar = 0;
-
-            switch(tile->getType())
-            {
-            case 0:
-                tchar = '#';
-                break;
-            case 1:
-            case 6:
-            case 7:
-            case 8:
-            case 9:
-                tchar = '.';
-                break;
-            case 2:
-            case 5:
-                tchar = '/';
-                break;
-            case 3:
-            case 4:
-                tchar = '\\';
-                break;
-            default:
-                tchar = '?';
-                break;
-            }
-
-            if(tile->hasDoor()) tchar = 'D';
-            else if(posx == n && posy == i) tchar = 'X';
-
-            std::cout << tchar;
-        }
-    }
-    // 0x492
-    std::cout << std::hex << "\ntile offset: 0x" << blockoffsets[0] + ( posy * (64) * (0x04)) + (posx * 0x04) << std::endl;
-
-    //2, 29
     ifile.close();
+}
+
+/////////////////////////////////////////////////////////////
+//  MAIN LOOP
+void Game::mainLoop()
+{
+    bool quit = false;
+
+    while(!quit)
+    {
+        sf::Event event;
+
+        //mScreen->clear();
+
+        //handle input
+        while(mScreen->pollEvent(event))
+        {
+            if(event.type == sf::Event::Closed) quit = true;
+            else if(event.type == sf::Event::KeyPressed)
+            {
+                if(event.key.code == sf::Keyboard::Escape) quit = true;
+            }
+        }
+
+        //clear buffers
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        //updates
+
+        //draw
+
+        //display
+        mScreen->display();
+    }
 }

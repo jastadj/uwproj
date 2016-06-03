@@ -77,5 +77,6 @@ public:
 
     Tile *getTile(int x, int y) { return &mTiles[y][x];}
 
+    void printDebug();
 };
 #endif // CLASS_LEVEL

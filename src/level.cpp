@@ -1,5 +1,7 @@
 #include "level.hpp"
 
+#include <iostream>
+
 Level::Level()
 {
     mTiles.resize(TILE_ROWS);
@@ -11,6 +13,54 @@ Level::~Level()
 
 }
 
+void Level::printDebug()
+{
+
+    //print a test part of the first level
+    int posx = 29;
+    int posy = 2;
+
+    //flip map's y axis for drawing with 0,0 being top left
+    for(int i = TILE_ROWS - 1; i >= 0; i--)
+    {
+        std::cout << "\n";
+        for(int n = 0; n < 64; n++)
+        {
+            Tile *tile = getTile(n, i);
+            char tchar = 0;
+
+            switch(tile->getType())
+            {
+            case 0:
+                tchar = '#';
+                break;
+            case 1:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+                tchar = '.';
+                break;
+            case 2:
+            case 5:
+                tchar = '/';
+                break;
+            case 3:
+            case 4:
+                tchar = '\\';
+                break;
+            default:
+                tchar = '?';
+                break;
+            }
+
+            if(tile->hasDoor()) tchar = 'D';
+            else if(posx == n && posy == i) tchar = 'X';
+
+            std::cout << tchar;
+        }
+    }
+}
 /////////////////////////////////////////////////////////////////////
 //  TILE
 Tile::Tile()

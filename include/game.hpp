@@ -8,6 +8,8 @@
 #include <vector>
 
 #include "level.hpp"
+#include <SFML\Graphics.hpp>
+#include <SFML\OpenGL.hpp>
 
 class Game
 {
@@ -15,12 +17,19 @@ private:
     Game();
     static Game *mInstance;
 
+    //render window
+    sf::RenderWindow *mScreen;
+    sf::ContextSettings mScreenContext;
+
     //init
+    void initScreen();
     void loadlevel();
 
     //levels
     std::vector<Level> mLevels;
 
+    //mainloop
+    void mainLoop();
 
 public:
     static Game *getInstance()
