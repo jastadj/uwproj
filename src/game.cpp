@@ -181,6 +181,8 @@ void Game::mainLoop()
 
     float cameraz = 0.0;
 
+    float trot = 0;
+    float qrot = 0;
 
     while(!quit)
     {
@@ -205,11 +207,13 @@ void Game::mainLoop()
         glLoadIdentity();                       // Reset The View
 
         //updates
-
+        trot += 0.2;
+        qrot -= 0.1;
 
         //draw
 
         glTranslatef(-1.5f,0.0f,-6.0f);                 // Move Left 1.5 Units And Into The Screen 6.0
+        glRotatef(trot, 0.f, 1.f, 0.f); // rotate on y axis
         glBegin(GL_TRIANGLES); // Drawing Using Triangles
             glColor3f(1.0f,0.0f,0.0f);
             glVertex3f( 0.0f, 1.0f, 0.0f);              // Top
@@ -219,7 +223,10 @@ void Game::mainLoop()
             glVertex3f( 1.0f,-1.0f, 0.0f);              // Bottom Right
         glEnd();
 
-        glTranslatef(3.0f,0.0f,0.0f);                   // Move Right 3 Units
+        glLoadIdentity(); // reset model view
+
+        glTranslatef(1.5f,0.0f,-6.0f);                   // Move Right 3 Units
+        glRotatef(qrot, 1.f, 0.f, 0.f); // rotate on x axis
         glColor3f(0.5f,0.5f,1.0f);
         glBegin(GL_QUADS);                      // Draw A Quad
                 glVertex3f(-1.0f, 1.0f, 0.0f);              // Top Left
