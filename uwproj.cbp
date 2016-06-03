@@ -32,12 +32,20 @@
 			<Add option="-Wall" />
 			<Add directory="include" />
 			<Add directory="../../SFML-2.3.2/include" />
+			<Add directory="../../glew-1.13.0/include" />
+			<Add directory="../../freeglut/include" />
 		</Compiler>
 		<Linker>
+			<Add library="..\..\MinGW\lib\libopengl32.a" />
+			<Add library="..\..\MinGW\lib\libglu32.a" />
+			<Add library="..\..\glew-1.13.0\lib\glew32.lib" />
+			<Add library="..\..\freeglut\lib\freeglut.lib" />
 			<Add library="sfml-graphics" />
 			<Add library="sfml-window" />
 			<Add library="sfml-system" />
 			<Add directory="../../SFML-2.3.2/lib" />
+			<Add directory="../../glew-1.13.0/lib" />
+			<Add directory="../../freeglut/lib" />
 		</Linker>
 		<Unit filename="include/game.hpp" />
 		<Unit filename="include/level.hpp" />

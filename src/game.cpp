@@ -1,6 +1,9 @@
 #include "game.hpp"
 #include "tools.hpp"
 
+#include <GL/glew.h>
+#include <GL/glut.h>
+
 Game *Game::mInstance = NULL;
 
 Game::Game()
@@ -31,9 +34,9 @@ void Game::initScreen()
     //configure context settings
     mScreenContext.depthBits = 24;
     mScreenContext.stencilBits = 8;
-    mScreenContext.antialiasingLevel = 4;
+    mScreenContext.antialiasingLevel = 0;
     mScreenContext.majorVersion = 3;
-    mScreenContext.minorVersion = 0;
+    mScreenContext.minorVersion = 3;
 
     //create render window
     mScreen = new sf::RenderWindow(sf::VideoMode(640,480,32), "UW Proj", sf::Style::Default, mScreenContext);
@@ -157,6 +160,28 @@ void Game::mainLoop()
 {
     bool quit = false;
 
+    //reset view
+        glViewport(0,0,640,480); // set viewport
+        glMatrixMode(GL_PROJECTION); // select projection matrix
+        glLoadIdentity(); // reset projection matrix
+
+        // Calculate The Aspect Ratio Of The Window
+        gluPerspective(45.0f,640.f/480.f,0.1f,100.0f);
+
+        glMatrixMode(GL_MODELVIEW);// Select The Modelview Matrix
+        //glLoadIdentity();// Reset The Modelview Matrix
+
+    //opengl init
+        glShadeModel(GL_SMOOTH);//smooth shading
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);// Black Background
+
+        //glClearDepth(1.0f);                         // Depth Buffer Setup
+        glEnable(GL_DEPTH_TEST);                        // Enables Depth Testing
+        //glDepthFunc(GL_LEQUAL);                         // The Type Of Depth Test To Do
+
+    float cameraz = 0.0;
+
+
     while(!quit)
     {
         sf::Event event;
@@ -173,12 +198,37 @@ void Game::mainLoop()
             }
         }
 
-        //clear buffers
+        //clear buffers and reset view
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();                       // Reset The View
 
         //updates
 
+
         //draw
+
+        glTranslatef(-1.5f,0.0f,-6.0f);                 // Move Left 1.5 Units And Into The Screen 6.0
+        glBegin(GL_TRIANGLES); // Drawing Using Triangles
+            glColor3f(1.0f,0.0f,0.0f);
+            glVertex3f( 0.0f, 1.0f, 0.0f);              // Top
+            glColor3f(0.0f,1.0f,0.0f);
+            glVertex3f(-1.0f,-1.0f, 0.0f);              // Bottom Left
+            glColor3f(0.0f,0.0f,1.0f);
+            glVertex3f( 1.0f,-1.0f, 0.0f);              // Bottom Right
+        glEnd();
+
+        glTranslatef(3.0f,0.0f,0.0f);                   // Move Right 3 Units
+        glColor3f(0.5f,0.5f,1.0f);
+        glBegin(GL_QUADS);                      // Draw A Quad
+                glVertex3f(-1.0f, 1.0f, 0.0f);              // Top Left
+                glVertex3f( 1.0f, 1.0f, 0.0f);              // Top Right
+                glVertex3f( 1.0f,-1.0f, 0.0f);              // Bottom Right
+                glVertex3f(-1.0f,-1.0f, 0.0f);              // Bottom Left
+            glEnd();
+
+
 
         //display
         mScreen->display();
