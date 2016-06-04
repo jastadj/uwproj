@@ -1,19 +1,19 @@
 #include "game.hpp"
 #include "tools.hpp"
 
-#include <GL/glew.h>
-#include <GL/glut.h>
-
 Game *Game::mInstance = NULL;
 
 Game::Game()
 {
-    mScreen = NULL;
+    //init pointers
+    m_Device = NULL;
+    m_Camera = NULL;
 }
 
 Game::~Game()
 {
-
+    //destroy rendering device
+    m_Device->drop();
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -22,26 +22,68 @@ void Game::start()
 {
     std::cout << "Game started.\n";
 
-    initScreen();
     loadlevel();
+
+    //init
+    initIrrlicht();
+    initCamera();
 
     mainLoop();
 }
 
-void Game::initScreen()
+bool Game::initIrrlicht()
 {
+    //already initialized!!
+    if(m_Device != NULL) return false;
 
-    //configure context settings
-    mScreenContext.depthBits = 24;
-    mScreenContext.stencilBits = 8;
-    mScreenContext.antialiasingLevel = 0;
-    mScreenContext.majorVersion = 3;
-    mScreenContext.minorVersion = 3;
+    //init device
+    m_Device = createDevice( video::EDT_OPENGL, dimension2d<u32>(800, 600), 16, false, false, false, &m_Receiver);
+    if(!m_Device) {std::cout << "Error creating device.\n";return false;}
+    m_Device->setWindowCaption(L"UWproj");
 
-    //create render window
-    mScreen = new sf::RenderWindow(sf::VideoMode(640,480,32), "UW Proj", sf::Style::Default, mScreenContext);
+    //get video
+    m_Driver = m_Device->getVideoDriver();
+    //get scene manager
+    m_SMgr = m_Device->getSceneManager();
+    //get gui environment
+    m_GUIEnv = m_Device->getGUIEnvironment();
+    //get collision manager
+    m_IMgr = m_SMgr->getSceneCollisionManager();
 
+    return true;
+}
 
+bool Game::initCamera()
+{
+    //already initialized!!
+    if(m_Camera != NULL) return false;
+
+    //add camera to scene
+    m_Camera = m_SMgr->addCameraSceneNode(0, m_CameraPos, m_CameraTarget);
+    m_CameraTarget = vector3df(0,0,-20);
+    updateCamera(vector3df(0,0,0));
+
+    //level camera (avoid camera rotation when pointing at target)
+    matrix4 m;
+    m.setRotationDegrees(m_Camera->getRotation());
+    vector3df upv(0.0f, 0.0f, 1.0f);
+    m_Camera->setUpVector(upv);
+
+    //temp position target?
+    updateCamera(vector3df(0,0,0));
+
+    //capture default FOV
+    m_CameraDefaultFOV = m_Camera->getFOV();
+
+    return true;
+}
+
+void Game::updateCamera(vector3df cameratargetpos)
+{
+    m_CameraTarget = cameratargetpos;
+    m_CameraPos = vector3df(80,80,200) + m_CameraTarget;
+    m_Camera->setPosition(m_CameraPos);
+    m_Camera->setTarget(m_CameraTarget);
 }
 
 void Game::loadlevel()
@@ -158,86 +200,312 @@ void Game::loadlevel()
 //  MAIN LOOP
 void Game::mainLoop()
 {
-    bool quit = false;
+    bool drawaxis = true;
 
-    //reset view
-        glViewport(0,0,640,480); // set viewport
-        glMatrixMode(GL_PROJECTION); // select projection matrix
-        glLoadIdentity(); // reset projection matrix
+    //add light test
+    scene::ILightSceneNode* light1 = m_SMgr->addLightSceneNode(0, vector3df(0,0,0), SColorf(1.0f, 0.5f, 0.5f, 0.f), 100.0f);
+    light1->setLightType(video::ELT_SPOT);
+    light1->setRotation(vector3df(0,180,0));
+    light1->getLightData().Falloff = 5;
+    //light1->getLightData().DiffuseColor = SColor(100,100,100,100);
+    //light1->getLightData().SpecularColor = SColor(0,0,0,0);
+    //light1->enableCastShadow(false);
+    m_SMgr->setAmbientLight( SColor(100,100,100,100));
 
-        // Calculate The Aspect Ratio Of The Window
-        gluPerspective(45.0f,640.f/480.f,0.1f,100.0f);
-
-        glMatrixMode(GL_MODELVIEW);// Select The Modelview Matrix
-        //glLoadIdentity();// Reset The Modelview Matrix
-
-    //opengl init
-        glShadeModel(GL_SMOOTH);//smooth shading
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);// Black Background
-
-        //glClearDepth(1.0f);                         // Depth Buffer Setup
-        glEnable(GL_DEPTH_TEST);                        // Enables Depth Testing
-        //glDepthFunc(GL_LEQUAL);                         // The Type Of Depth Test To Do
-
-    float cameraz = 0.0;
-
-    float trot = 0;
-    float qrot = 0;
-
-    while(!quit)
+/*
+    int msize = 12;
+    f32 cubesize = 50;
+    SMesh *cubemesh = getCubeMesh(cubesize);
+    std::vector< std::vector<ISceneNode*> > mymap;
+    mymap.resize(msize);
+    for(int i = 0; i < msize; i++)
     {
-        sf::Event event;
-
-        //mScreen->clear();
-
-        //handle input
-        while(mScreen->pollEvent(event))
+        for(int n = 0; n < msize; n++)
         {
-            if(event.type == sf::Event::Closed) quit = true;
-            else if(event.type == sf::Event::KeyPressed)
+            vector3df cubepos(cubesize*n, cubesize*i, 0);
+            IMeshSceneNode *mycube = m_SMgr->addMeshSceneNode(cubemesh);
+            mymap[i].push_back(mycube);
+            if(mycube)
             {
-                if(event.key.code == sf::Keyboard::Escape) quit = true;
+                mycube->setPosition(vector3df(n*cubesize, i*cubesize, 0));
+                mycube->setMaterialTexture(0, m_Driver->getTexture(".\\Data\\Art\\wall.jpg"));
+                mycube->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
+                //mycube->setMaterialFlag(video::EMF_LIGHTING, false);
+                //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
+                //mycube->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
+                //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
+                mycube->updateAbsolutePosition();
+
+            }
+        }
+    }
+*/
+
+    int lastFPS = -1;
+
+    // In order to do framerate independent movement, we have to know
+    // how long it was since the last frame
+    u32 then = m_Device->getTimer()->getTime();
+
+    //flag to store if mouse button was clicked on this frame
+    bool mouseLeftClicked = false;
+
+    //main loop
+    while(m_Device->run())
+    {
+
+        const SEvent *event = NULL;
+        mouseLeftClicked = false;
+
+        m_MousePos = m_Device->getCursorControl()->getPosition();
+        //std::cout << "Mouse:" << m_MousePos.X << "," << m_MousePos.Y << std::endl;
+
+
+
+        // Work out a frame delta time.
+        const u32 now = m_Device->getTimer()->getTime();
+        const f32 frameDeltaTime = (f32)(now - then) / 1000.f; // Time in seconds
+        then = now;
+
+
+        //check if keys are held for movement
+        if(m_Receiver.isKeyPressed(KEY_KEY_A))
+        {
+
+        }
+        else if(m_Receiver.isKeyPressed(KEY_KEY_D))
+        {
+
+        }
+        else if(m_Receiver.isKeyPressed(KEY_KEY_W))
+        {
+
+        }
+        else if(m_Receiver.isKeyPressed(KEY_KEY_S))
+        {
+
+        }
+
+
+        //process events in que
+        while(m_Receiver.processEvents(event))
+        {
+            //key event
+            if(event->EventType == EET_KEY_INPUT_EVENT)
+            {
+                //key pressed
+                if(event->KeyInput.PressedDown)
+                {
+                    if(event->KeyInput.Key == KEY_ESCAPE) m_Device->closeDevice();
+
+                }
+                //key released
+                else
+                {
+
+                }
+
+
+            }
+            //mouse event
+            if(event->EventType == EET_MOUSE_INPUT_EVENT)
+            {
+                //if mouse left button pressed
+                if(event->MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN)
+                {
+                    mouseLeftClicked = true;
+                }
+                //else right mouse button pressed
+                else if(event->MouseInput.Event == EMIE_RMOUSE_PRESSED_DOWN)
+                {
+
+                }
+                //else mouse wheel moved
+                else if(event->MouseInput.Event == EMIE_MOUSE_WHEEL)
+                {
+                    //mouse wheel up
+                    if(event->MouseInput.Wheel > 0)
+                    {
+                        m_Camera->setFOV( m_Camera->getFOV()*0.9);
+                    }
+                    //mouse wheel down
+                    else if(event->MouseInput.Wheel < 0)
+                    {
+                        m_Camera->setFOV( m_Camera->getFOV()*1.1);
+                    }
+                }
             }
         }
 
-        //clear buffers and reset view
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //update actor and camera
 
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();                       // Reset The View
-
-        //updates
-        trot += 0.2;
-        qrot -= 0.1;
-
-        //draw
-
-        glTranslatef(-1.5f,0.0f,-6.0f);                 // Move Left 1.5 Units And Into The Screen 6.0
-        glRotatef(trot, 0.f, 1.f, 0.f); // rotate on y axis
-        glBegin(GL_TRIANGLES); // Drawing Using Triangles
-            glColor3f(1.0f,0.0f,0.0f);
-            glVertex3f( 0.0f, 1.0f, 0.0f);              // Top
-            glColor3f(0.0f,1.0f,0.0f);
-            glVertex3f(-1.0f,-1.0f, 0.0f);              // Bottom Left
-            glColor3f(0.0f,0.0f,1.0f);
-            glVertex3f( 1.0f,-1.0f, 0.0f);              // Bottom Right
-        glEnd();
-
-        glLoadIdentity(); // reset model view
-
-        glTranslatef(1.5f,0.0f,-6.0f);                   // Move Right 3 Units
-        glRotatef(qrot, 1.f, 0.f, 0.f); // rotate on x axis
-        glColor3f(0.5f,0.5f,1.0f);
-        glBegin(GL_QUADS);                      // Draw A Quad
-                glVertex3f(-1.0f, 1.0f, 0.0f);              // Top Left
-                glVertex3f( 1.0f, 1.0f, 0.0f);              // Top Right
-                glVertex3f( 1.0f,-1.0f, 0.0f);              // Bottom Right
-                glVertex3f(-1.0f,-1.0f, 0.0f);              // Bottom Left
-            glEnd();
+        //clear scene
+        m_Driver->beginScene(true, true, SColor(255,100,101,140));
 
 
+        //current floor plane
+        plane3df myplane(vector3df(0,0,-25), vector3df(0,0,1));
+        //line from camera to mouse cursor
+        line3df myline = m_IMgr->getRayFromScreenCoordinates(m_MousePos);
+        vector3df myint;
+        //get intersection of camera_mouse_line to the floor plane
+        myplane.getIntersectionWithLimitedLine(myline.end, myline.start, myint);
 
-        //display
-        mScreen->display();
+
+        //test draw bounding box for grid 0 0
+        //mymap[0][0]->setDebugDataVisible(irr::scene::EDS_BBOX);
+
+
+        //make grid transparent if mouse is touching it
+        /*
+        for(int i = 0; i < int(mymap.size()); i++)
+        {
+            for(int n = 0; n < int(mymap[i].size()); n++)
+            {
+                if(mymap[i][n] == NULL) continue;
+
+                if( mymap[i][n]->getTransformedBoundingBox().isPointInside(myint) )
+                {
+                    mymap[i][n]->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
+
+                    if(mouseLeftClicked)
+                    {
+                        mymap[i][n]->remove();
+                        mymap[i][n] = NULL;
+                    }
+
+                }
+                else mymap[i][n]->setMaterialType(video::EMT_SOLID);
+            }
+        }
+        */
+
+
+        //draw scene
+        m_SMgr->drawAll();
+
+        //draw axis
+        if(drawaxis)
+        {
+            SMaterial mymat;
+            mymat.setFlag(video::EMF_LIGHTING, false);
+            m_Driver->setMaterial(mymat);
+            m_Driver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
+            m_Driver->draw3DLine(vector3df(0,0,0), vector3df(0,0,100), SColor(255,0,0,255));
+            m_Driver->draw3DLine(vector3df(0,0,0), vector3df(100,0,0), SColor(0,255,0,255));
+            m_Driver->draw3DLine(vector3df(0,0,0), vector3df(0,100,0), SColor(000,255,255,0));
+        }
+
+
+        //draw gui
+        m_GUIEnv->drawAll();
+
+        /*
+        m_Driver->setMaterial(SMaterial());
+        m_Driver->setTransform(video::ETS_WORLD, IdentityMatrix);
+        m_Driver->draw3DLine( vector3df(0,0,0), vector3df(100,0,0), SColor(0,255,0,0));
+        */
+
+        //done and display
+        m_Driver->endScene();
+
+        int fps = m_Driver->getFPS();
+
+        if (lastFPS != fps)
+        {
+            core::stringw tmp(L"UWproj [");
+            tmp += m_Driver->getName();
+            tmp += L"] fps: ";
+            tmp += fps;
+
+            m_Device->setWindowCaption(tmp.c_str());
+            lastFPS = fps;
+        }
+
     }
+
+    return;
+}
+
+SMesh *Game::getCubeMesh(f32 cubesize)
+{
+
+        SMesh* Mesh = new SMesh();
+
+        int vcount = 36;
+
+        SMeshBuffer *buf = new SMeshBuffer();
+        Mesh->addMeshBuffer(buf);
+        buf->drop();
+
+        buf->Vertices.reallocate(vcount);
+        buf->Vertices.set_used(vcount);
+
+        //top
+        buf->Vertices[0] = S3DVertex(0,0,0, 0,0,1,    video::SColor(255,255,255,255), 0, 0);
+        buf->Vertices[1] = S3DVertex(1*cubesize,0,0, 0,0,1,  video::SColor(255,255,255,255), 1, 0);
+        buf->Vertices[2] = S3DVertex(0,1*cubesize,0, 0,0,1,    video::SColor(255,255,255,255), 0, 1);
+        buf->Vertices[3] = S3DVertex(1*cubesize,0,0, 0,0,1,    video::SColor(255,255,255,255), 1, 0);
+        buf->Vertices[4] = S3DVertex(1*cubesize,1*cubesize,0, 0,0,1,    video::SColor(255,255,255,255), 1, 1);
+        buf->Vertices[5] = S3DVertex(0,1*cubesize,0, 0,0,1,    video::SColor(255,255,255,255), 0, 1);
+
+        //front
+        buf->Vertices[6] = S3DVertex(0,1*cubesize,0, 0,1,0,    video::SColor(255,255,255,255), 0, 0);
+        buf->Vertices[7] = S3DVertex(1*cubesize,1*cubesize,0, 0,1,0,    video::SColor(255,255,255,255), 1, 0);
+        buf->Vertices[8] = S3DVertex(0,1*cubesize,-1*cubesize, 0,1,0,    video::SColor(255,255,255,255), 0, 1);
+        buf->Vertices[9] = S3DVertex(1*cubesize,1*cubesize,0, 0,1,0,    video::SColor(255,255,255,255), 1, 0);
+        buf->Vertices[10] = S3DVertex(1*cubesize,1*cubesize,-1*cubesize, 0,1,0,    video::SColor(255,255,255,255), 1, 1);
+        buf->Vertices[11] = S3DVertex(0,1*cubesize,-1*cubesize, 0,1,0,    video::SColor(255,255,255,255), 0, 1);
+
+        //right
+        buf->Vertices[12] = S3DVertex(1*cubesize,1*cubesize,0, 1,0,0,    video::SColor(255,255,255,255), 0, 0);
+        buf->Vertices[13] = S3DVertex(1*cubesize,0,0, 1,0,0,    video::SColor(255,255,255,255), 1, 0);
+        buf->Vertices[14] = S3DVertex(1*cubesize,1*cubesize,-1*cubesize, 1,0,0,    video::SColor(255,255,255,255), 0, 1);
+        buf->Vertices[15] = S3DVertex(1*cubesize,0,0, 1,0,0,    video::SColor(255,255,255,255), 1, 0);
+        buf->Vertices[16] = S3DVertex(1*cubesize,0,-1*cubesize, 1,0,0,    video::SColor(255,255,255,255), 1, 1);
+        buf->Vertices[17] = S3DVertex(1*cubesize,1*cubesize,-1*cubesize, 1,0,0,    video::SColor(255,255,255,255), 0, 1);
+
+        //left
+        buf->Vertices[18] = S3DVertex(0,0,0, -1,0,0,    video::SColor(255,255,255,255), 0, 0);
+        buf->Vertices[19] = S3DVertex(0,1*cubesize,0, -1,0,0,    video::SColor(255,255,255,255), 1, 0);
+        buf->Vertices[20] = S3DVertex(0,0,-1*cubesize, -1,0,0,    video::SColor(255,255,255,255), 0, 1);
+        buf->Vertices[21] = S3DVertex(0,1*cubesize,0, -1,0,0,    video::SColor(255,255,255,255), 1, 0);
+        buf->Vertices[22] = S3DVertex(0,1*cubesize,-1*cubesize, -1,0,0,    video::SColor(255,255,255,255), 1, 1);
+        buf->Vertices[23] = S3DVertex(0,0,-1*cubesize, -1,0,0,    video::SColor(255,255,255,255), 0, 1);
+
+        //back
+        buf->Vertices[24] = S3DVertex(1*cubesize,0,0, 0,-1,0,    video::SColor(255,255,255,255), 0, 0);
+        buf->Vertices[25] = S3DVertex(0,0,0, 0,-1,0,    video::SColor(255,255,255,255), 1, 0);
+        buf->Vertices[26] = S3DVertex(1*cubesize,0,-1*cubesize, 0,-1,0,    video::SColor(255,255,255,255), 0, 1);
+        buf->Vertices[27] = S3DVertex(0,0,0, 0,-1,0,    video::SColor(255,255,255,255), 1, 0);
+        buf->Vertices[28] = S3DVertex(0,0,-1*cubesize, 0,-1,0,    video::SColor(255,255,255,255), 1, 1);
+        buf->Vertices[29] = S3DVertex(1*cubesize,0,-1*cubesize, 0,-1,0,    video::SColor(255,255,255,255), 0, 1);
+
+        //bottom
+        buf->Vertices[30] = S3DVertex(0,1*cubesize,-1*cubesize, 0,0,-1,    video::SColor(255,255,255,255), 0, 0);
+        buf->Vertices[31] = S3DVertex(1*cubesize,1*cubesize,-1*cubesize, 0,0,-1,  video::SColor(255,255,255,255), 1, 0);
+        buf->Vertices[32] = S3DVertex(0,0,-1*cubesize, 0,0,-1,    video::SColor(255,255,255,255), 0, 1);
+        buf->Vertices[33] = S3DVertex(1*cubesize,1*cubesize,-1*cubesize, 0,0,-1,    video::SColor(255,255,255,255), 1, 0);
+        buf->Vertices[34] = S3DVertex(1*cubesize,0,-1*cubesize, 0,0,-1,    video::SColor(255,255,255,255), 1, 1);
+        buf->Vertices[35] = S3DVertex(0,0,-1*cubesize, 0,0,-1,    video::SColor(255,255,255,255), 0, 1);
+
+        buf->Indices.reallocate(vcount);
+        buf->Indices.set_used(vcount);
+
+        for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
+        /*
+        buf->Indices[0]=0;
+        buf->Indices[1]=1;
+        buf->Indices[2]=2;
+        buf->Indices[3]=3;
+        buf->Indices[4]=4;
+        buf->Indices[5]=5;
+        */
+
+        Mesh->setBoundingBox( aabbox3df(0,0,0,cubesize,cubesize,-cubesize));
+        //buf->recalculateBoundingBox();
+
+
+        return Mesh;
+
 }
