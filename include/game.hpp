@@ -93,6 +93,7 @@ private:
 
     //mesh stuff
     SMesh *getCubeMesh(f32 cubesize);
+    SMesh *getSquareMesh(f32 width, f32 height);
 
     //init
     void loadlevel();

@@ -241,6 +241,37 @@ void Game::mainLoop()
     }
 */
 
+    //test - create an image, and a texture from image
+
+
+    IImage *myimage = NULL;
+    myimage = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(32,32));
+
+    //set some pixels
+    myimage->fill(SColor(255,0,0,0));
+    myimage->setPixel(16,16, SColor(255,255,255,255));
+
+    ITexture *mytexture = NULL;
+    mytexture = m_Driver->addTexture("mytex", myimage);
+
+    SMesh *squaremesh = getSquareMesh(32,32);
+
+    vector3df squarepos(0, 0, 0);
+    IMeshSceneNode *mysquare = m_SMgr->addMeshSceneNode(squaremesh);
+
+        mysquare->setPosition(vector3df(0,0, 0));
+        mysquare->setMaterialTexture(0, mytexture);
+        mysquare->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
+        mysquare->setMaterialFlag(video::EMF_LIGHTING, false);
+        //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
+        //mycube->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
+        //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
+        mysquare->updateAbsolutePosition();
+
+
+
+
+
     int lastFPS = -1;
 
     // In order to do framerate independent movement, we have to know
@@ -249,6 +280,8 @@ void Game::mainLoop()
 
     //flag to store if mouse button was clicked on this frame
     bool mouseLeftClicked = false;
+
+
 
     //main loop
     while(m_Device->run())
@@ -503,6 +536,50 @@ SMesh *Game::getCubeMesh(f32 cubesize)
         */
 
         Mesh->setBoundingBox( aabbox3df(0,0,0,cubesize,cubesize,-cubesize));
+        //buf->recalculateBoundingBox();
+
+
+        return Mesh;
+
+}
+
+SMesh *Game::getSquareMesh(f32 width, f32 height)
+{
+
+        SMesh* Mesh = new SMesh();
+
+        int vcount = 6;
+
+        SMeshBuffer *buf = new SMeshBuffer();
+        Mesh->addMeshBuffer(buf);
+        buf->drop();
+
+        buf->Vertices.reallocate(vcount);
+        buf->Vertices.set_used(vcount);
+
+        //top
+        buf->Vertices[0] = S3DVertex(0,0,0, 0,0,1,    video::SColor(255,255,255,255), 0, 0);
+        buf->Vertices[1] = S3DVertex(1*width,0,0, 0,0,1,  video::SColor(255,255,255,255), 1, 0);
+        buf->Vertices[2] = S3DVertex(0,1*width,0, 0,0,1,    video::SColor(255,255,255,255), 0, 1);
+        buf->Vertices[3] = S3DVertex(1*width,0,0, 0,0,1,    video::SColor(255,255,255,255), 1, 0);
+        buf->Vertices[4] = S3DVertex(1*width,1*width,0, 0,0,1,    video::SColor(255,255,255,255), 1, 1);
+        buf->Vertices[5] = S3DVertex(0,1*width,0, 0,0,1,    video::SColor(255,255,255,255), 0, 1);
+
+
+        buf->Indices.reallocate(vcount);
+        buf->Indices.set_used(vcount);
+
+        for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
+        /*
+        buf->Indices[0]=0;
+        buf->Indices[1]=1;
+        buf->Indices[2]=2;
+        buf->Indices[3]=3;
+        buf->Indices[4]=4;
+        buf->Indices[5]=5;
+        */
+
+        Mesh->setBoundingBox( aabbox3df(0,0,0,width,width,0));
         //buf->recalculateBoundingBox();
 
 
