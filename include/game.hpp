@@ -96,6 +96,7 @@ private:
     //mesh stuff
     SMesh *getCubeMesh(f32 cubesize);
     SMesh *getSquareMesh(f32 width, f32 height);
+    std::vector<IMeshSceneNode*> generateTileMeshes(Tile *ttile, int xpos, int ypos);
 
     //init
     bool initIrrlicht();

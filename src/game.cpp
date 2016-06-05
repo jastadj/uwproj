@@ -402,6 +402,7 @@ void Game::mainLoop()
 */
 
     //test
+    /*
     int txtindex = 0;
     SMesh *squaremesh = getSquareMesh(UNIT_SCALE, UNIT_SCALE);
     IMeshSceneNode *mysquare = m_SMgr->addMeshSceneNode(squaremesh);
@@ -414,17 +415,23 @@ void Game::mainLoop()
         //mycube->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
         //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
         mysquare->updateAbsolutePosition();
+    squaremesh->drop();
+    */
 
 
-
-
+    //test 2
+    /*
     SMesh *mycubemesh = getCubeMesh(5);
     IMeshSceneNode *mycube = m_SMgr->addMeshSceneNode(mycubemesh);
     mycube->setPosition( vector3df(15,5,0));
     mycube->setScale(vector3df(2,2,2));
     mycube->setMaterialTexture(0, m_Wall64TXT[0]);
     mycube->setMaterialFlag(video::EMF_LIGHTING,false);
+    mycubemesh->drop();
+    */
 
+    std::vector<IMeshSceneNode*> testtiles = generateTileMeshes(mLevels[0].getTile(30,2), 0, 0);
+    if(testtiles.empty()) std::cout << "DID NOT GENERATE TILES!\n";
 
     int lastFPS = -1;
 
@@ -490,16 +497,20 @@ void Game::mainLoop()
                     else if(event->KeyInput.Key == KEY_SPACE) m_CameraPos.Z += 10;
                     else if(event->KeyInput.Key == KEY_KEY_E)
                     {
+                        /*
                         txtindex++;
                         if(txtindex >= int(m_Wall64TXT.size()) ) txtindex = 0;
                         mysquare->setMaterialTexture(0, m_Wall64TXT[txtindex]);
+                        */
 
                     }
                     else if(event->KeyInput.Key == KEY_KEY_Q)
                     {
+                        /*
                         txtindex--;
                         if(txtindex < 0) txtindex = int(m_Wall64TXT.size()-1);
                         mysquare->setMaterialTexture(0, m_Wall64TXT[txtindex]);
+                        */
                     }
                     else if(event->KeyInput.Key == KEY_KEY_T)
                     {
@@ -547,8 +558,8 @@ void Game::mainLoop()
 
         //update actor and camera
         //updateCamera(vector3df(0,0,0));
-        if(txtindex < 0) txtindex = int(m_Wall64TXT.size()-1);
-        else if(txtindex >= int(m_Wall64TXT.size()) ) txtindex = 0;
+        //if(txtindex < 0) txtindex = int(m_Wall64TXT.size()-1);
+        //else if(txtindex >= int(m_Wall64TXT.size()) ) txtindex = 0;
 
 
         //clear scene
@@ -763,4 +774,98 @@ SMesh *Game::getSquareMesh(f32 width, f32 height)
 
         return Mesh;
 
+}
+
+std::vector<IMeshSceneNode*> Game::generateTileMeshes(Tile *ttile, int xpos, int ypos)
+{
+    std::vector<IMeshSceneNode*> meshlist;
+
+    if(ttile == NULL) return meshlist;
+
+    /*
+    //quad vertex count
+    const int vcount = 6;
+    const int scale = UNIT_SCALE;
+
+    //create floor mesh
+    SMesh* floormesh = new SMesh();
+    SMeshBuffer *buf = new SMeshBuffer();
+    floormesh->addMeshBuffer(buf);
+    buf->drop();
+
+    buf->Vertices.reallocate(vcount);
+    buf->Vertices.set_used(vcount);
+
+    //triangle 1
+    buf->Vertices[0] = S3DVertex(0*scale,0*scale,0*scale, 0,0,1,    video::SColor(255,255,255,255), 0, 0); //TL
+    buf->Vertices[1] = S3DVertex(0*scale,0*scale,1*scale, 0,0,1,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[2] = S3DVertex(1*scale,0*scale,0*scale, 0,0,1,    video::SColor(255,255,255,255), 0, 1);// BL
+    //triangle 2
+    buf->Vertices[3] = S3DVertex(0*scale,0*scale,1*scale, 0,0,1,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[4] = S3DVertex(1*scale,0*scale,1*scale, 0,0,1,    video::SColor(255,255,255,255), 1, 1); //BR
+    buf->Vertices[5] = S3DVertex(1*scale,0*scale,0*scale, 0,0,1,    video::SColor(255,255,255,255), 0, 1); // BL
+
+    buf->Indices.reallocate(vcount);
+    buf->Indices.set_used(vcount);
+
+    floormesh->setBoundingBox( aabbox3df(0,0,0,scale,0,scale));
+    //buf->recalculateBoundingBox();
+
+    IMeshSceneNode *newnode = m_SMgr->addMeshSceneNode(floormesh);
+        newnode->setPosition(vector3df(0,0, 0));
+        newnode->setMaterialTexture(0, m_Floor32TXT[0]);
+        newnode->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
+        newnode->setMaterialFlag(video::EMF_LIGHTING, false);
+        //newnode->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
+        //newnode->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
+        //newnode->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
+        newnode->updateAbsolutePosition();
+    floormesh->drop();
+
+    meshlist.push_back(newnode);
+    */
+
+    SMesh* Mesh = new SMesh();
+
+    int vcount = 6;
+    int scale = UNIT_SCALE;
+
+    SMeshBuffer *buf = new SMeshBuffer();
+    Mesh->addMeshBuffer(buf);
+    buf->drop();
+
+    buf->Vertices.reallocate(vcount);
+    buf->Vertices.set_used(vcount);
+
+    //floor mesh
+    //triangle 1
+    buf->Vertices[0] = S3DVertex(0*scale,0*scale,0*scale, 0,0,1,    video::SColor(255,255,255,255), 0, 0); //TL
+    buf->Vertices[1] = S3DVertex(0*scale,0*scale,1*scale, 0,0,1,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[2] = S3DVertex(1*scale,0*scale,0*scale, 0,0,1,    video::SColor(255,255,255,255), 0, 1);// BL
+    //triangle 2
+    buf->Vertices[3] = S3DVertex(0*scale,0*scale,1*scale, 0,0,1,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[4] = S3DVertex(1*scale,0*scale,1*scale, 0,0,1,    video::SColor(255,255,255,255), 1, 1); //BR
+    buf->Vertices[5] = S3DVertex(1*scale,0*scale,0*scale, 0,0,1,    video::SColor(255,255,255,255), 0, 1); // BL
+
+    buf->Indices.reallocate(vcount);
+    buf->Indices.set_used(vcount);
+    for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
+    Mesh->setBoundingBox( aabbox3df(0,0,0,scale,0,scale));
+    //buf->recalculateBoundingBox();
+
+    IMeshSceneNode *mysquare = m_SMgr->addMeshSceneNode(Mesh);
+        mysquare->setPosition(vector3df(0,0,0));
+        //mysquare->setRotation(vector3df(180, 270, 0));
+        mysquare->setMaterialTexture(0, m_Floor32TXT[0]);
+        mysquare->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
+        mysquare->setMaterialFlag(video::EMF_LIGHTING, false);
+        //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
+        //mycube->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
+        //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
+        mysquare->updateAbsolutePosition();
+    Mesh->drop();
+    meshlist.push_back(mysquare);
+
+
+    return meshlist;
 }
