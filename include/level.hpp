@@ -3,6 +3,7 @@
 
 #define TILE_COLS 64
 #define TILE_ROWS 64
+#define CEIL_HEIGHT 15
 
 #include <cstdlib>
 #include <vector>

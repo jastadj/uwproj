@@ -749,6 +749,23 @@ void Game::mainLoop()
     return;
 }
 
+bool Game::configMeshSceneNode(IMeshSceneNode *tnode)
+{
+    if(tnode == NULL) return false;
+
+    tnode->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
+    tnode->setMaterialFlag(video::EMF_LIGHTING, false);
+    tnode->setMaterialFlag(video::EMF_TEXTURE_WRAP, true);
+    //tnode->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
+    //tnode->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
+    //tnode->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
+    tnode->setMaterialFlag(video::EMF_BILINEAR_FILTER, false );
+    tnode->setMaterialFlag(video::EMF_TRILINEAR_FILTER, false );
+    tnode->setMaterialFlag(video::EMF_ANISOTROPIC_FILTER, false );
+
+    return true;
+}
+
 SMesh *Game::getCubeMesh(f32 cubesize)
 {
 
@@ -876,6 +893,13 @@ SMesh *Game::getSquareMesh(f32 width, f32 height)
 
 }
 
+SMesh *Game::generateWallMesh(int tl, int tr, int bl, int br)
+{
+    SMesh *mesh = NULL;
+
+    return mesh;
+}
+
 std::vector<IMeshSceneNode*> Game::generateTileMeshes(Tile *ttile, int xpos, int ypos)
 {
     std::vector<IMeshSceneNode*> meshlist;
@@ -929,6 +953,7 @@ std::vector<IMeshSceneNode*> Game::generateTileMeshes(Tile *ttile, int xpos, int
 
     int vcount = 6;
     int scale = UNIT_SCALE;
+    int heightval = (CEIL_HEIGHT-UNIT_SCALE+1)*(UNIT_SCALE/4);
 
     //temp pointers
     SMesh* Mesh = NULL;
@@ -964,15 +989,10 @@ std::vector<IMeshSceneNode*> Game::generateTileMeshes(Tile *ttile, int xpos, int
 
     //create scene object
     mysquare = m_SMgr->addMeshSceneNode(Mesh);
-        mysquare->setPosition(vector3df(ypos*scale,0,xpos*scale));
-        //mysquare->setRotation(vector3df(180, 270, 0));
-        mysquare->setMaterialTexture(0, m_Floor32TXT[ttile->getFloorTXT()]);
-        mysquare->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
-        mysquare->setMaterialFlag(video::EMF_LIGHTING, false);
-        //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
-        //mycube->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
-        //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
-        mysquare->updateAbsolutePosition();
+    mysquare->setPosition(vector3df(ypos*scale,ttile->getHeight()*(UNIT_SCALE/4),xpos*scale));
+    //mysquare->setRotation(vector3df(180, 270, 0));
+    mysquare->setMaterialTexture(0, m_Floor32TXT[ttile->getFloorTXT()]);
+    mysquare->updateAbsolutePosition();
     Mesh->drop();
     meshlist.push_back(mysquare);
 
@@ -1006,18 +1026,14 @@ std::vector<IMeshSceneNode*> Game::generateTileMeshes(Tile *ttile, int xpos, int
     //north wall
     if(mLevels[m_CurrentLevel].getTile(xpos, ypos-1) != NULL)
     {
+        //if north adjacent has same height, don't draw
         if( mLevels[m_CurrentLevel].getTile(xpos, ypos-1)->getType() == 0)
         {
             mysquare = m_SMgr->addMeshSceneNode(Mesh);
 
-            mysquare->setPosition(vector3df(ypos*scale,0,xpos*scale));
+            mysquare->setPosition(vector3df(ypos*scale,heightval,xpos*scale));
             //mysquare->setRotation(vector3df(180, 270, 0));
             mysquare->setMaterialTexture(0, m_Wall64TXT[ttile->getWallTXT()]);
-            mysquare->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
-            mysquare->setMaterialFlag(video::EMF_LIGHTING, false);
-            //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
-            //mycube->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
-            //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
             mysquare->updateAbsolutePosition();
 
             meshlist.push_back(mysquare);
@@ -1026,18 +1042,14 @@ std::vector<IMeshSceneNode*> Game::generateTileMeshes(Tile *ttile, int xpos, int
     //south wall
     if(mLevels[m_CurrentLevel].getTile(xpos, ypos+1) != NULL)
     {
+        //if south adjacent has same height, dont draw wall
         if( mLevels[m_CurrentLevel].getTile(xpos, ypos+1)->getType() == 0)
         {
             mysquare = m_SMgr->addMeshSceneNode(Mesh);
 
-            mysquare->setPosition(vector3df( (ypos*scale)+scale,0, (xpos*scale)+scale ) );
+            mysquare->setPosition(vector3df( (ypos*scale)+scale,heightval, (xpos*scale)+scale ) );
             mysquare->setRotation(vector3df(0, 180, 0));
             mysquare->setMaterialTexture(0, m_Wall64TXT[ttile->getWallTXT()]);
-            mysquare->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
-            mysquare->setMaterialFlag(video::EMF_LIGHTING, false);
-            //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
-            //mycube->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
-            //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
             mysquare->updateAbsolutePosition();
 
             meshlist.push_back(mysquare);
@@ -1050,14 +1062,9 @@ std::vector<IMeshSceneNode*> Game::generateTileMeshes(Tile *ttile, int xpos, int
         {
             mysquare = m_SMgr->addMeshSceneNode(Mesh);
 
-            mysquare->setPosition(vector3df(ypos*scale,0,(xpos*scale)+scale) );
+            mysquare->setPosition(vector3df(ypos*scale,heightval,(xpos*scale)+scale) );
             mysquare->setRotation(vector3df(0, 90, 0));
             mysquare->setMaterialTexture(0, m_Wall64TXT[ttile->getWallTXT()]);
-            mysquare->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
-            mysquare->setMaterialFlag(video::EMF_LIGHTING, false);
-            //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
-            //mycube->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
-            //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
             mysquare->updateAbsolutePosition();
 
             meshlist.push_back(mysquare);
@@ -1070,14 +1077,9 @@ std::vector<IMeshSceneNode*> Game::generateTileMeshes(Tile *ttile, int xpos, int
         {
             mysquare = m_SMgr->addMeshSceneNode(Mesh);
 
-            mysquare->setPosition(vector3df( (ypos*scale)+scale,0,xpos*scale) );
+            mysquare->setPosition(vector3df( (ypos*scale)+scale,heightval,xpos*scale) );
             mysquare->setRotation(vector3df(0, -90, 0));
             mysquare->setMaterialTexture(0, m_Wall64TXT[ttile->getWallTXT()]);
-            mysquare->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
-            mysquare->setMaterialFlag(video::EMF_LIGHTING, false);
-            //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
-            //mycube->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
-            //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
             mysquare->updateAbsolutePosition();
 
             meshlist.push_back(mysquare);
@@ -1087,6 +1089,8 @@ std::vector<IMeshSceneNode*> Game::generateTileMeshes(Tile *ttile, int xpos, int
 
     Mesh->drop();
 
+    //configure all scene meshes
+    for(int i = 0; i < int(meshlist.size()); i++) configMeshSceneNode(meshlist[i]);
 
     return meshlist;
 }
