@@ -7,3 +7,6 @@
 @492, tile next to start
 C1 14 24 00
 
+floor texture index = 5
+wall texture index = 36
+floor height = 12

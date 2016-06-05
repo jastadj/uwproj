@@ -77,7 +77,7 @@ void Level::printDebug()
 Tile::Tile()
 {
 
-    mType = 0;
+    mType = TILETYPE_SOLID;
     mHeight = 0;
     mFloorTXTIndex = 0;
     mWallTXTIndex = 0;
