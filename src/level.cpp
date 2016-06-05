@@ -21,10 +21,10 @@ void Level::printDebug()
     int posy = 2;
 
     //flip map's y axis for drawing with 0,0 being top left
-    for(int i = TILE_ROWS - 1; i >= 0; i--)
+    for(int i = 0; i < TILE_ROWS; i++)
     {
         std::cout << "\n";
-        for(int n = 0; n < 64; n++)
+        for(int n = 0; n < TILE_COLS; n++)
         {
             Tile *tile = getTile(n, i);
             char tchar = 0;
@@ -61,7 +61,7 @@ void Level::printDebug()
         }
     }
 
-
+    std::cout << std::endl;
 }
 /////////////////////////////////////////////////////////////////////
 //  TILE

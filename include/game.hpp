@@ -108,6 +108,7 @@ private:
 
     //levels
     std::vector<Level> mLevels;
+    std::vector<IMeshSceneNode*> mLevelMeshes;
 
     //palettes
     std::vector< std::vector<SColor> > m_Palettes;

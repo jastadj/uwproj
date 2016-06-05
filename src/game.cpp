@@ -86,7 +86,7 @@ bool Game::initCamera()
 
     core::list<ISceneNodeAnimator*>::ConstIterator anim = m_Camera->getAnimators().begin();
     ISceneNodeAnimatorCameraFPS *animfps = (ISceneNodeAnimatorCameraFPS*)(*anim);
-    animfps->setMoveSpeed(0.01);
+    //animfps->setMoveSpeed(0.01);
 
     //m_Camera->bindTargetAndRotation(true);
 
@@ -165,7 +165,8 @@ bool Game::loadLevel()
         ifile.seekg(blockoffsets[i]);
 
         //read in 64 x 64 map tiles
-        for(int n = 0; n < TILE_ROWS; n++)
+        //note: uw tiles are flipped on y axis
+        for(int n = TILE_ROWS-1; n >= 0; n--)
         {
             for(int p = 0; p < TILE_COLS; p++)
             {
@@ -430,8 +431,27 @@ void Game::mainLoop()
     mycubemesh->drop();
     */
 
-    std::vector<IMeshSceneNode*> testtiles = generateTileMeshes(mLevels[0].getTile(30,2), 0, 0);
-    if(testtiles.empty()) std::cout << "DID NOT GENERATE TILES!\n";
+    //std::vector<IMeshSceneNode*> testtiles = generateTileMeshes(mLevels[0].getTile(30,2), 0, 0);
+    //if(testtiles.empty()) std::cout << "DID NOT GENERATE TILES!\n";
+
+    //generate level meshes
+    for(int i = 0; i < TILE_ROWS; i++)
+    {
+        for(int n = 0; n < TILE_COLS; n++)
+        {
+            std::vector<IMeshSceneNode*> tilemeshes;
+
+            Tile *ttile = mLevels[0].getTile(n,i);
+
+            tilemeshes = generateTileMeshes(ttile, n, i);
+
+            //dump meshes into master list
+            for(int p = 0; p < int(tilemeshes.size()); p++)
+            {
+                mLevelMeshes.push_back(tilemeshes[p]);
+            }
+        }
+    }
 
     int lastFPS = -1;
 
@@ -782,6 +802,8 @@ std::vector<IMeshSceneNode*> Game::generateTileMeshes(Tile *ttile, int xpos, int
 
     if(ttile == NULL) return meshlist;
 
+    if(ttile->getType() == 0) return meshlist;
+
     /*
     //quad vertex count
     const int vcount = 6;
@@ -854,9 +876,9 @@ std::vector<IMeshSceneNode*> Game::generateTileMeshes(Tile *ttile, int xpos, int
     //buf->recalculateBoundingBox();
 
     IMeshSceneNode *mysquare = m_SMgr->addMeshSceneNode(Mesh);
-        mysquare->setPosition(vector3df(0,0,0));
+        mysquare->setPosition(vector3df(ypos*scale,0,xpos*scale));
         //mysquare->setRotation(vector3df(180, 270, 0));
-        mysquare->setMaterialTexture(0, m_Floor32TXT[0]);
+        mysquare->setMaterialTexture(0, m_Floor32TXT[ttile->getFloorTXT()]);
         mysquare->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
         mysquare->setMaterialFlag(video::EMF_LIGHTING, false);
         //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
