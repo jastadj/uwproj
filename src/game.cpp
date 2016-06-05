@@ -896,6 +896,37 @@ SMesh *Game::getSquareMesh(f32 width, f32 height)
 SMesh *Game::generateWallMesh(int tl, int tr, int bl, int br)
 {
     SMesh *mesh = NULL;
+    SMeshBuffer *buf = NULL;
+
+    const int vcount = 6;
+    int scale = UNIT_SCALE;
+    //int heightval = (CEIL_HEIGHT-UNIT_SCALE+1)*(UNIT_SCALE/4);
+
+    //WALL MESH
+    mesh = new SMesh();
+    buf = new SMeshBuffer();
+
+    mesh->addMeshBuffer(buf);
+    buf->drop();
+
+    buf->Vertices.reallocate(vcount);
+    buf->Vertices.set_used(vcount);
+
+    //triangle 1
+    buf->Vertices[0] = S3DVertex(0*scale,tl*scale,0*scale, 1,0,0,    video::SColor(255,255,255,255), 0, 0); //TL
+    buf->Vertices[1] = S3DVertex(0*scale,tr*scale,1*scale, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[2] = S3DVertex(0*scale,bl*scale,0*scale, 1,0,0,    video::SColor(255,255,255,255), 0, 1);// BL
+    //triangle 2
+    buf->Vertices[3] = S3DVertex(0*scale,tr*scale,1*scale, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[4] = S3DVertex(0*scale,br*scale,1*scale, 1,0,0,    video::SColor(255,255,255,255), 1, 1); //BR
+    buf->Vertices[5] = S3DVertex(0*scale,bl*scale,0*scale, 1,0,0,    video::SColor(255,255,255,255), 0, 1); // BL
+
+    //finalize vertices
+    buf->Indices.reallocate(vcount);
+    buf->Indices.set_used(vcount);
+    for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
+    mesh->setBoundingBox( aabbox3df(0,tl*scale,0,0,br*scale,1*scale));
+    //buf->recalculateBoundingBox();
 
     return mesh;
 }

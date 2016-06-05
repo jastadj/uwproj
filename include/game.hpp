@@ -97,7 +97,7 @@ private:
     SMesh *getCubeMesh(f32 cubesize);
     SMesh *getSquareMesh(f32 width, f32 height);
     std::vector<IMeshSceneNode*> generateTileMeshes(Tile *ttile, int xpos, int ypos);
-    SMesh *generateWallMesh(int tl, int tr, int bl, int br);
+    SMesh *generateWallMesh(int tl = CEIL_HEIGHT, int tr = CEIL_HEIGHT, int bl = CEIL_HEIGHT-4, int br = CEIL_HEIGHT-4);
     bool configMeshSceneNode(IMeshSceneNode *tnode);
 
     //init
