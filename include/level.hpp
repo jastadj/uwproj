@@ -15,19 +15,8 @@ class Tile
 {
 private:
     //properties
-    int mType; //0-9
-        /*
-            00      Solid (wall tile)
-            01      Open (square tile of empty space)
-            02      Diagonal, open SE
-            03      Diagonal, open SW
-            04      Diagonal, open NE
-            05      Diagonal, open NW
-            06      Sloping up to the north
-            07      Sloping up to the south
-            08      Sloping up to the east
-            09      Sloping up to the west
-        */
+    int mType; // _TILETYPE
+
     int mHeight;
     bool mMagicIllegal;
     bool mHasDoor;
