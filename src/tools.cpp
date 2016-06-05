@@ -1,10 +1,12 @@
 #include "tools.hpp"
 
-void readBin(std::ifstream *fptr, unsigned char *data, int length, bool quiet)
+bool readBin(std::ifstream *fptr, unsigned char *data, int length, bool quiet)
 {
     unsigned char *buf = new unsigned char[length];
 
-    if(fptr == NULL) return;
+    if(fptr == NULL) return false;;
+
+
 
     if(!quiet)
     {
@@ -12,6 +14,11 @@ void readBin(std::ifstream *fptr, unsigned char *data, int length, bool quiet)
         std::cout << "Length       : " << length << std::endl;
     }
 
+    if(fptr->eof())
+    {
+        std::cout << "END OF FILE REACHED!!  @ 0x" << std::hex << fptr->tellg() << std::dec << std::endl;
+        return false;
+    }
 
     fptr->read( (char*)(buf), length);
 
@@ -21,14 +28,15 @@ void readBin(std::ifstream *fptr, unsigned char *data, int length, bool quiet)
         if(!quiet) std::cout << std::hex << data[i] << ":" << int(data[i]) << std::endl;
     }
 
+    return true;
 }
 
-void readBinAt(std::ifstream *fptr, unsigned char *data, int length, uint64_t offset, bool quiet)
+bool readBinAt(std::ifstream *fptr, unsigned char *data, int length, std::streampos offset, bool quiet)
 {
-    if(fptr == NULL) return;
+    if(fptr == NULL) return false;
 
-    fptr->seekg(std::streampos(offset));
-    readBin(fptr, data, length, quiet);
+    fptr->seekg(offset);
+    return readBin(fptr, data, length, quiet);
 }
 
 int lsbSum(unsigned char *bytes, int length)

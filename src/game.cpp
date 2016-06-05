@@ -341,7 +341,7 @@ bool Game::loadTexture(std::string tfilename, std::vector<ITexture*> *tlist)
 
     //open texture file
     std::ifstream ifile;
-    ifile.open(tfilename.c_str());
+    ifile.open(tfilename.c_str(), std::ios_base::binary);
 
     //check if texture file loaded properly
     if(!ifile.is_open())
@@ -358,7 +358,7 @@ bool Game::loadTexture(std::string tfilename, std::vector<ITexture*> *tlist)
     int txtdim = 0;
     int txtcount = 0;
 
-    //read wall64 header
+    //read texture header
     readBin(&ifile, headerbuf, 2);
     readBin(&ifile, txtcountbuf, 2);
 
@@ -374,6 +374,8 @@ bool Game::loadTexture(std::string tfilename, std::vector<ITexture*> *tlist)
 
         //store texture offsets into indexed list
         offsets.push_back(std::streampos(lsbSum(offsetbuf, 4)) );
+
+        //std::cout << std::dec << "texture offset " << i << ": 0x" << std::hex << offsets.back() << std::endl;
     }
 
     //read each texture from file offset into an opengl texture
@@ -395,18 +397,26 @@ bool Game::loadTexture(std::string tfilename, std::vector<ITexture*> *tlist)
             for(int p = 0; p < txtdim; p++)
             {
                 unsigned char pindex[1];
-                readBin(&ifile, pindex, 1);
+
+                //error reading?
+                if(!readBin(&ifile, pindex, 1))
+                {
+                    std::cout << "Error reading texture at 0x" << std::hex << offsets[i] << std::endl;
+                    return false;
+                }
+
 
                 //set the pixel at x,y using current selected palette with read in palette index #
                 newimg->setPixel(p, n, m_Palettes[palSel][int(pindex[0])]);
-
             }
         }
 
         //create texture name
+        std::stringstream texturename;
+        texturename << "txt_" << i;
 
         //create texture from image
-        newtxt = m_Driver->addTexture( tfilename.c_str(), newimg );
+        newtxt = m_Driver->addTexture( texturename.str().c_str(), newimg );
 
         //push texture into texture list
         tlist->push_back(newtxt);
@@ -414,8 +424,6 @@ bool Game::loadTexture(std::string tfilename, std::vector<ITexture*> *tlist)
         //drop image, no longer needed
         newimg->drop();
     }
-    //std::cout << "Created " << tlist->size() << " textures from " << tfilename << std::endl;
-    //close texture file
     ifile.close();
 
     return true;
@@ -467,13 +475,12 @@ void Game::mainLoop()
 */
 
     //test
-    /*
     int txtindex = 0;
-    SMesh *squaremesh = getSquareMesh(UNIT_SCALE, UNIT_SCALE);
+    SMesh *squaremesh = getSquareMesh(UNIT_SCALE*8, UNIT_SCALE*8);
     IMeshSceneNode *mysquare = m_SMgr->addMeshSceneNode(squaremesh);
-        mysquare->setPosition(vector3df(0,UNIT_SCALE , 0));
+        mysquare->setPosition(vector3df(0,UNIT_SCALE*8 , 0));
         mysquare->setRotation(vector3df(180, 270, 0));
-        mysquare->setMaterialTexture(0, m_Floor32TXT[txtindex]);
+        mysquare->setMaterialTexture(0, m_Wall64TXT[txtindex]);
         mysquare->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
         mysquare->setMaterialFlag(video::EMF_LIGHTING, false);
         //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
@@ -481,7 +488,6 @@ void Game::mainLoop()
         //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
         mysquare->updateAbsolutePosition();
     squaremesh->drop();
-    */
 
 
     //test 2
@@ -581,20 +587,22 @@ void Game::mainLoop()
                     else if(event->KeyInput.Key == KEY_SPACE) m_CameraPos.Z += 10;
                     else if(event->KeyInput.Key == KEY_KEY_E)
                     {
-                        /*
+
                         txtindex++;
                         if(txtindex >= int(m_Wall64TXT.size()) ) txtindex = 0;
                         mysquare->setMaterialTexture(0, m_Wall64TXT[txtindex]);
-                        */
+                        std::cout << "TEXTURE INDEX = " << txtindex << std::endl;
+
 
                     }
                     else if(event->KeyInput.Key == KEY_KEY_Q)
                     {
-                        /*
+
                         txtindex--;
                         if(txtindex < 0) txtindex = int(m_Wall64TXT.size()-1);
                         mysquare->setMaterialTexture(0, m_Wall64TXT[txtindex]);
-                        */
+                        std::cout << "TEXTURE INDEX = " << txtindex << std::endl;
+
                     }
                     else if(event->KeyInput.Key == KEY_KEY_T)
                     {
@@ -642,8 +650,7 @@ void Game::mainLoop()
 
         //update actor and camera
         //updateCamera(vector3df(0,0,0));
-        //if(txtindex < 0) txtindex = int(m_Wall64TXT.size()-1);
-        //else if(txtindex >= int(m_Wall64TXT.size()) ) txtindex = 0;
+
 
 
         //clear scene
@@ -959,7 +966,6 @@ std::vector<IMeshSceneNode*> Game::generateTileMeshes(Tile *ttile, int xpos, int
         mysquare->updateAbsolutePosition();
     Mesh->drop();
     meshlist.push_back(mysquare);
-    std::cout << "Added a floor mesh\n";
 
     //WALL MESH
     Mesh = new SMesh();
