@@ -56,7 +56,7 @@ public:
 
     //get tile data
     int getType() { return mType;}
-    int getHeight() { return mHeight;}
+    int getHeight() { if(mType == 0) return CEIL_HEIGHT+1; else return mHeight;}
     int getFloorTXT() { return mFloorTXTIndex;}
     int getWallTXT() { return mWallTXTIndex;}
     int getFirstObjectIndex() { return mFirstObjectIndex;}

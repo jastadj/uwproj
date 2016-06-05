@@ -899,7 +899,7 @@ SMesh *Game::generateWallMesh(int tl, int tr, int bl, int br)
     SMeshBuffer *buf = NULL;
 
     const int vcount = 6;
-    int scale = UNIT_SCALE;
+    int scale = UNIT_SCALE/4;
     //int heightval = (CEIL_HEIGHT-UNIT_SCALE+1)*(UNIT_SCALE/4);
 
     //WALL MESH
@@ -913,13 +913,13 @@ SMesh *Game::generateWallMesh(int tl, int tr, int bl, int br)
     buf->Vertices.set_used(vcount);
 
     //triangle 1
-    buf->Vertices[0] = S3DVertex(0*scale,tl*scale,0*scale, 1,0,0,    video::SColor(255,255,255,255), 0, 0); //TL
-    buf->Vertices[1] = S3DVertex(0*scale,tr*scale,1*scale, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
-    buf->Vertices[2] = S3DVertex(0*scale,bl*scale,0*scale, 1,0,0,    video::SColor(255,255,255,255), 0, 1);// BL
+    buf->Vertices[0] = S3DVertex(0*scale,tl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, 0); //TL
+    buf->Vertices[1] = S3DVertex(0*scale,tr*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[2] = S3DVertex(0*scale,bl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, 1);// BL
     //triangle 2
-    buf->Vertices[3] = S3DVertex(0*scale,tr*scale,1*scale, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
-    buf->Vertices[4] = S3DVertex(0*scale,br*scale,1*scale, 1,0,0,    video::SColor(255,255,255,255), 1, 1); //BR
-    buf->Vertices[5] = S3DVertex(0*scale,bl*scale,0*scale, 1,0,0,    video::SColor(255,255,255,255), 0, 1); // BL
+    buf->Vertices[3] = S3DVertex(0*scale,tr*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[4] = S3DVertex(0*scale,br*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 1); //BR
+    buf->Vertices[5] = S3DVertex(0*scale,bl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, 1); // BL
 
     //finalize vertices
     buf->Indices.reallocate(vcount);
@@ -1020,7 +1020,7 @@ std::vector<IMeshSceneNode*> Game::generateTileMeshes(Tile *ttile, int xpos, int
 
     //create scene object
     mysquare = m_SMgr->addMeshSceneNode(Mesh);
-    mysquare->setPosition(vector3df(ypos*scale,ttile->getHeight()*(UNIT_SCALE/4),xpos*scale));
+    mysquare->setPosition(vector3df(ypos*scale,(ttile->getHeight()-1)*(UNIT_SCALE/4),xpos*scale));
     //mysquare->setRotation(vector3df(180, 270, 0));
     mysquare->setMaterialTexture(0, m_Floor32TXT[ttile->getFloorTXT()]);
     mysquare->updateAbsolutePosition();
@@ -1028,97 +1028,109 @@ std::vector<IMeshSceneNode*> Game::generateTileMeshes(Tile *ttile, int xpos, int
     meshlist.push_back(mysquare);
 
     //WALL MESH
-    Mesh = new SMesh();
-    buf = new SMeshBuffer();
-
-    Mesh->addMeshBuffer(buf);
-    buf->drop();
-
-    buf->Vertices.reallocate(vcount);
-    buf->Vertices.set_used(vcount);
-
-    //triangle 1
-    buf->Vertices[0] = S3DVertex(0*scale,1*scale,0*scale, 0,0,1,    video::SColor(255,255,255,255), 0, 0); //TL
-    buf->Vertices[1] = S3DVertex(0*scale,1*scale,1*scale, 0,0,1,    video::SColor(255,255,255,255), 1, 0); //TR
-    buf->Vertices[2] = S3DVertex(0*scale,0*scale,0*scale, 0,0,1,    video::SColor(255,255,255,255), 0, 1);// BL
-    //triangle 2
-    buf->Vertices[3] = S3DVertex(0*scale,1*scale,1*scale, 0,0,1,    video::SColor(255,255,255,255), 1, 0); //TR
-    buf->Vertices[4] = S3DVertex(0*scale,0*scale,1*scale, 0,0,1,    video::SColor(255,255,255,255), 1, 1); //BR
-    buf->Vertices[5] = S3DVertex(0*scale,0*scale,0*scale, 0,0,1,    video::SColor(255,255,255,255), 0, 1); // BL
-
-    //finalize vertices
-    buf->Indices.reallocate(vcount);
-    buf->Indices.set_used(vcount);
-    for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
-    Mesh->setBoundingBox( aabbox3df(0,0,0,scale,0,scale));
-    //buf->recalculateBoundingBox();
 
     //create scene wall objects
-    //north wall
-    if(mLevels[m_CurrentLevel].getTile(xpos, ypos-1) != NULL)
-    {
-        //if north adjacent has same height, don't draw
-        if( mLevels[m_CurrentLevel].getTile(xpos, ypos-1)->getType() == 0)
-        {
-            mysquare = m_SMgr->addMeshSceneNode(Mesh);
-
-            mysquare->setPosition(vector3df(ypos*scale,heightval,xpos*scale));
-            //mysquare->setRotation(vector3df(180, 270, 0));
-            mysquare->setMaterialTexture(0, m_Wall64TXT[ttile->getWallTXT()]);
-            mysquare->updateAbsolutePosition();
-
-            meshlist.push_back(mysquare);
-        }
-    }
     //south wall
     if(mLevels[m_CurrentLevel].getTile(xpos, ypos+1) != NULL)
     {
-        //if south adjacent has same height, dont draw wall
-        if( mLevels[m_CurrentLevel].getTile(xpos, ypos+1)->getType() == 0)
+        //by default, wall height is top height
+        int topheight = CEIL_HEIGHT;
+
+        //if adjacent is higher, draw wall
+        if( mLevels[m_CurrentLevel].getTile(xpos, ypos+1)->getHeight() > ttile->getHeight() )
         {
+            topheight = mLevels[m_CurrentLevel].getTile(xpos, ypos+1)->getHeight()-1;
+
+            Mesh = generateWallMesh(topheight, topheight, ttile->getHeight()-1, ttile->getHeight()-1);
+
             mysquare = m_SMgr->addMeshSceneNode(Mesh);
 
-            mysquare->setPosition(vector3df( (ypos*scale)+scale,heightval, (xpos*scale)+scale ) );
+            mysquare->setPosition(vector3df( (ypos*scale)+scale,0, (xpos*scale)+scale ) );
             mysquare->setRotation(vector3df(0, 180, 0));
             mysquare->setMaterialTexture(0, m_Wall64TXT[ttile->getWallTXT()]);
             mysquare->updateAbsolutePosition();
 
             meshlist.push_back(mysquare);
+            Mesh->drop();
         }
     }
+    //north wall
+    if(mLevels[m_CurrentLevel].getTile(xpos, ypos-1) != NULL)
+    {
+        //by default, wall height is top height
+        int topheight = CEIL_HEIGHT;
+
+        //if adjacent is higher, draw wall
+        if( mLevels[m_CurrentLevel].getTile(xpos, ypos-1)->getHeight() > ttile->getHeight() )
+        {
+            topheight = mLevels[m_CurrentLevel].getTile(xpos, ypos-1)->getHeight()-1;
+
+            Mesh = generateWallMesh(topheight, topheight, ttile->getHeight()-1, ttile->getHeight()-1);
+
+            mysquare = m_SMgr->addMeshSceneNode(Mesh);
+
+            mysquare->setPosition(vector3df( (ypos*scale),0, (xpos*scale) ) );
+            mysquare->setRotation(vector3df(0, 0, 0));
+            mysquare->setMaterialTexture(0, m_Wall64TXT[ttile->getWallTXT()]);
+            mysquare->updateAbsolutePosition();
+
+            meshlist.push_back(mysquare);
+            Mesh->drop();
+        }
+
+    }
+
     //east wall
     if(mLevels[m_CurrentLevel].getTile(xpos+1, ypos) != NULL)
     {
-        if( mLevels[m_CurrentLevel].getTile(xpos+1, ypos)->getType() == 0)
+        //by default, wall height is top height
+        int topheight = CEIL_HEIGHT;
+
+        //if adjacent is higher, draw wall
+        if( mLevels[m_CurrentLevel].getTile(xpos+1, ypos)->getHeight() > ttile->getHeight() )
         {
+            topheight = mLevels[m_CurrentLevel].getTile(xpos+1, ypos)->getHeight()-1;
+
+            Mesh = generateWallMesh(topheight, topheight, ttile->getHeight()-1, ttile->getHeight()-1);
+
             mysquare = m_SMgr->addMeshSceneNode(Mesh);
 
-            mysquare->setPosition(vector3df(ypos*scale,heightval,(xpos*scale)+scale) );
+            mysquare->setPosition(vector3df( (ypos*scale),0, (xpos*scale)+scale ) );
             mysquare->setRotation(vector3df(0, 90, 0));
             mysquare->setMaterialTexture(0, m_Wall64TXT[ttile->getWallTXT()]);
             mysquare->updateAbsolutePosition();
 
             meshlist.push_back(mysquare);
+            Mesh->drop();
         }
     }
     //west wall
     if(mLevels[m_CurrentLevel].getTile(xpos-1, ypos) != NULL)
     {
-        if( mLevels[m_CurrentLevel].getTile(xpos-1, ypos)->getType() == 0)
+        //by default, wall height is top height
+        int topheight = CEIL_HEIGHT;
+
+        //if adjacent is higher, draw wall
+        if( mLevels[m_CurrentLevel].getTile(xpos-1, ypos)->getHeight() > ttile->getHeight() )
         {
+            topheight = mLevels[m_CurrentLevel].getTile(xpos-1, ypos)->getHeight()-1;
+
+            Mesh = generateWallMesh(topheight, topheight, ttile->getHeight()-1, ttile->getHeight()-1);
+
             mysquare = m_SMgr->addMeshSceneNode(Mesh);
 
-            mysquare->setPosition(vector3df( (ypos*scale)+scale,heightval,xpos*scale) );
+            mysquare->setPosition(vector3df( (ypos*scale)+scale,0, (xpos*scale) ) );
             mysquare->setRotation(vector3df(0, -90, 0));
             mysquare->setMaterialTexture(0, m_Wall64TXT[ttile->getWallTXT()]);
             mysquare->updateAbsolutePosition();
 
             meshlist.push_back(mysquare);
+            Mesh->drop();
         }
     }
 
 
-    Mesh->drop();
+    //Mesh->drop();
 
     //configure all scene meshes
     for(int i = 0; i < int(meshlist.size()); i++) configMeshSceneNode(meshlist[i]);
