@@ -39,9 +39,11 @@ int Game::start()
     if(!loadPalette()) { std::cout << "Error loading palette!\n"; return -1;}
     std::cout << "Loading textures...\n";
     if(!loadTexture("UWDATA\\w64.tr", &m_Wall64TXT)) { std::cout << "Error loading textures!\n"; return -1;}
+        else std::cout << "Loaded " << m_Wall64TXT.size() << " wall64 textures.\n";
     if(!loadTexture("UWDATA\\f32.tr", &m_Floor32TXT)) { std::cout << "Error loading textures!\n"; return -1;}
+        else std::cout << "Loaded " << m_Floor32TXT.size() << " floor32 textures.\n";
 
-    mLevels[0].printDebug();
+    //mLevels[0].printDebug();
 
     //start main loop
     std::cout << "Starting main loop...\n";
@@ -125,8 +127,13 @@ bool Game::loadLevel()
     //blocks in level archive (read from header)
     uint16_t blockcount = 0;
 
+    //texture mapping storage
+    //texture map blocks indexes that link tile data floor/wall values to actual w64 and f32 textures indices
+    std::vector< std::vector<int> > texturemap; // 9 blocks of texture mappings
+    texturemap.resize(9);
+
     //offset locations for each block
-    std::vector<uint64_t> blockoffsets;
+    std::vector<std::streampos> blockoffsets;
 
     //attempt to open level archive
     ifile.open(tfile.c_str(), std::ios_base::binary);
@@ -149,8 +156,58 @@ bool Game::loadLevel()
         unsigned char bobuf[4];
         readBin(&ifile, bobuf, 4);
 
-        blockoffsets.push_back( uint64_t(lsbSum(bobuf, 4)));
-        //std::cout << std::dec << "block " << i << ": offset = 0x" << std::hex << blockoffsets.back() << std::endl;
+        blockoffsets.push_back( std::streampos(lsbSum(bobuf, 4)));
+        //std::cout << std::dec << "block " << i << "[" << char((i/9)+97) << "]: offset = 0x" << std::hex << blockoffsets.back() << std::endl;
+    }
+
+    //load texture map blocks
+    const int txtmapwalls = 48; // 2bytes
+    const int txtmapfloors = 10; // 2bytes
+    const int txtmapdoors = 6; // 1byte
+
+    for(int i = 0; i < 9; i++)
+    {
+        //texture maps are 18 (9*3) blocks in the file
+        //jump to texture map block
+        ifile.seekg(blockoffsets[(9*2)+i]);
+
+        //read in texture mapping for walls
+        for(int n = 0; n < txtmapwalls; n++)
+        {
+            unsigned char wallmap[2];
+            readBin(&ifile, wallmap, 2);
+
+            texturemap[i].push_back( lsbSum(wallmap, 2));
+        }
+
+        //read in texture mapping for floors
+        for(int n = 0; n < txtmapfloors; n++)
+        {
+            unsigned char floormap[2];
+            readBin(&ifile, floormap, 2);
+
+            texturemap[i].push_back( lsbSum(floormap, 2));
+        }
+
+        //read in texture mapping for doors
+        for(int n = 0; n < txtmapdoors; n++)
+        {
+            unsigned char doormap[1];
+            readBin(&ifile, doormap, 1);
+
+            texturemap[i].push_back( lsbSum(doormap, 1));
+        }
+
+        /*
+        if(i == 0)
+        {
+            std::cout << "starting at block:" << std::hex << blockoffsets[2*9+i] << std::endl;
+            for(int n = 0; n < int(texturemap[0].size()); n++)
+            {
+                std::cout << std::dec << "texturemap index " << n << ":" << texturemap[0][n] << std::endl;
+            }
+        }
+        */
     }
 
     //read in level data
@@ -193,16 +250,17 @@ bool Game::loadLevel()
                 else tile->setUnk2(false);
 
                 //set floor texture index
-                tile->setFloorTXT( getBitVal(tiledata1, 10, 4));
+                //match up texture map block index to actual floor texture index
+                tile->setFloorTXT( texturemap[i][txtmapwalls + getBitVal(tiledata1, 10, 4)] );
 
                 //set magic illegal flag
                 if( getBitVal(tiledata1, 14, 1)) tile->setMagicIllegal(true);
                 else tile->setMagicIllegal(false);
 
                 //set has door flag
-                if( getBitVal(tiledata1, 15, 1)) tile->setHasDoor(true);
+                //match up texture map block index to actual door texture index
+                if( texturemap[i][txtmapwalls + txtmapfloors + getBitVal(tiledata1, 15, 1)] ) tile->setHasDoor(true);
                 else tile->setHasDoor(false);
-
 
                 //last two bytes
                 unsigned char ldatabuf2[2];
@@ -210,7 +268,8 @@ bool Game::loadLevel()
                 int tiledata2 = lsbSum(ldatabuf2, 2);
 
                 //set wall texture index
-                tile->setWallTXT( getBitVal(tiledata2, 0, 6) );
+                //match up texture map block index to actual floor texture index
+                tile->setWallTXT( texturemap[0][getBitVal(tiledata2, 0, 6)] );
 
                 //set first object in tile
                 tile->setFirstObjectIndex( getBitVal(tiledata2, 6, 10) );
@@ -220,11 +279,14 @@ bool Game::loadLevel()
 
     }
 
+
+
     //print level 1 debug
     //mLevels[0].printDebug();
 
     ifile.close();
 
+    std::cout << std::dec;
     return true;
 }
 
