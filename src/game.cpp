@@ -1,6 +1,8 @@
 #include "game.hpp"
 #include "tools.hpp"
 
+#include <sstream>
+
 Game *Game::mInstance = NULL;
 
 Game::Game()
@@ -18,17 +20,34 @@ Game::~Game()
 
 /////////////////////////////////////////////////////////////////////
 //
-void Game::start()
+int Game::start()
 {
     std::cout << "Game started.\n";
 
-    loadlevel();
+    //init irrlicht
+    std::cout << "Initialzing irrlicht...\n";
+    if(!initIrrlicht()) {std::cout << "Error initializing irrlicht!\n"; return -1;}
 
-    //init
-    initIrrlicht();
-    initCamera();
+    std::cout << "Initializing camera...\n";
+    if(!initCamera()) {std::cout << "Error initializing camera!\n"; return -1;}
 
+
+    //load UW data
+    std::cout << "Loading level data...\n";
+    if(!loadLevel()) {std::cout << "Error loading level data!\n"; return -1;}
+    std::cout << "Loading palette data...\n";
+    if(!loadPalette()) { std::cout << "Error loading palette!\n"; return -1;}
+    std::cout << "Loading textures...\n";
+    if(!loadTexture("UWDATA\\w64.tr", &m_Wall64TXT)) { std::cout << "Error loading textures!\n"; return -1;}
+    if(!loadTexture("UWDATA\\f32.tr", &m_Floor32TXT)) { std::cout << "Error loading textures!\n"; return -1;}
+
+    mLevels[0].printDebug();
+
+    //start main loop
+    std::cout << "Starting main loop...\n";
     mainLoop();
+
+    return 0;
 }
 
 bool Game::initIrrlicht()
@@ -59,34 +78,44 @@ bool Game::initCamera()
     if(m_Camera != NULL) return false;
 
     //add camera to scene
-    m_Camera = m_SMgr->addCameraSceneNode(0, m_CameraPos, m_CameraTarget);
-    m_CameraTarget = vector3df(0,0,-20);
-    updateCamera(vector3df(0,0,0));
+    //m_CameraTarget = vector3df(0,0,0);
+    //m_CameraPos = vector3df(0,4,0);
+    //m_Camera = m_SMgr->addCameraSceneNode(0, m_CameraPos, m_CameraTarget);
+    m_Camera = m_SMgr->addCameraSceneNodeFPS();
+    m_Camera->setPosition( vector3df(0,4,0));
+
+    core::list<ISceneNodeAnimator*>::ConstIterator anim = m_Camera->getAnimators().begin();
+    ISceneNodeAnimatorCameraFPS *animfps = (ISceneNodeAnimatorCameraFPS*)(*anim);
+    animfps->setMoveSpeed(0.01);
+
+    //m_Camera->bindTargetAndRotation(true);
+
+    //updateCamera(vector3df(0,0,0));
 
     //level camera (avoid camera rotation when pointing at target)
-    matrix4 m;
-    m.setRotationDegrees(m_Camera->getRotation());
-    vector3df upv(0.0f, 0.0f, 1.0f);
-    m_Camera->setUpVector(upv);
+     //m_Camera->setUpVector(vector3df(1,0,0));
 
     //temp position target?
-    updateCamera(vector3df(0,0,0));
+    //updateCamera(vector3df(0,0,0));
 
     //capture default FOV
     m_CameraDefaultFOV = m_Camera->getFOV();
+
+    //m_Camera->setRotation(vector3df(0,0,0));
 
     return true;
 }
 
 void Game::updateCamera(vector3df cameratargetpos)
 {
-    m_CameraTarget = cameratargetpos;
-    m_CameraPos = vector3df(80,80,200) + m_CameraTarget;
+    //std::cout << m_Camera->getRotation().X << "," << m_Camera->getRotation().Y << "," << m_Camera->getRotation().Z << std::endl;
+
+    //m_CameraTarget = cameratargetpos;
     m_Camera->setPosition(m_CameraPos);
-    m_Camera->setTarget(m_CameraTarget);
+    //m_Camera->setTarget(m_CameraTarget);
 }
 
-void Game::loadlevel()
+bool Game::loadLevel()
 {
     //read in level archive
     std::ifstream ifile;
@@ -104,7 +133,7 @@ void Game::loadlevel()
     if(!ifile.is_open())
     {
         std::cout << "Error opening " << tfile << std::endl;
-        return;
+        return false;
     }
     else std::cout << "Successfuly opened " << tfile << std::endl;
 
@@ -191,9 +220,140 @@ void Game::loadlevel()
     }
 
     //print level 1 debug
-    mLevels[0].printDebug();
+    //mLevels[0].printDebug();
 
     ifile.close();
+
+    return true;
+}
+
+bool Game::loadPalette()
+{
+    std::string palfile = "UWDATA\\pals.dat";
+    std::ifstream pfile;
+    pfile.open(palfile.c_str(), std::ios_base::binary);
+
+    //check if file loaded
+    if(!pfile.is_open())
+    {
+        std::cout << "Error loading " << palfile << std::endl;
+        return false;
+    }
+    else std::cout << "Successfuly loaded " << palfile << std::endl;
+
+
+    //resize palettes for 256
+    m_Palettes.resize(8);
+    for(int i = 0; i < int(m_Palettes.size()); i++) m_Palettes[i].resize(256);
+
+    //UW palette intensities are 64, mult by 4 to get 256 intensity
+    // (3x 8-bit r, g, b) = 1 index
+    // each palette has 256 indices
+    // pal file has 8 palettes
+
+    for(int i = 0; i < int(m_Palettes.size()); i++)
+    {
+        for(int p = 0; p < int(m_Palettes[i].size()); p++)
+        {
+            unsigned char rgb[3];
+
+            //read in color data (0-63 intensity for red, green , and blue)
+            readBin(&pfile, rgb, 3);
+
+            m_Palettes[i][p] = SColor(255, (int(rgb[0])+1)*4-1, (int(rgb[1])+1)*4-1, (int(rgb[2])+1)*4-1 );
+
+        }
+    }
+
+    pfile.close();
+
+    return true;
+}
+
+bool Game::loadTexture(std::string tfilename, std::vector<ITexture*> *tlist)
+{
+    if(tlist == NULL) return false;
+
+    //open texture file
+    std::ifstream ifile;
+    ifile.open(tfilename.c_str());
+
+    //check if texture file loaded properly
+    if(!ifile.is_open())
+    {
+        std::cout << "Error loading " << tfilename << std::endl;
+        return false;
+    }
+
+
+    //temp variables
+    unsigned char headerbuf[2];
+    unsigned char txtcountbuf[2];
+    std::vector<std::streampos> offsets;
+    int txtdim = 0;
+    int txtcount = 0;
+
+    //read wall64 header
+    readBin(&ifile, headerbuf, 2);
+    readBin(&ifile, txtcountbuf, 2);
+
+    //set variable data from header
+    txtdim = int(headerbuf[1]);
+    txtcount = lsbSum(txtcountbuf, 2);
+
+    //read in texture offsets
+    for(int i = 0; i < txtcount; i++)
+    {
+        unsigned char offsetbuf[4];
+        readBin(&ifile, offsetbuf, 4);
+
+        //store texture offsets into indexed list
+        offsets.push_back(std::streampos(lsbSum(offsetbuf, 4)) );
+    }
+
+    //read each texture from file offset into an opengl texture
+    for(int i = 0; i < txtcount; i++)
+    {
+        ITexture *newtxt = NULL;
+        IImage *newimg = NULL;
+        int palSel = 0; //  wall/floor textures always use palette 0
+
+        //set the stream position to offset
+        ifile.seekg(offsets[i]);
+
+        //create image using texture dimension size
+        newimg = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(txtdim, txtdim));
+
+        //offset points to dim^2 bytes long data where each byte points to palette index
+        for(int n = 0; n < txtdim; n++)
+        {
+            for(int p = 0; p < txtdim; p++)
+            {
+                unsigned char pindex[1];
+                readBin(&ifile, pindex, 1);
+
+                //set the pixel at x,y using current selected palette with read in palette index #
+                newimg->setPixel(p, n, m_Palettes[palSel][int(pindex[0])]);
+
+            }
+        }
+
+        //create texture name
+
+        //create texture from image
+        newtxt = m_Driver->addTexture( tfilename.c_str(), newimg );
+
+        //push texture into texture list
+        tlist->push_back(newtxt);
+
+        //drop image, no longer needed
+        newimg->drop();
+    }
+    //std::cout << "Created " << tlist->size() << " textures from " << tfilename << std::endl;
+    //close texture file
+    ifile.close();
+
+    return true;
 }
 
 /////////////////////////////////////////////////////////////
@@ -241,26 +401,13 @@ void Game::mainLoop()
     }
 */
 
-    //test - create an image, and a texture from image
-
-
-    IImage *myimage = NULL;
-    myimage = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(32,32));
-
-    //set some pixels
-    myimage->fill(SColor(255,0,0,0));
-    myimage->setPixel(16,16, SColor(255,255,255,255));
-
-    ITexture *mytexture = NULL;
-    mytexture = m_Driver->addTexture("mytex", myimage);
-
-    SMesh *squaremesh = getSquareMesh(32,32);
-
-    vector3df squarepos(0, 0, 0);
+    //test
+    int txtindex = 0;
+    SMesh *squaremesh = getSquareMesh(UNIT_SCALE, UNIT_SCALE);
     IMeshSceneNode *mysquare = m_SMgr->addMeshSceneNode(squaremesh);
-
-        mysquare->setPosition(vector3df(0,0, 0));
-        mysquare->setMaterialTexture(0, mytexture);
+        mysquare->setPosition(vector3df(0,UNIT_SCALE , 0));
+        mysquare->setRotation(vector3df(180, 270, 0));
+        mysquare->setMaterialTexture(0, m_Floor32TXT[txtindex]);
         mysquare->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
         mysquare->setMaterialFlag(video::EMF_LIGHTING, false);
         //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
@@ -271,6 +418,13 @@ void Game::mainLoop()
 
 
 
+    SMesh *mycubemesh = getCubeMesh(5);
+    IMeshSceneNode *mycube = m_SMgr->addMeshSceneNode(mycubemesh);
+    mycube->setPosition( vector3df(15,5,0));
+    mycube->setScale(vector3df(2,2,2));
+    mycube->setMaterialTexture(0, m_Wall64TXT[0]);
+    mycube->setMaterialFlag(video::EMF_LIGHTING,false);
+
 
     int lastFPS = -1;
 
@@ -280,6 +434,9 @@ void Game::mainLoop()
 
     //flag to store if mouse button was clicked on this frame
     bool mouseLeftClicked = false;
+
+
+
 
 
 
@@ -330,6 +487,24 @@ void Game::mainLoop()
                 if(event->KeyInput.PressedDown)
                 {
                     if(event->KeyInput.Key == KEY_ESCAPE) m_Device->closeDevice();
+                    else if(event->KeyInput.Key == KEY_SPACE) m_CameraPos.Z += 10;
+                    else if(event->KeyInput.Key == KEY_KEY_E)
+                    {
+                        txtindex++;
+                        if(txtindex >= int(m_Wall64TXT.size()) ) txtindex = 0;
+                        mysquare->setMaterialTexture(0, m_Wall64TXT[txtindex]);
+
+                    }
+                    else if(event->KeyInput.Key == KEY_KEY_Q)
+                    {
+                        txtindex--;
+                        if(txtindex < 0) txtindex = int(m_Wall64TXT.size()-1);
+                        mysquare->setMaterialTexture(0, m_Wall64TXT[txtindex]);
+                    }
+                    else if(event->KeyInput.Key == KEY_KEY_T)
+                    {
+
+                    }
 
                 }
                 //key released
@@ -371,10 +546,13 @@ void Game::mainLoop()
         }
 
         //update actor and camera
+        //updateCamera(vector3df(0,0,0));
+        if(txtindex < 0) txtindex = int(m_Wall64TXT.size()-1);
+        else if(txtindex >= int(m_Wall64TXT.size()) ) txtindex = 0;
+
 
         //clear scene
         m_Driver->beginScene(true, true, SColor(255,100,101,140));
-
 
         //current floor plane
         plane3df myplane(vector3df(0,0,-25), vector3df(0,0,1));
@@ -424,9 +602,9 @@ void Game::mainLoop()
             mymat.setFlag(video::EMF_LIGHTING, false);
             m_Driver->setMaterial(mymat);
             m_Driver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
-            m_Driver->draw3DLine(vector3df(0,0,0), vector3df(0,0,100), SColor(255,0,0,255));
-            m_Driver->draw3DLine(vector3df(0,0,0), vector3df(100,0,0), SColor(0,255,0,255));
-            m_Driver->draw3DLine(vector3df(0,0,0), vector3df(0,100,0), SColor(000,255,255,0));
+            m_Driver->draw3DLine(vector3df(0,0,0), vector3df(0,0,100), SColor(255,0,0,255)); // z-axis blue
+            m_Driver->draw3DLine(vector3df(0,0,0), vector3df(100,0,0), SColor(255,255,0,0)); // x-axis red
+            m_Driver->draw3DLine(vector3df(0,0,0), vector3df(0,100,0), SColor(255,000,255,0)); // y-axis green
         }
 
 
@@ -558,12 +736,13 @@ SMesh *Game::getSquareMesh(f32 width, f32 height)
         buf->Vertices.set_used(vcount);
 
         //top
-        buf->Vertices[0] = S3DVertex(0,0,0, 0,0,1,    video::SColor(255,255,255,255), 0, 0);
-        buf->Vertices[1] = S3DVertex(1*width,0,0, 0,0,1,  video::SColor(255,255,255,255), 1, 0);
-        buf->Vertices[2] = S3DVertex(0,1*width,0, 0,0,1,    video::SColor(255,255,255,255), 0, 1);
-        buf->Vertices[3] = S3DVertex(1*width,0,0, 0,0,1,    video::SColor(255,255,255,255), 1, 0);
-        buf->Vertices[4] = S3DVertex(1*width,1*width,0, 0,0,1,    video::SColor(255,255,255,255), 1, 1);
-        buf->Vertices[5] = S3DVertex(0,1*width,0, 0,0,1,    video::SColor(255,255,255,255), 0, 1);
+        buf->Vertices[0] = S3DVertex(0*width,0*width,0*width, 0,0,1,    video::SColor(255,255,255,255), 0, 0); //TL
+        buf->Vertices[1] = S3DVertex(1*width,0*width,0*width, 0,0,1,  video::SColor(255,255,255,255), 1, 0); //TR
+        buf->Vertices[2] = S3DVertex(0*width,1*width,0*width, 0,0,1,    video::SColor(255,255,255,255), 0, 1);// BL
+
+        buf->Vertices[3] = S3DVertex(1*width,0,0, 0,0,1,    video::SColor(255,255,255,255), 1, 0); //TR
+        buf->Vertices[4] = S3DVertex(1*width,1*width,0, 0,0,1,    video::SColor(255,255,255,255), 1, 1); //BR
+        buf->Vertices[5] = S3DVertex(0,1*width,0, 0,0,1,    video::SColor(255,255,255,255), 0, 1); // BL
 
 
         buf->Indices.reallocate(vcount);
@@ -581,7 +760,6 @@ SMesh *Game::getSquareMesh(f32 width, f32 height)
 
         Mesh->setBoundingBox( aabbox3df(0,0,0,width,width,0));
         //buf->recalculateBoundingBox();
-
 
         return Mesh;
 

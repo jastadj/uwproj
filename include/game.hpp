@@ -11,6 +11,8 @@
 
 #include "level.hpp"
 
+#define UNIT_SCALE 4
+
 //irrlicht namespaces
 using namespace irr;
 using namespace core;
@@ -96,12 +98,22 @@ private:
     SMesh *getSquareMesh(f32 width, f32 height);
 
     //init
-    void loadlevel();
     bool initIrrlicht();
     bool initCamera();
+    bool loadLevel();
+    bool loadPalette();
+    bool loadTexture(std::string tfilename, std::vector<ITexture*> *tlist);
+
 
     //levels
     std::vector<Level> mLevels;
+
+    //palettes
+    std::vector< std::vector<SColor> > m_Palettes;
+
+    //textures
+    std::vector<ITexture*> m_Wall64TXT;
+    std::vector<ITexture*> m_Floor32TXT;
 
     //mainloop
     void mainLoop();
@@ -114,7 +126,7 @@ public:
     }
     ~Game();
 
-    void start();
+    int start();
 
     //get irrlicht components
     ISceneManager *getSceneManager() { return m_SMgr;}
