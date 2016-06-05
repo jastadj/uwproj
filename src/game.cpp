@@ -66,12 +66,16 @@ bool Game::initIrrlicht()
 
     //get video
     m_Driver = m_Device->getVideoDriver();
+
     //get scene manager
     m_SMgr = m_Device->getSceneManager();
     //get gui environment
     m_GUIEnv = m_Device->getGUIEnvironment();
     //get collision manager
     m_IMgr = m_SMgr->getSceneCollisionManager();
+
+    //draw screen
+    m_Driver->endScene();
 
     return true;
 }
@@ -474,6 +478,7 @@ void Game::mainLoop()
     }
 */
 
+/*
     //test
     int txtindex = 0;
     SMesh *squaremesh = getSquareMesh(UNIT_SCALE*8, UNIT_SCALE*8);
@@ -488,7 +493,7 @@ void Game::mainLoop()
         //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
         mysquare->updateAbsolutePosition();
     squaremesh->drop();
-
+*/
 
     //test 2
     /*
@@ -588,20 +593,24 @@ void Game::mainLoop()
                     else if(event->KeyInput.Key == KEY_KEY_E)
                     {
 
+                        /*
                         txtindex++;
                         if(txtindex >= int(m_Wall64TXT.size()) ) txtindex = 0;
                         mysquare->setMaterialTexture(0, m_Wall64TXT[txtindex]);
                         std::cout << "TEXTURE INDEX = " << txtindex << std::endl;
+                        */
 
 
                     }
                     else if(event->KeyInput.Key == KEY_KEY_Q)
                     {
 
+                        /*
                         txtindex--;
                         if(txtindex < 0) txtindex = int(m_Wall64TXT.size()-1);
                         mysquare->setMaterialTexture(0, m_Wall64TXT[txtindex]);
                         std::cout << "TEXTURE INDEX = " << txtindex << std::endl;
+                        */
 
                     }
                     else if(event->KeyInput.Key == KEY_KEY_T)
