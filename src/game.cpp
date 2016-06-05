@@ -10,6 +10,8 @@ Game::Game()
     //init pointers
     m_Device = NULL;
     m_Camera = NULL;
+
+    m_CurrentLevel = 0;
 }
 
 Game::~Game()
@@ -223,7 +225,7 @@ bool Game::loadLevel()
 
         //read in 64 x 64 map tiles
         //note: uw tiles are flipped on y axis
-        for(int n = TILE_ROWS-1; n >= 0; n--)
+        for(int n = TILE_ROWS-1; n >=0; n--)
         {
             for(int p = 0; p < TILE_COLS; p++)
             {
@@ -503,7 +505,7 @@ void Game::mainLoop()
         {
             std::vector<IMeshSceneNode*> tilemeshes;
 
-            Tile *ttile = mLevels[0].getTile(n,i);
+            Tile *ttile = mLevels[m_CurrentLevel].getTile(n,i);
 
             tilemeshes = generateTileMeshes(ttile, n, i);
 
@@ -909,19 +911,25 @@ std::vector<IMeshSceneNode*> Game::generateTileMeshes(Tile *ttile, int xpos, int
     meshlist.push_back(newnode);
     */
 
-    SMesh* Mesh = new SMesh();
-
     int vcount = 6;
     int scale = UNIT_SCALE;
 
-    SMeshBuffer *buf = new SMeshBuffer();
+    //temp pointers
+    SMesh* Mesh = NULL;
+    SMeshBuffer *buf = NULL;
+    IMeshSceneNode *mysquare = NULL;
+
+
+    //FLOOR MESH
+    Mesh = new SMesh();
+    buf = new SMeshBuffer();
+
     Mesh->addMeshBuffer(buf);
     buf->drop();
 
     buf->Vertices.reallocate(vcount);
     buf->Vertices.set_used(vcount);
 
-    //floor mesh
     //triangle 1
     buf->Vertices[0] = S3DVertex(0*scale,0*scale,0*scale, 0,0,1,    video::SColor(255,255,255,255), 0, 0); //TL
     buf->Vertices[1] = S3DVertex(0*scale,0*scale,1*scale, 0,0,1,    video::SColor(255,255,255,255), 1, 0); //TR
@@ -931,13 +939,15 @@ std::vector<IMeshSceneNode*> Game::generateTileMeshes(Tile *ttile, int xpos, int
     buf->Vertices[4] = S3DVertex(1*scale,0*scale,1*scale, 0,0,1,    video::SColor(255,255,255,255), 1, 1); //BR
     buf->Vertices[5] = S3DVertex(1*scale,0*scale,0*scale, 0,0,1,    video::SColor(255,255,255,255), 0, 1); // BL
 
+    //finalize vertices
     buf->Indices.reallocate(vcount);
     buf->Indices.set_used(vcount);
     for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
     Mesh->setBoundingBox( aabbox3df(0,0,0,scale,0,scale));
     //buf->recalculateBoundingBox();
 
-    IMeshSceneNode *mysquare = m_SMgr->addMeshSceneNode(Mesh);
+    //create scene object
+    mysquare = m_SMgr->addMeshSceneNode(Mesh);
         mysquare->setPosition(vector3df(ypos*scale,0,xpos*scale));
         //mysquare->setRotation(vector3df(180, 270, 0));
         mysquare->setMaterialTexture(0, m_Floor32TXT[ttile->getFloorTXT()]);
@@ -949,6 +959,118 @@ std::vector<IMeshSceneNode*> Game::generateTileMeshes(Tile *ttile, int xpos, int
         mysquare->updateAbsolutePosition();
     Mesh->drop();
     meshlist.push_back(mysquare);
+    std::cout << "Added a floor mesh\n";
+
+    //WALL MESH
+    Mesh = new SMesh();
+    buf = new SMeshBuffer();
+
+    Mesh->addMeshBuffer(buf);
+    buf->drop();
+
+    buf->Vertices.reallocate(vcount);
+    buf->Vertices.set_used(vcount);
+
+    //triangle 1
+    buf->Vertices[0] = S3DVertex(0*scale,1*scale,0*scale, 0,0,1,    video::SColor(255,255,255,255), 0, 0); //TL
+    buf->Vertices[1] = S3DVertex(0*scale,1*scale,1*scale, 0,0,1,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[2] = S3DVertex(0*scale,0*scale,0*scale, 0,0,1,    video::SColor(255,255,255,255), 0, 1);// BL
+    //triangle 2
+    buf->Vertices[3] = S3DVertex(0*scale,1*scale,1*scale, 0,0,1,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[4] = S3DVertex(0*scale,0*scale,1*scale, 0,0,1,    video::SColor(255,255,255,255), 1, 1); //BR
+    buf->Vertices[5] = S3DVertex(0*scale,0*scale,0*scale, 0,0,1,    video::SColor(255,255,255,255), 0, 1); // BL
+
+    //finalize vertices
+    buf->Indices.reallocate(vcount);
+    buf->Indices.set_used(vcount);
+    for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
+    Mesh->setBoundingBox( aabbox3df(0,0,0,scale,0,scale));
+    //buf->recalculateBoundingBox();
+
+    //create scene wall objects
+    //north wall
+    if(mLevels[m_CurrentLevel].getTile(xpos, ypos-1) != NULL)
+    {
+        if( mLevels[m_CurrentLevel].getTile(xpos, ypos-1)->getType() == 0)
+        {
+            mysquare = m_SMgr->addMeshSceneNode(Mesh);
+
+            mysquare->setPosition(vector3df(ypos*scale,0,xpos*scale));
+            //mysquare->setRotation(vector3df(180, 270, 0));
+            mysquare->setMaterialTexture(0, m_Wall64TXT[ttile->getWallTXT()]);
+            mysquare->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
+            mysquare->setMaterialFlag(video::EMF_LIGHTING, false);
+            //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
+            //mycube->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
+            //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
+            mysquare->updateAbsolutePosition();
+
+            meshlist.push_back(mysquare);
+        }
+    }
+    //south wall
+    if(mLevels[m_CurrentLevel].getTile(xpos, ypos+1) != NULL)
+    {
+        if( mLevels[m_CurrentLevel].getTile(xpos, ypos+1)->getType() == 0)
+        {
+            mysquare = m_SMgr->addMeshSceneNode(Mesh);
+
+            mysquare->setPosition(vector3df( (ypos*scale)+scale,0, (xpos*scale)+scale ) );
+            mysquare->setRotation(vector3df(0, 180, 0));
+            mysquare->setMaterialTexture(0, m_Wall64TXT[ttile->getWallTXT()]);
+            mysquare->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
+            mysquare->setMaterialFlag(video::EMF_LIGHTING, false);
+            //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
+            //mycube->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
+            //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
+            mysquare->updateAbsolutePosition();
+
+            meshlist.push_back(mysquare);
+        }
+    }
+    //east wall
+    if(mLevels[m_CurrentLevel].getTile(xpos+1, ypos) != NULL)
+    {
+        if( mLevels[m_CurrentLevel].getTile(xpos+1, ypos)->getType() == 0)
+        {
+            mysquare = m_SMgr->addMeshSceneNode(Mesh);
+
+            mysquare->setPosition(vector3df(ypos*scale,0,(xpos*scale)+scale) );
+            mysquare->setRotation(vector3df(0, 90, 0));
+            mysquare->setMaterialTexture(0, m_Wall64TXT[ttile->getWallTXT()]);
+            mysquare->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
+            mysquare->setMaterialFlag(video::EMF_LIGHTING, false);
+            //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
+            //mycube->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
+            //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
+            mysquare->updateAbsolutePosition();
+
+            meshlist.push_back(mysquare);
+        }
+    }
+    //west wall
+    if(mLevels[m_CurrentLevel].getTile(xpos-1, ypos) != NULL)
+    {
+        if( mLevels[m_CurrentLevel].getTile(xpos-1, ypos)->getType() == 0)
+        {
+            mysquare = m_SMgr->addMeshSceneNode(Mesh);
+
+            mysquare->setPosition(vector3df( (ypos*scale)+scale,0,xpos*scale) );
+            mysquare->setRotation(vector3df(0, -90, 0));
+            mysquare->setMaterialTexture(0, m_Wall64TXT[ttile->getWallTXT()]);
+            mysquare->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
+            mysquare->setMaterialFlag(video::EMF_LIGHTING, false);
+            //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
+            //mycube->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
+            //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
+            mysquare->updateAbsolutePosition();
+
+            meshlist.push_back(mysquare);
+        }
+    }
+
+
+    Mesh->drop();
 
 
     return meshlist;

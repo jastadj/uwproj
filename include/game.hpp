@@ -107,6 +107,7 @@ private:
 
 
     //levels
+    int m_CurrentLevel;
     std::vector<Level> mLevels;
     std::vector<IMeshSceneNode*> mLevelMeshes;
 

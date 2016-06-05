@@ -75,7 +75,7 @@ public:
     Level();
     ~Level();
 
-    Tile *getTile(int x, int y) { return &mTiles[y][x];}
+    Tile *getTile(int x, int y);
 
     void printDebug();
 };

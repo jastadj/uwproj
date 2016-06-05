@@ -13,6 +13,15 @@ Level::~Level()
 
 }
 
+Tile *Level::getTile(int x, int y)
+{
+    //is tile valid?
+    if(x < 0 || x >= TILE_COLS) return NULL;
+    if(y < 0 || y >= TILE_ROWS) return NULL;
+
+    return &mTiles[y][x];
+}
+
 void Level::printDebug()
 {
 
