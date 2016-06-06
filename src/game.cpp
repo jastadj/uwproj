@@ -668,6 +668,8 @@ void Game::mainLoop()
 
         //update actor and camera
         //updateCamera(vector3df(0,0,0));
+        //m_CameraPos = m_Camera->getPosition();
+        //m_Camera->setPosition( vector3df(m_CameraPos.X, m_CameraPos.Y-0.1*frameDeltaTime, m_CameraPos.Z));
 
 
 

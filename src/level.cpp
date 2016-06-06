@@ -92,6 +92,9 @@ bool Level::buildTileGeometry(int x, int y)
         theight[i] = CEIL_HEIGHT+1;
     }
 
+    /////////////////////////////////
+    //  HEIGHT CALCULATIONS
+
     //floor
     switch( ttype)
     {
@@ -115,6 +118,59 @@ bool Level::buildTileGeometry(int x, int y)
     default:
         break;
     }
+
+    //if ceiling is lower than floor, make them match
+    for(int i = 0; i < 4; i++)
+    {
+        if(theight[i] < bheight[i]) theight[i] = bheight[i];
+    }
+
+    //ceiling
+    //north
+    if(tilenorth != NULL)
+    {
+        int adjtype = tilenorth->getType();
+        int adjheight = tilenorth->getHeight();
+
+        //if adjacent tile is not solid
+        if(adjtype != TILETYPE_SOLID)
+        {
+            //if adjacent tile is lower in height than current tile
+            if(adjheight <= ttile->getHeight())
+            {
+                //squish ceiling heights to match floor heights
+                theight[NW] = bheight[NW];
+                theight[NE] = bheight[NE];
+            }
+            //else bring the celing down to match adjacent height
+            else
+            {
+                theight[NW] = tilenorth->getHeight();
+                theight[NE] = tilenorth->getHeight();
+
+                //if adjacent is sloping east
+                if(adjtype == TILETYPE_SL_E)
+                {
+                    //theight[NE] += UNIT_SCALE/4;
+                }
+                //else if adjacent is sloping west
+                else if(adjtype == TILETYPE_SL_W)
+                {
+                    //theight[NW] += UNIT_SCALE/4;
+                }
+                //else heights match but current tile is sloping
+                else if(adjheight > ttile->getHeight() && ttype == TILETYPE_SL_E)
+                {
+                    //theight[NW] += UNIT_SCALE/4;
+                }
+
+            }
+        }
+    }
+
+
+    /////////////////////////////////
+    //  MESH GENERATION
 
     //generate floor mesh
     SMesh *floormesh = NULL;
@@ -165,6 +221,44 @@ bool Level::buildTileGeometry(int x, int y)
         ttile->setFloorMesh(tnode);
         //drop smesh
         floormesh->drop();
+    }
+
+    //wall mesh generation
+
+    //north wall
+    if(theight[NW] != bheight[NW] && theight[NE] != bheight[NE])
+    {
+
+            SMesh *wallmesh = NULL;
+
+            //generate wall mesh
+            wallmesh = generateWallMesh( theight[NW], theight[NE], bheight[NE], bheight[SW]);
+
+            //if a valid wall mesh was generated
+            if(wallmesh != NULL)
+            {
+                //create scene node
+                IMeshSceneNode *tnode = m_SMgr->addMeshSceneNode(wallmesh);
+
+                //orient scene node
+                tnode->setPosition( vector3df( y*UNIT_SCALE,0, x*UNIT_SCALE ) );
+                tnode->setRotation( vector3df(0,0,0) );
+
+                //set wall texture (common for all walls of tile)
+                tnode->setMaterialTexture(0, (*w64txt)[ttile->getWallTXT()]);
+
+                //note : this is common and needs to be done for all meshes, should be able to do a loop for all tile nodes?
+                tnode->updateAbsolutePosition();
+
+                //update mesh with common flags
+                gptr->configMeshSceneNode(tnode);
+
+                //link mesh to tile
+                ttile->addWallMesh(tnode);
+                //drop smesh
+                wallmesh->drop();
+            }
+
     }
 
 
@@ -252,10 +346,14 @@ SMesh *Level::generateFloorMesh(int p1, int p2, int p3)
 
 SMesh *Level::generateWallMesh(int tl, int tr, int br, int bl)
 {
+    //if top and bottoms match, return null
+    if(tl == bl && tr == br) return NULL;
+
+    std::cout << "Generating wall mesh :" << tl << "," << tr << "," << br << "," << bl << std::endl;
     SMesh *mesh = NULL;
     SMeshBuffer *buf = NULL;
 
-    const int vcount = 6;
+    int vcount = 6;
     int scale = UNIT_SCALE/4;
 
     //WALL MESH
@@ -269,13 +367,13 @@ SMesh *Level::generateWallMesh(int tl, int tr, int br, int bl)
     buf->Vertices.set_used(vcount);
 
     //triangle 1
-    buf->Vertices[0] = S3DVertex(0*scale,tl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, 0); //TL
-    buf->Vertices[1] = S3DVertex(0*scale,tr*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
-    buf->Vertices[2] = S3DVertex(0*scale,bl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, 1);// BL
+    buf->Vertices[0] = S3DVertex(0*UNIT_SCALE,tl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, 0); //TL
+    buf->Vertices[1] = S3DVertex(0*UNIT_SCALE,tr*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[2] = S3DVertex(0*UNIT_SCALE,bl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, 1);// BL
     //triangle 2
-    buf->Vertices[3] = S3DVertex(0*scale,tr*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
-    buf->Vertices[4] = S3DVertex(0*scale,br*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 1); //BR
-    buf->Vertices[5] = S3DVertex(0*scale,bl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, 1); // BL
+    buf->Vertices[3] = S3DVertex(0*UNIT_SCALE,tr*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[4] = S3DVertex(0*UNIT_SCALE,br*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 1); //BR
+    buf->Vertices[5] = S3DVertex(0*UNIT_SCALE,bl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, 1); // BL
 
     //finalize vertices
     buf->Indices.reallocate(vcount);
@@ -398,4 +496,77 @@ bool Tile::setFloorMesh(IMeshSceneNode *tfloor)
 
     mMeshFloor = tfloor;
     return true;
+}
+
+bool Tile::addWallMesh(IMeshSceneNode *twall)
+{
+    if(twall == NULL) return false;
+
+    mMeshWalls.push_back(twall);
+    return true;
+}
+
+bool Tile::printDebug()
+{
+
+    int getFirstObjectIndex() { return mFirstObjectIndex;}
+
+
+    std::cout << "\nTILE INFO:\n";
+    std::cout << "TYPE : ";
+    switch(getType())
+    {
+    case TILETYPE_D_NE:
+        std::cout << "Diagonal - open to the NE\n";
+        break;
+    case TILETYPE_D_SE:
+        std::cout << "Diagonal - open to the SE\n";
+        break;
+    case TILETYPE_D_NW:
+        std::cout << "Diagonal - open to the NW\n";
+        break;
+    case TILETYPE_D_SW:
+        std::cout << "Diagonal - open to the SW\n";
+        break;
+    case TILETYPE_D_NE:
+        std::cout << "Diagonal - open to the NE\n";
+        break;
+    case TILETYPE_SL_E:
+        std::cout << "Sloping up to the East\n";
+        break;
+    case TILETYPE_SL_W:
+        std::cout << "Sloping up to the West\n";
+        break;
+    case TILETYPE_SL_N:
+        std::cout << "Sloping up to the North\n";
+        break;
+    case TILETYPE_SL_S:
+        std::cout << "Sloping up to the South\n";
+        break;
+    case TILETYPE_OPEN:
+        std::cout << "Open\n";
+        break;
+    case TILETYPE_SOLID:
+        std::cout << "Solid\n";
+        break;
+    case default:
+        std::cout << "ERROR - UNK\n";
+        break;
+    }
+
+    std::cout << "HEIGHT : " << getHeight() << std::endl;
+    std::cout << "FLOORTXT : " << getFloorTXT() << std::endl;
+    std::cout << "WALLTXT  : " << getWallTXT() << std::endl;
+    std::cout << "HAS DOOR : " << hasDoor() << std::endl;
+    std::cout << "MAGIC ILLEGAL : " << isMagicIllegal() << std::endl;
+    std::cout << "UNK1 = " << getUnk1() << std::endl;
+    std::cout << "UNK2 = " << getUnk2() << std::endl;
+    std::cout << "FIRST OBJ INDEX : " << getFirstObjectIndex() << std::endl;
+    std::cout << "\nWALL MESHES : " << mMeshWalls.size() << std::endl;
+    std::cout << "FLOOR MESH : ";
+    if(mMeshFloor == NULL) std::cout << "NULL\n";
+    else std::cout << "Y\n";
+
+
+
 }

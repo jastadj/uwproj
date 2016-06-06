@@ -107,6 +107,9 @@ public:
     int clearGeometry();
     bool setFloorMesh(IMeshSceneNode *tfloor);
     bool addWallMesh(IMeshSceneNode *twall);
+
+    //debug
+    void printDebug();
 };
 
 #endif // CLASS_LEVEL
