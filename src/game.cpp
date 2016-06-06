@@ -491,6 +491,14 @@ bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
         int bwidth;
         int bheight;
 
+        //texture
+        ITexture *newtxt = NULL;
+        IImage *newimg = NULL;
+        int palSel = 0; //  wall/floor textures always use palette 0
+
+        //create new image using bitmap dimensions
+        newimg = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(bwidth, bheight));
+
         //jump to offset
         ifile.seekg(offsets[i]);
 
@@ -508,65 +516,36 @@ bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
         //          0x08 = 4bit run length
         //          0x0A = 4bit uncompressed
 
-    }
-/*
-    //temp variables
-    unsigned char headerbuf[2];
-    unsigned char txtcountbuf[2];
-    std::vector<std::streampos> offsets;
-    int txtdim = 0;
-    int txtcount = 0;
 
-    //read texture header
-    readBin(&ifile, headerbuf, 2);
-    readBin(&ifile, txtcountbuf, 2);
 
-    //set variable data from header
-    txtdim = int(headerbuf[1]);
-    txtcount = lsbSum(txtcountbuf, 2);
 
-    //read in texture offsets
-    for(int i = 0; i < txtcount; i++)
-    {
-        unsigned char offsetbuf[4];
-        readBin(&ifile, offsetbuf, 4);
 
-        //store texture offsets into indexed list
-        offsets.push_back(std::streampos(lsbSum(offsetbuf, 4)) );
 
-        //std::cout << std::dec << "texture offset " << i << ": 0x" << std::hex << offsets.back() << std::endl;
-    }
-
-    //read each texture from file offset into an opengl texture
-    for(int i = 0; i < txtcount; i++)
-    {
-        ITexture *newtxt = NULL;
-        IImage *newimg = NULL;
-        int palSel = 0; //  wall/floor textures always use palette 0
 
         //set the stream position to offset
         ifile.seekg(offsets[i]);
 
-        //create image using texture dimension size
-        newimg = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(txtdim, txtdim));
-
-        //offset points to dim^2 bytes long data where each byte points to palette index
-        for(int n = 0; n < txtdim; n++)
+        //read bitmap data
+        //if uncompressed format
+        if(btype == 0x04 || btype == 0x0a)
         {
-            for(int p = 0; p < txtdim; p++)
+            for(int n = 0; n < bheight; n++)
             {
-                unsigned char pindex[1];
-
-                //error reading?
-                if(!readBin(&ifile, pindex, 1))
+                for(int p = 0; p < bwidth; p++)
                 {
-                    std::cout << "Error reading texture at 0x" << std::hex << offsets[i] << std::endl;
-                    return false;
+                    //read in one byte at a time
+                    unsigned char bbyte[1];
+
+                    readBin(&ifile, bbyte, 1);
+
+                    //if 8-bit
+
+                    if 4 bit take upper nibble first then second
+
+                    //set the pixel at x,y using current selected palette with read in palette index #
+                    newimg->setPixel(p, n, m_Palettes[palSel][int(pindex[0])]);
+
                 }
-
-
-                //set the pixel at x,y using current selected palette with read in palette index #
-                newimg->setPixel(p, n, m_Palettes[palSel][int(pindex[0])]);
             }
         }
 
@@ -583,7 +562,7 @@ bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
         //drop image, no longer needed
         newimg->drop();
     }
-    */
+
     ifile.close();
 
     return true;
