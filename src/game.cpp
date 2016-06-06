@@ -784,6 +784,11 @@ bool Game::configMeshSceneNode(IMeshSceneNode *tnode)
     tnode->setMaterialFlag(video::EMF_TRILINEAR_FILTER, false );
     tnode->setMaterialFlag(video::EMF_ANISOTROPIC_FILTER, false );
 
+    //texture repeating
+    tnode->getMaterial(0).getTextureMatrix(0).setScale(1);
+    tnode->getMaterial(0).TextureLayer->TextureWrapU = video::ETC_REPEAT;
+    tnode->getMaterial(0).TextureLayer->TextureWrapV = video::ETC_REPEAT;
+
     return true;
 }
 

@@ -47,6 +47,7 @@ public:
     SMesh *generateFloorMesh(int p1, int p2, int p3); // generate diagonal floor model
 
     SMesh *generateWallMesh(int tl, int tr, int br, int bl); // generate wall model
+    SMesh *generateDiagonalWallMesh(int tl, int tr, int br, int bl); // generate diagonal wall model
 
     void printDebug();
 };

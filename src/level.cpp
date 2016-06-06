@@ -159,7 +159,8 @@ bool Level::buildTileGeometry(int x, int y)
                     theight[NW] += UNIT_SCALE/4;
                 }
                 //else heights match but current tile is sloping
-                else if(adjheight > ttile->getHeight() && ttype == TILETYPE_SL_E)
+                else if(adjheight > ttile->getHeight() &&
+                    (ttype == TILETYPE_SL_E || ttype == TILETYPE_SL_W))
                 {
                     theight[NW] = adjheight;
                     theight[NE] = adjheight;
@@ -227,13 +228,13 @@ bool Level::buildTileGeometry(int x, int y)
     //wall mesh generation
 
     //north wall
-    if(1)
+    if(ttype != TILETYPE_D_SE && ttype != TILETYPE_D_SW)
     {
 
             SMesh *wallmesh = NULL;
 
             //generate wall mesh
-            wallmesh = generateWallMesh( theight[NW], theight[NE], bheight[NE], bheight[SW]);
+            wallmesh = generateWallMesh( theight[NW], theight[NE], bheight[NE], bheight[NW]);
 
             //if a valid wall mesh was generated
             if(wallmesh != NULL)
@@ -350,7 +351,55 @@ SMesh *Level::generateWallMesh(int tl, int tr, int br, int bl)
     //if top and bottoms match, return null
     if(tl == bl && tr == br) return NULL;
 
-    std::cout << "Generating wall mesh :" << tl << "," << tr << "," << br << "," << bl << std::endl;
+    SMesh *mesh = NULL;
+    SMeshBuffer *buf = NULL;
+
+    int scale = UNIT_SCALE/4;
+    int vcount = 6;
+
+    //WALL MESH
+    mesh = new SMesh();
+    buf = new SMeshBuffer();
+
+    mesh->addMeshBuffer(buf);
+    buf->drop();
+
+    buf->Vertices.reallocate(vcount);
+    buf->Vertices.set_used(vcount);
+
+    //calc texture y scaling for stretching to properly map texture
+    float txtscaley = 1;
+    float txtscaleytop = tl;
+    float txtscaleybot = bl;
+
+    if(tr > tl) txtscaleytop = tr;
+    if(br < bl) txtscaleybot = br;
+    txtscaley = (txtscaleytop - txtscaleybot) / UNIT_SCALE;
+
+    //triangle 1
+    buf->Vertices[0] = S3DVertex(0*UNIT_SCALE,tl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, 0); //TL
+    buf->Vertices[1] = S3DVertex(0*UNIT_SCALE,tr*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[2] = S3DVertex(0*UNIT_SCALE,bl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, txtscaley);// BL
+    //triangle 2
+    buf->Vertices[3] = S3DVertex(0*UNIT_SCALE,tr*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[4] = S3DVertex(0*UNIT_SCALE,br*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, txtscaley ); //BR
+    buf->Vertices[5] = S3DVertex(0*UNIT_SCALE,bl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, txtscaley ); // BL
+
+    //finalize vertices
+    buf->Indices.reallocate(vcount);
+    buf->Indices.set_used(vcount);
+    for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
+    mesh->setBoundingBox( aabbox3df(0,tl*scale,0,0,br*scale,1*scale));
+    //buf->recalculateBoundingBox();
+
+    return mesh;
+}
+
+SMesh *Level::generateDiagonalWallMesh(int tl, int tr, int br, int bl)
+{
+    //if top and bottoms match, return null
+    if(tl == bl && tr == br) return NULL;
+
     SMesh *mesh = NULL;
     SMeshBuffer *buf = NULL;
 
@@ -369,11 +418,11 @@ SMesh *Level::generateWallMesh(int tl, int tr, int br, int bl)
 
     //triangle 1
     buf->Vertices[0] = S3DVertex(0*UNIT_SCALE,tl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, 0); //TL
-    buf->Vertices[1] = S3DVertex(0*UNIT_SCALE,tr*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[1] = S3DVertex(1*UNIT_SCALE,tr*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
     buf->Vertices[2] = S3DVertex(0*UNIT_SCALE,bl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, 1);// BL
     //triangle 2
-    buf->Vertices[3] = S3DVertex(0*UNIT_SCALE,tr*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
-    buf->Vertices[4] = S3DVertex(0*UNIT_SCALE,br*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 1); //BR
+    buf->Vertices[3] = S3DVertex(1*UNIT_SCALE,tr*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[4] = S3DVertex(1*UNIT_SCALE,br*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 1); //BR
     buf->Vertices[5] = S3DVertex(0*UNIT_SCALE,bl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, 1); // BL
 
     //finalize vertices
