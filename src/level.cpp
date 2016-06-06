@@ -612,8 +612,8 @@ SMesh *Level::generateFloorMesh(int ul, int ur, int br, int bl)
     buf->Indices.reallocate(vcount);
     buf->Indices.set_used(vcount);
     for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
-    mesh->setBoundingBox( aabbox3df(0,0,0,1*scale,0,1*scale));
-    //buf->recalculateBoundingBox();
+    mesh->setBoundingBox( aabbox3df(0,-0.1,0,1*scale,0.1,1*scale));
+    buf->recalculateBoundingBox();
 
     return mesh;
 
@@ -651,7 +651,7 @@ SMesh *Level::generateFloorMesh(int p1, int p2, int p3)
     buf->Indices.set_used(vcount);
     for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
     mesh->setBoundingBox( aabbox3df(0,0,0,1*scale,0,1*scale));
-    //buf->recalculateBoundingBox();
+    buf->recalculateBoundingBox();
 
     return mesh;
 
@@ -700,8 +700,8 @@ SMesh *Level::generateWallMesh(int tl, int tr, int br, int bl)
     buf->Indices.reallocate(vcount);
     buf->Indices.set_used(vcount);
     for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
-    mesh->setBoundingBox( aabbox3df(0,tl*scale,0,0,br*scale,1*scale));
-    //buf->recalculateBoundingBox();
+    mesh->setBoundingBox( aabbox3df(-0.1,tl*scale,0,0.1,br*scale,1*scale));
+    buf->recalculateBoundingBox();
 
     return mesh;
 }
@@ -749,8 +749,8 @@ SMesh *Level::generateDiagonalWallMesh(int tl, int tr, int br, int bl)
     buf->Indices.reallocate(vcount);
     buf->Indices.set_used(vcount);
     for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
-    mesh->setBoundingBox( aabbox3df(0,tl*scale,0,0,br*scale,1*scale));
-    //buf->recalculateBoundingBox();
+    mesh->setBoundingBox( aabbox3df(-0.1,tl*scale,0,0.1,br*scale,1*scale));
+    buf->recalculateBoundingBox();
 
     return mesh;
 }

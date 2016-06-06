@@ -100,20 +100,11 @@ bool Game::initCamera()
     ISceneNodeAnimatorCameraFPS *animfps = (ISceneNodeAnimatorCameraFPS*)(*anim);
     animfps->setMoveSpeed(0.05);
 
-    //m_Camera->bindTargetAndRotation(true);
-
-    //updateCamera(vector3df(0,0,0));
-
     //level camera (avoid camera rotation when pointing at target)
      //m_Camera->setUpVector(vector3df(1,0,0));
 
-    //temp position target?
-    //updateCamera(vector3df(0,0,0));
-
     //capture default FOV
     m_CameraDefaultFOV = m_Camera->getFOV();
-
-    //m_Camera->setRotation(vector3df(0,0,0));
 
     return true;
 }
@@ -545,10 +536,6 @@ void Game::mainLoop()
 
     //flag to store if mouse button was clicked on this frame
     bool mouseLeftClicked = false;
-
-
-
-
 
 
     //main loop
