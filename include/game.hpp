@@ -96,11 +96,6 @@ private:
     //mesh stuff
     SMesh *getCubeMesh(f32 cubesize);
     SMesh *getSquareMesh(f32 width, f32 height);
-    std::vector<IMeshSceneNode*> generateTileMeshes(Tile *ttile, int xpos, int ypos);
-    SMesh *generateWallMesh(int tl = CEIL_HEIGHT, int tr = CEIL_HEIGHT, int bl = CEIL_HEIGHT-4, int br = CEIL_HEIGHT-4);
-    SMesh *generateDiagonalWallMesh(int tiletype, int tl = CEIL_HEIGHT, int tr = CEIL_HEIGHT, int bl = CEIL_HEIGHT-4, int br = CEIL_HEIGHT-4);
-    SMesh *generateFloorMesh(int tiletype);
-
 
     //init
     bool initIrrlicht();
