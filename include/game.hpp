@@ -102,6 +102,7 @@ private:
     bool initCamera();
     bool loadLevel();
     bool loadPalette();
+    bool loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist);
     bool loadTexture(std::string tfilename, std::vector<ITexture*> *tlist);
 
 
@@ -116,6 +117,7 @@ private:
     //textures
     std::vector<ITexture*> m_Wall64TXT;
     std::vector<ITexture*> m_Floor32TXT;
+    std::vector<ITexture*> m_CharHeadTXT;
 
     //mainloop
     void mainLoop();

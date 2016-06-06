@@ -44,6 +44,10 @@ int Game::start()
         else std::cout << "Loaded " << m_Wall64TXT.size() << " wall64 textures.\n";
     if(!loadTexture("UWDATA\\f32.tr", &m_Floor32TXT)) { std::cout << "Error loading textures!\n"; return -1;}
         else std::cout << "Loaded " << m_Floor32TXT.size() << " floor32 textures.\n";
+    std::cout << "Loading graphics...\n";
+    if(!loadGraphic("UWDATA\\charhead.gr", &m_CharHeadTXT)) {std::cout << "Error loading charhead graphic!\n"; return -1;}
+
+
 
     //mLevels[0].printDebug();
 
@@ -426,6 +430,160 @@ bool Game::loadTexture(std::string tfilename, std::vector<ITexture*> *tlist)
         //drop image, no longer needed
         newimg->drop();
     }
+    ifile.close();
+
+    return true;
+}
+
+bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
+{
+    if(tlist == NULL) return false;
+
+    //open graphic (.gr) file
+    std::ifstream ifile;
+    ifile.open(tfilename.c_str(), std::ios_base::binary);
+
+    //check if graphic file loaded properly
+    if(!ifile.is_open())
+    {
+        std::cout << "Error loading " << tfilename << std::endl;
+        return false;
+    }
+
+    //temp vars
+    unsigned char fformatbuf[1];
+    unsigned char bitmapcntbuf[2];
+    std::vector<std::streampos> offsets;
+    //int fformat = 0;
+    int bitmapcnt = 0;
+
+    //read header data
+    readBin(&ifile, fformatbuf, 1);
+    //fformat = int(fformatbuf[0]);
+    readBin(&ifile, bitmapcntbuf, 2);
+    bitmapcnt = lsbSum(bitmapcntbuf, 2);
+
+    //for each bitmap count, read in offsets
+    for(int i = 0; i < bitmapcnt; i++)
+    {
+        unsigned char offsetbuf[4];
+        readBin(&ifile, offsetbuf, 4);
+
+        offsets.push_back( std::streampos( lsbSum(offsetbuf, 4)));
+    }
+
+    //if bitmap count and offset count do not match, something went wrong!
+    if(bitmapcnt != int(offsets.size()) )
+    {
+        std::cout << std::dec << "Graphics file bitmap count (" << bitmapcnt << ") != offset count (" << offsets.size() << ") !!\n";
+        ifile.close();
+        return false;
+    }
+
+    //read in each bitmap at offset
+    for(int i = 0; i < bitmapcnt; i++)
+    {
+        //each bitmap at offset has its own header
+        unsigned char btypebuf[1];
+        unsigned char bwidthbuf[1];
+        unsigned char bheightbuf[1];
+        int btype;
+        int bwidth;
+        int bheight;
+
+        //jump to offset
+        ifile.seekg(offsets[i]);
+
+        //read in header and set data
+        readBin(&ifile, btypebuf, 1);
+        btype = int(btypebuf[0]);
+        readBin(&ifile, bwidthbuf, 1);
+        bwidth = int(bwidthbuf[0]);
+        readBin(&ifile, bheightbuf, 1);
+        bheight = int(bheightbuf[0]);
+
+        //bitmap data is read differently depending on what bitmap type it is
+        // types are:
+        //          0x04 = 8bit uncompressed
+        //          0x08 = 4bit run length
+        //          0x0A = 4bit uncompressed
+
+    }
+/*
+    //temp variables
+    unsigned char headerbuf[2];
+    unsigned char txtcountbuf[2];
+    std::vector<std::streampos> offsets;
+    int txtdim = 0;
+    int txtcount = 0;
+
+    //read texture header
+    readBin(&ifile, headerbuf, 2);
+    readBin(&ifile, txtcountbuf, 2);
+
+    //set variable data from header
+    txtdim = int(headerbuf[1]);
+    txtcount = lsbSum(txtcountbuf, 2);
+
+    //read in texture offsets
+    for(int i = 0; i < txtcount; i++)
+    {
+        unsigned char offsetbuf[4];
+        readBin(&ifile, offsetbuf, 4);
+
+        //store texture offsets into indexed list
+        offsets.push_back(std::streampos(lsbSum(offsetbuf, 4)) );
+
+        //std::cout << std::dec << "texture offset " << i << ": 0x" << std::hex << offsets.back() << std::endl;
+    }
+
+    //read each texture from file offset into an opengl texture
+    for(int i = 0; i < txtcount; i++)
+    {
+        ITexture *newtxt = NULL;
+        IImage *newimg = NULL;
+        int palSel = 0; //  wall/floor textures always use palette 0
+
+        //set the stream position to offset
+        ifile.seekg(offsets[i]);
+
+        //create image using texture dimension size
+        newimg = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(txtdim, txtdim));
+
+        //offset points to dim^2 bytes long data where each byte points to palette index
+        for(int n = 0; n < txtdim; n++)
+        {
+            for(int p = 0; p < txtdim; p++)
+            {
+                unsigned char pindex[1];
+
+                //error reading?
+                if(!readBin(&ifile, pindex, 1))
+                {
+                    std::cout << "Error reading texture at 0x" << std::hex << offsets[i] << std::endl;
+                    return false;
+                }
+
+
+                //set the pixel at x,y using current selected palette with read in palette index #
+                newimg->setPixel(p, n, m_Palettes[palSel][int(pindex[0])]);
+            }
+        }
+
+        //create texture name
+        std::stringstream texturename;
+        texturename << "txt_" << i;
+
+        //create texture from image
+        newtxt = m_Driver->addTexture( texturename.str().c_str(), newimg );
+
+        //push texture into texture list
+        tlist->push_back(newtxt);
+
+        //drop image, no longer needed
+        newimg->drop();
+    }
+    */
     ifile.close();
 
     return true;
