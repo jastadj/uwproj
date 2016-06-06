@@ -161,7 +161,8 @@ bool Level::buildTileGeometry(int x, int y)
                 //else heights match but current tile is sloping
                 else if(adjheight > ttile->getHeight() && ttype == TILETYPE_SL_E)
                 {
-                    //theight[NW] += UNIT_SCALE/4;
+                    theight[NW] = adjheight+1;
+                    theight[NE] = adjheight+1;
                 }
 
             }
