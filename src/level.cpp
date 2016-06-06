@@ -51,8 +51,10 @@ bool Level::buildTileGeometry(int x, int y)
     int ttype = 0;
 
     //temp top and bottom height calculations, clockwise from top left corner
-    std::vector<int> theight(4,0);
-    std::vector<int> bheight(4,0);
+    std::vector<int> theight_ns(4,0);
+    std::vector<int> bheight_ns(4,0);
+    std::vector<int> theight_ew(4,0);
+    std::vector<int> bheight_ew(4,0);
 
     //adjacent tiles
     Tile *tilenorth = NULL;
@@ -88,8 +90,13 @@ bool Level::buildTileGeometry(int x, int y)
     //default tile heights to height value and ceiling
     for(int i = 0; i < 4; i++)
     {
-        bheight[i] = ttile->getHeight();
-        theight[i] = CEIL_HEIGHT+1;
+        //north / south mapping
+        bheight_ns[i] = ttile->getHeight();
+        theight_ns[i] = CEIL_HEIGHT+1;
+
+        //east / west mapping
+        bheight_ew[i] = ttile->getHeight();
+        theight_ew[i] = CEIL_HEIGHT+1;
     }
 
     /////////////////////////////////
@@ -100,20 +107,28 @@ bool Level::buildTileGeometry(int x, int y)
     {
     //adjust bottom coordinate of floor slope, floor only drops by 1/4 of a standard 4 unit wall height (1 unit)
     case TILETYPE_SL_S:
-        bheight[SW] = ttile->getHeight()+(UNIT_SCALE/4);
-        bheight[SE] = ttile->getHeight()+(UNIT_SCALE/4);
+        bheight_ns[SW] = ttile->getHeight()+(UNIT_SCALE/4);
+        bheight_ns[SE] = ttile->getHeight()+(UNIT_SCALE/4);
+        bheight_ew[SW] = ttile->getHeight()+(UNIT_SCALE/4);
+        bheight_ew[SE] = ttile->getHeight()+(UNIT_SCALE/4);
         break;
     case TILETYPE_SL_N:
-        bheight[NW] = ttile->getHeight()+(UNIT_SCALE/4);
-        bheight[NE] = ttile->getHeight()+(UNIT_SCALE/4);
+        bheight_ns[NW] = ttile->getHeight()+(UNIT_SCALE/4);
+        bheight_ns[NE] = ttile->getHeight()+(UNIT_SCALE/4);
+        bheight_ew[NW] = ttile->getHeight()+(UNIT_SCALE/4);
+        bheight_ew[NE] = ttile->getHeight()+(UNIT_SCALE/4);
         break;
     case TILETYPE_SL_W:
-        bheight[NW] = ttile->getHeight()+(UNIT_SCALE/4);
-        bheight[SW] = ttile->getHeight()+(UNIT_SCALE/4);
+        bheight_ns[NW] = ttile->getHeight()+(UNIT_SCALE/4);
+        bheight_ns[SW] = ttile->getHeight()+(UNIT_SCALE/4);
+        bheight_ew[NW] = ttile->getHeight()+(UNIT_SCALE/4);
+        bheight_ew[SW] = ttile->getHeight()+(UNIT_SCALE/4);
         break;
     case TILETYPE_SL_E:
-        bheight[NE] = ttile->getHeight()+(UNIT_SCALE/4);
-        bheight[SE] = ttile->getHeight()+(UNIT_SCALE/4);
+        bheight_ns[NE] = ttile->getHeight()+(UNIT_SCALE/4);
+        bheight_ns[SE] = ttile->getHeight()+(UNIT_SCALE/4);
+        bheight_ew[NE] = ttile->getHeight()+(UNIT_SCALE/4);
+        bheight_ew[SE] = ttile->getHeight()+(UNIT_SCALE/4);
         break;
     default:
         break;
@@ -122,7 +137,9 @@ bool Level::buildTileGeometry(int x, int y)
     //if ceiling is lower than floor, make them match
     for(int i = 0; i < 4; i++)
     {
-        if(theight[i] < bheight[i]) theight[i] = bheight[i];
+        if(theight_ns[i] < bheight_ns[i]) theight_ns[i] = bheight_ns[i];
+
+        if(theight_ew[i] < bheight_ew[i]) theight_ew[i] = bheight_ew[i];
     }
 
     //ceiling
@@ -135,41 +152,193 @@ bool Level::buildTileGeometry(int x, int y)
         //if adjacent tile is not solid
         if(adjtype != TILETYPE_SOLID)
         {
+
+            //if adjacent is blocked diagonal
+            if(adjtype == TILETYPE_D_NW || adjtype == TILETYPE_D_NE)
+            {
+                theight_ns[NW] = CEIL_HEIGHT+1;
+                theight_ns[NE] = CEIL_HEIGHT+1;
+            }
             //if adjacent tile is lower in height than current tile
-            if(adjheight <= ttile->getHeight())
+            else if(adjheight <= ttile->getHeight())
             {
                 //squish ceiling heights to match floor heights
-                theight[NW] = bheight[NW];
-                theight[NE] = bheight[NE];
+                theight_ns[NW] = bheight_ns[NW];
+                theight_ns[NE] = bheight_ns[NE];
             }
             //else bring the celing down to match adjacent height
             else
             {
-                theight[NW] = tilenorth->getHeight();
-                theight[NE] = tilenorth->getHeight();
+                theight_ns[NW] = adjheight;
+                theight_ns[NE] = adjheight;
 
                 //if adjacent is sloping east
                 if(adjtype == TILETYPE_SL_E)
                 {
-                    theight[NE] += UNIT_SCALE/4;
+                    theight_ns[NE] += UNIT_SCALE/4;
                 }
                 //else if adjacent is sloping west
                 else if(adjtype == TILETYPE_SL_W)
                 {
-                    theight[NW] += UNIT_SCALE/4;
+                    theight_ns[NW] += UNIT_SCALE/4;
                 }
                 //else heights match but current tile is sloping
                 else if(adjheight > ttile->getHeight() &&
                     (ttype == TILETYPE_SL_E || ttype == TILETYPE_SL_W))
                 {
-                    theight[NW] = adjheight;
-                    theight[NE] = adjheight;
+                    theight_ns[NW] = adjheight;
+                    theight_ns[NE] = adjheight;
+                }
+            }
+        }
+    }
+    //south
+    if(tilesouth != NULL)
+    {
+        int adjtype = tilesouth->getType();
+        int adjheight = tilesouth->getHeight();
+
+        //if adjacent tile is not solid
+        if(adjtype != TILETYPE_SOLID)
+        {
+            //if adjacent is blocked diagonal
+            if(adjtype == TILETYPE_D_SW || adjtype == TILETYPE_D_SE)
+            {
+                theight_ns[NW] = CEIL_HEIGHT+1;
+                theight_ns[NE] = CEIL_HEIGHT+1;
+            }
+            //if adjacent tile is lower in height than current tile
+            else if(adjheight <= ttile->getHeight())
+            {
+                //squish ceiling heights to match floor heights
+                theight_ns[SW] = bheight_ns[SW];
+                theight_ns[SE] = bheight_ns[SE];
+            }
+            //else bring the celing down to match adjacent height
+            else
+            {
+                theight_ns[SW] = adjheight;
+                theight_ns[SE] = adjheight;
+
+                //if adjacent is sloping east
+                if(adjtype == TILETYPE_SL_E)
+                {
+                    theight_ns[SE] += UNIT_SCALE/4;
+                }
+                //else if adjacent is sloping west
+                else if(adjtype == TILETYPE_SL_W)
+                {
+                    theight_ns[SW] += UNIT_SCALE/4;
+                }
+                //else heights match but current tile is sloping
+                else if(adjheight > ttile->getHeight() &&
+                    (ttype == TILETYPE_SL_E || ttype == TILETYPE_SL_W))
+                {
+                    theight_ns[SW] = adjheight;
+                    theight_ns[SE] = adjheight;
                 }
 
             }
         }
     }
+    //west
+    if(tilewest != NULL)
+    {
+        int adjtype = tilewest->getType();
+        int adjheight = tilewest->getHeight();
 
+        //if adjacent tile is not solid
+        if(adjtype != TILETYPE_SOLID)
+        {
+            //if adjacent is blocked diagonal
+            if(adjtype == TILETYPE_D_NW || adjtype == TILETYPE_D_SW)
+            {
+                theight_ew[NW] = CEIL_HEIGHT+1;
+                theight_ew[SW] = CEIL_HEIGHT+1;
+            }
+            //if adjacent tile is lower in height than current tile
+            else if(adjheight <= ttile->getHeight())
+            {
+                //squish ceiling heights to match floor heights
+                theight_ew[SW] = bheight_ew[SW];
+                theight_ew[NW] = bheight_ew[NW];
+            }
+            //else bring the celing down to match adjacent height
+            else
+            {
+                theight_ew[SW] = adjheight;
+                theight_ew[NW] = adjheight;
+
+                //if adjacent is sloping east
+                if(adjtype == TILETYPE_SL_N)
+                {
+                    theight_ew[NW] += UNIT_SCALE/4;
+                }
+                //else if adjacent is sloping west
+                else if(adjtype == TILETYPE_SL_S)
+                {
+                    theight_ew[SW] += UNIT_SCALE/4;
+                }
+                //else heights match but current tile is sloping
+                else if(adjheight > ttile->getHeight() &&
+                    (ttype == TILETYPE_SL_N || ttype == TILETYPE_SL_S))
+                {
+                    theight_ew[SW] = adjheight;
+                    theight_ew[NW] = adjheight;
+                }
+
+            }
+        }
+    }
+    //east
+    if(tileeast != NULL)
+    {
+        int adjtype = tileeast->getType();
+        int adjheight = tileeast->getHeight();
+
+        //if adjacent tile is not solid
+        if(adjtype != TILETYPE_SOLID)
+        {
+            //if adjacent is blocked diagonal
+            if(adjtype == TILETYPE_D_NE || adjtype == TILETYPE_D_SE)
+            {
+                theight_ew[NE] = CEIL_HEIGHT+1;
+                theight_ew[SE] = CEIL_HEIGHT+1;
+            }
+            //if adjacent tile is lower in height than current tile
+            else if(adjheight <= ttile->getHeight())
+            {
+                //squish ceiling heights to match floor heights
+                theight_ew[SE] = bheight_ew[SE];
+                theight_ew[NE] = bheight_ew[NE];
+            }
+            //else bring the celing down to match adjacent height
+            else
+            {
+                theight_ew[SE] = adjheight;
+                theight_ew[NE] = adjheight;
+
+                //if adjacent is sloping east
+                if(adjtype == TILETYPE_SL_N)
+                {
+                    theight_ew[NE] += UNIT_SCALE/4;
+                }
+                //else if adjacent is sloping west
+                else if(adjtype == TILETYPE_SL_S)
+                {
+                    theight_ew[SE] += UNIT_SCALE/4;
+                }
+                //else heights match but current tile is sloping
+                else if(adjheight > ttile->getHeight() &&
+                    (ttype == TILETYPE_SL_N || ttype == TILETYPE_SL_S))
+                {
+                    theight_ew[SE] = adjheight;
+                    theight_ew[NE] = adjheight;
+                }
+
+            }
+        }
+    }
 
     /////////////////////////////////
     //  MESH GENERATION
@@ -178,9 +347,9 @@ bool Level::buildTileGeometry(int x, int y)
     SMesh *floormesh = NULL;
 
     // if diagonal type, generate alternate floor (triangle)
-    if(ttype >=2 && ttype <= 5) floormesh = generateFloorMesh(bheight[0], bheight[1], bheight[2]);
+    if(ttype >=2 && ttype <= 5) floormesh = generateFloorMesh(bheight_ns[0], bheight_ns[1], bheight_ns[2]);
     // else generate a full floor
-    else floormesh = generateFloorMesh(bheight[0], bheight[1], bheight[2], bheight[3]);
+    else floormesh = generateFloorMesh(bheight_ns[0], bheight_ns[1], bheight_ns[2], bheight_ns[3]);
 
     //create floor scene node
     if(floormesh != NULL)
@@ -226,15 +395,66 @@ bool Level::buildTileGeometry(int x, int y)
     }
 
     //wall mesh generation
+    //diagonal walls
+    if(ttype >= 2 && ttype <= 5)
+    {
+        //create a diagonal wall mesh
+        SMesh *dwallmesh = NULL;
+
+        if(ttype == TILETYPE_D_SE || ttype == TILETYPE_D_SW)
+            dwallmesh = generateDiagonalWallMesh(theight_ns[NW], theight_ns[NE], bheight_ns[NE], bheight_ns[NW]);
+        else dwallmesh = generateDiagonalWallMesh(theight_ns[SW], theight_ns[SE], bheight_ns[SE], bheight_ns[SW]);
+
+
+        if(dwallmesh != NULL)
+        {
+            //create scene node
+            IMeshSceneNode *tnode = m_SMgr->addMeshSceneNode(dwallmesh);
+
+            //orient scene node
+            switch(ttype)
+            {
+            case TILETYPE_D_SE:
+                tnode->setPosition( vector3df( y*UNIT_SCALE + UNIT_SCALE,0, x*UNIT_SCALE ) );
+                tnode->setRotation( vector3df(0,-90,0) );
+                break;
+            case TILETYPE_D_NE:
+                tnode->setPosition( vector3df( y*UNIT_SCALE+UNIT_SCALE,0, x*UNIT_SCALE+UNIT_SCALE) );
+                tnode->setRotation( vector3df(0,180,0) );
+                break;
+            case TILETYPE_D_NW:
+                tnode->setPosition( vector3df( y*UNIT_SCALE,0, x*UNIT_SCALE+UNIT_SCALE) );
+                tnode->setRotation( vector3df(0,90,0) );
+                break;
+            case TILETYPE_D_SW:
+            default:
+                tnode->setPosition( vector3df( y*UNIT_SCALE,0, x*UNIT_SCALE ) );
+                tnode->setRotation( vector3df(0,0,0) );
+                break;
+            }
+
+            //set wall texture (common for all walls of tile)
+            tnode->setMaterialTexture(0, (*w64txt)[ttile->getWallTXT()]);
+
+            //note : this is common and needs to be done for all meshes, should be able to do a loop for all tile nodes?
+            tnode->updateAbsolutePosition();
+
+            //update mesh with common flags
+            gptr->configMeshSceneNode(tnode);
+
+            //link mesh to tile
+            ttile->addWallMesh(tnode);
+            //drop smesh
+            dwallmesh->drop();
+        }
+
+    }
 
     //north wall
     if(ttype != TILETYPE_D_SE && ttype != TILETYPE_D_SW)
     {
-
-            SMesh *wallmesh = NULL;
-
             //generate wall mesh
-            wallmesh = generateWallMesh( theight[NW], theight[NE], bheight[NE], bheight[NW]);
+            SMesh *wallmesh = generateWallMesh( theight_ns[NW], theight_ns[NE], bheight_ns[NE], bheight_ns[NW]);
 
             //if a valid wall mesh was generated
             if(wallmesh != NULL)
@@ -260,9 +480,100 @@ bool Level::buildTileGeometry(int x, int y)
                 //drop smesh
                 wallmesh->drop();
             }
-
     }
+    //south wall
+    if(ttype != TILETYPE_D_NE && ttype != TILETYPE_D_NW)
+    {
+            //generate wall mesh
+            SMesh *wallmesh = generateWallMesh( theight_ns[SE], theight_ns[SW], bheight_ns[SW], bheight_ns[SE]);
 
+            //if a valid wall mesh was generated
+            if(wallmesh != NULL)
+            {
+                //create scene node
+                IMeshSceneNode *tnode = m_SMgr->addMeshSceneNode(wallmesh);
+
+                //orient scene node
+                tnode->setPosition( vector3df( y*UNIT_SCALE+UNIT_SCALE,0, x*UNIT_SCALE+UNIT_SCALE ) );
+                tnode->setRotation( vector3df(0,180,0) );
+
+                //set wall texture (common for all walls of tile)
+                tnode->setMaterialTexture(0, (*w64txt)[ttile->getWallTXT()]);
+
+                //note : this is common and needs to be done for all meshes, should be able to do a loop for all tile nodes?
+                tnode->updateAbsolutePosition();
+
+                //update mesh with common flags
+                gptr->configMeshSceneNode(tnode);
+
+                //link mesh to tile
+                ttile->addWallMesh(tnode);
+                //drop smesh
+                wallmesh->drop();
+            }
+    }
+    //west wall
+    if(ttype != TILETYPE_D_SE && ttype != TILETYPE_D_NE)
+    {
+            //generate wall mesh
+            SMesh *wallmesh = generateWallMesh( theight_ew[SW], theight_ew[NW], bheight_ew[NW], bheight_ew[SW]);
+
+            //if a valid wall mesh was generated
+            if(wallmesh != NULL)
+            {
+                //create scene node
+                IMeshSceneNode *tnode = m_SMgr->addMeshSceneNode(wallmesh);
+
+                //orient scene node
+                tnode->setPosition( vector3df( y*UNIT_SCALE+UNIT_SCALE,0, x*UNIT_SCALE ) );
+                tnode->setRotation( vector3df(0,-90,0) );
+
+                //set wall texture (common for all walls of tile)
+                tnode->setMaterialTexture(0, (*w64txt)[ttile->getWallTXT()]);
+
+                //note : this is common and needs to be done for all meshes, should be able to do a loop for all tile nodes?
+                tnode->updateAbsolutePosition();
+
+                //update mesh with common flags
+                gptr->configMeshSceneNode(tnode);
+
+                //link mesh to tile
+                ttile->addWallMesh(tnode);
+                //drop smesh
+                wallmesh->drop();
+            }
+    }
+    //east wall
+    if(ttype != TILETYPE_D_SW && ttype != TILETYPE_D_NW)
+    {
+            //generate wall mesh
+            SMesh *wallmesh = generateWallMesh( theight_ew[NE], theight_ew[SE], bheight_ew[SE], bheight_ew[NE]);
+
+            //if a valid wall mesh was generated
+            if(wallmesh != NULL)
+            {
+                //create scene node
+                IMeshSceneNode *tnode = m_SMgr->addMeshSceneNode(wallmesh);
+
+                //orient scene node
+                tnode->setPosition( vector3df( y*UNIT_SCALE,0, x*UNIT_SCALE+UNIT_SCALE ) );
+                tnode->setRotation( vector3df(0,90,0) );
+
+                //set wall texture (common for all walls of tile)
+                tnode->setMaterialTexture(0, (*w64txt)[ttile->getWallTXT()]);
+
+                //note : this is common and needs to be done for all meshes, should be able to do a loop for all tile nodes?
+                tnode->updateAbsolutePosition();
+
+                //update mesh with common flags
+                gptr->configMeshSceneNode(tnode);
+
+                //link mesh to tile
+                ttile->addWallMesh(tnode);
+                //drop smesh
+                wallmesh->drop();
+            }
+    }
 
     return true;
 }
@@ -416,14 +727,23 @@ SMesh *Level::generateDiagonalWallMesh(int tl, int tr, int br, int bl)
     buf->Vertices.reallocate(vcount);
     buf->Vertices.set_used(vcount);
 
+    //calc texture y scaling for stretching to properly map texture
+    float txtscaley = 1;
+    float txtscaleytop = tl;
+    float txtscaleybot = bl;
+
+    if(tr > tl) txtscaleytop = tr;
+    if(br < bl) txtscaleybot = br;
+    txtscaley = (txtscaleytop - txtscaleybot) / UNIT_SCALE;
+
     //triangle 1
     buf->Vertices[0] = S3DVertex(0*UNIT_SCALE,tl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, 0); //TL
     buf->Vertices[1] = S3DVertex(1*UNIT_SCALE,tr*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
-    buf->Vertices[2] = S3DVertex(0*UNIT_SCALE,bl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, 1);// BL
+    buf->Vertices[2] = S3DVertex(0*UNIT_SCALE,bl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, txtscaley);// BL
     //triangle 2
     buf->Vertices[3] = S3DVertex(1*UNIT_SCALE,tr*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
-    buf->Vertices[4] = S3DVertex(1*UNIT_SCALE,br*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 1); //BR
-    buf->Vertices[5] = S3DVertex(0*UNIT_SCALE,bl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, 1); // BL
+    buf->Vertices[4] = S3DVertex(1*UNIT_SCALE,br*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, txtscaley); //BR
+    buf->Vertices[5] = S3DVertex(0*UNIT_SCALE,bl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, txtscaley); // BL
 
     //finalize vertices
     buf->Indices.reallocate(vcount);
