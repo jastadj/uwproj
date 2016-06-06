@@ -47,6 +47,10 @@ int Game::start()
 
     //mLevels[0].printDebug();
 
+    //generate level geometry
+    std::cout << "Generating level geometry...\n";
+    if(!mLevels[0].buildLevelGeometry()) { std::cout << "Error generating level geometry!!\n"; return -1;}
+
     //start main loop
     std::cout << "Starting main loop...\n";
     mainLoop();
@@ -94,7 +98,7 @@ bool Game::initCamera()
 
     core::list<ISceneNodeAnimator*>::ConstIterator anim = m_Camera->getAnimators().begin();
     ISceneNodeAnimatorCameraFPS *animfps = (ISceneNodeAnimatorCameraFPS*)(*anim);
-    //animfps->setMoveSpeed(0.01);
+    animfps->setMoveSpeed(0.05);
 
     //m_Camera->bindTargetAndRotation(true);
 
@@ -510,6 +514,7 @@ void Game::mainLoop()
     //if(testtiles.empty()) std::cout << "DID NOT GENERATE TILES!\n";
 
     //generate level meshes
+/*
     for(int i = 0; i < TILE_ROWS; i++)
     {
         for(int n = 0; n < TILE_COLS; n++)
@@ -527,6 +532,7 @@ void Game::mainLoop()
             }
         }
     }
+*/
 
     int lastFPS = -1;
 

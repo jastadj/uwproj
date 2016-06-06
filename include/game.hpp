@@ -100,7 +100,7 @@ private:
     SMesh *generateWallMesh(int tl = CEIL_HEIGHT, int tr = CEIL_HEIGHT, int bl = CEIL_HEIGHT-4, int br = CEIL_HEIGHT-4);
     SMesh *generateDiagonalWallMesh(int tiletype, int tl = CEIL_HEIGHT, int tr = CEIL_HEIGHT, int bl = CEIL_HEIGHT-4, int br = CEIL_HEIGHT-4);
     SMesh *generateFloorMesh(int tiletype);
-    bool configMeshSceneNode(IMeshSceneNode *tnode);
+
 
     //init
     bool initIrrlicht();
@@ -133,7 +133,15 @@ public:
     }
     ~Game();
 
+    //start initialization
     int start();
+
+    //mesh
+    bool configMeshSceneNode(IMeshSceneNode *tnode);
+
+    //textures
+    const std::vector<ITexture*> *getWall64Textures() const { return &m_Wall64TXT;}
+    const std::vector<ITexture*> *getFloor32Textures() const { return &m_Floor32TXT;}
 
     //get irrlicht components
     ISceneManager *getSceneManager() { return m_SMgr;}

@@ -8,8 +8,45 @@
 #include <cstdlib>
 #include <vector>
 
+#include <irrlicht.h>
+
+using namespace irr;
+using namespace core;
+using namespace scene;
+using namespace video;
+using namespace io;
+using namespace gui;
+
 enum _TILETYPE{TILETYPE_SOLID, TILETYPE_OPEN, TILETYPE_D_SE, TILETYPE_D_SW, TILETYPE_D_NE, TILETYPE_D_NW,
                 TILETYPE_SL_N, TILETYPE_SL_S, TILETYPE_SL_E, TILETYPE_SL_W, TILETYPE_TOTAL};
+
+enum _COORDS{NW, NE, SE, SW};
+
+//forward declaration
+class Tile;
+
+
+class Level
+{
+private:
+    std::vector< std::vector<Tile> > mTiles;
+
+public:
+    Level();
+    ~Level();
+
+    Tile *getTile(int x, int y);
+
+    bool buildLevelGeometry(); //high level, geomery gen for entire map
+    bool buildTileGeometry(int x, int y); // lower level, geometry for individual tile
+
+    SMesh *generateFloorMesh(int ul, int ur, int br, int bl); // generate floor model
+    SMesh *generateFloorMesh(int p1, int p2, int p3); // generate diagonal floor model
+
+    void printDebug();
+};
+
+
 
 class Tile
 {
@@ -23,6 +60,11 @@ private:
 
     bool mUnk1; // has some function in uw2, light level related
     bool mUnk2;
+
+    //geometry
+    //height coordinates run clockwise from top upper left
+    std::vector<int> mHeightMap;
+    IMeshSceneNode *mMeshFloor;
 
     //texture indices
     int mFloorTXTIndex;
@@ -57,19 +99,12 @@ public:
     bool getUnk1() { return mUnk1;}
     bool getUnk2() { return mUnk2;}
 
+    //geometry
+    bool setHeightMap(int coordnum, int height); // coord num is corner of tile, NW, NE, SE, SW..
+    const std::vector<int> getHeightMap() const { return mHeightMap;}
+    int clearGeometry();
+
+    bool setFloorMesh(IMeshSceneNode *tfloor);
 };
 
-class Level
-{
-private:
-    std::vector< std::vector<Tile> > mTiles;
-
-public:
-    Level();
-    ~Level();
-
-    Tile *getTile(int x, int y);
-
-    void printDebug();
-};
 #endif // CLASS_LEVEL
