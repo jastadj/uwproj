@@ -506,11 +506,8 @@ bool Tile::addWallMesh(IMeshSceneNode *twall)
     return true;
 }
 
-bool Tile::printDebug()
+void Tile::printDebug()
 {
-
-    int getFirstObjectIndex() { return mFirstObjectIndex;}
-
 
     std::cout << "\nTILE INFO:\n";
     std::cout << "TYPE : ";
@@ -527,9 +524,6 @@ bool Tile::printDebug()
         break;
     case TILETYPE_D_SW:
         std::cout << "Diagonal - open to the SW\n";
-        break;
-    case TILETYPE_D_NE:
-        std::cout << "Diagonal - open to the NE\n";
         break;
     case TILETYPE_SL_E:
         std::cout << "Sloping up to the East\n";
@@ -549,7 +543,7 @@ bool Tile::printDebug()
     case TILETYPE_SOLID:
         std::cout << "Solid\n";
         break;
-    case default:
+    default:
         std::cout << "ERROR - UNK\n";
         break;
     }

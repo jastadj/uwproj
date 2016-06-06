@@ -586,6 +586,16 @@ void Game::mainLoop()
         {
 
         }
+        else if(m_Receiver.isKeyPressed(KEY_F1))
+        {
+            m_CameraPos = m_Camera->getPosition();
+            Tile *ttile = mLevels[m_CurrentLevel].getTile(int(m_CameraPos.Z)/UNIT_SCALE, int(m_CameraPos.X)/UNIT_SCALE);
+            if(ttile != NULL)
+            {
+                ttile->printDebug();
+            }
+            else std::cout << "Current tile = NULL!\n";
+        }
 
 
         //process events in que
