@@ -228,6 +228,9 @@ bool Game::loadLevel()
         //create level
         mLevels.push_back(Level());
 
+        //save texture map data for shits and giggles
+        mLevels.back().mTextureMapping = texturemap[i];
+
         //jump file position pointer to offset to begin reading in level data
         ifile.seekg(blockoffsets[i]);
 

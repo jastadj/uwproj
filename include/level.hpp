@@ -35,6 +35,9 @@ public:
     Level();
     ~Level();
 
+    //not used beyond loading but might as well save it
+    std::vector<int> mTextureMapping;
+
     Tile *getTile(int x, int y);
 
     bool buildLevelGeometry(); //high level, geomery gen for entire map
@@ -42,6 +45,8 @@ public:
 
     SMesh *generateFloorMesh(int ul, int ur, int br, int bl); // generate floor model
     SMesh *generateFloorMesh(int p1, int p2, int p3); // generate diagonal floor model
+
+    SMesh *generateWallMesh(int tl, int tr, int br, int bl); // generate wall model
 
     void printDebug();
 };
@@ -62,9 +67,8 @@ private:
     bool mUnk2;
 
     //geometry
-    //height coordinates run clockwise from top upper left
-    std::vector<int> mHeightMap;
     IMeshSceneNode *mMeshFloor;
+    std::vector<IMeshSceneNode*> mMeshWalls;
 
     //texture indices
     int mFloorTXTIndex;
@@ -100,11 +104,9 @@ public:
     bool getUnk2() { return mUnk2;}
 
     //geometry
-    bool setHeightMap(int coordnum, int height); // coord num is corner of tile, NW, NE, SE, SW..
-    const std::vector<int> getHeightMap() const { return mHeightMap;}
     int clearGeometry();
-
     bool setFloorMesh(IMeshSceneNode *tfloor);
+    bool addWallMesh(IMeshSceneNode *twall);
 };
 
 #endif // CLASS_LEVEL
