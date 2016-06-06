@@ -776,7 +776,7 @@ bool Game::configMeshSceneNode(IMeshSceneNode *tnode)
 
     tnode->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
     tnode->setMaterialFlag(video::EMF_LIGHTING, false);
-    tnode->setMaterialFlag(video::EMF_TEXTURE_WRAP, true);
+    //tnode->setMaterialFlag(video::EMF_TEXTURE_WRAP, true);
     //tnode->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
     //tnode->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
     //tnode->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);

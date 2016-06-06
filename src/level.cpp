@@ -151,18 +151,18 @@ bool Level::buildTileGeometry(int x, int y)
                 //if adjacent is sloping east
                 if(adjtype == TILETYPE_SL_E)
                 {
-                    //theight[NE] += UNIT_SCALE/4;
+                    theight[NE] += UNIT_SCALE/4;
                 }
                 //else if adjacent is sloping west
                 else if(adjtype == TILETYPE_SL_W)
                 {
-                    //theight[NW] += UNIT_SCALE/4;
+                    theight[NW] += UNIT_SCALE/4;
                 }
                 //else heights match but current tile is sloping
                 else if(adjheight > ttile->getHeight() && ttype == TILETYPE_SL_E)
                 {
-                    theight[NW] = adjheight+1;
-                    theight[NE] = adjheight+1;
+                    theight[NW] = adjheight;
+                    theight[NE] = adjheight;
                 }
 
             }
@@ -227,7 +227,7 @@ bool Level::buildTileGeometry(int x, int y)
     //wall mesh generation
 
     //north wall
-    if(theight[NW] != bheight[NW] && theight[NE] != bheight[NE])
+    if(1)
     {
 
             SMesh *wallmesh = NULL;
@@ -354,8 +354,8 @@ SMesh *Level::generateWallMesh(int tl, int tr, int br, int bl)
     SMesh *mesh = NULL;
     SMeshBuffer *buf = NULL;
 
-    int vcount = 6;
     int scale = UNIT_SCALE/4;
+    int vcount = 6;
 
     //WALL MESH
     mesh = new SMesh();
