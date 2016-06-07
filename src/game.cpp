@@ -223,6 +223,11 @@ void Game::mainLoop()
             registerForCollision(mycube);
         }
     }
+    //create collision response between meta selector and camera
+    ISceneNodeAnimator* anim = m_SMgr->createCollisionResponseAnimator(m_MetaTriangleSelector, m_Camera, mybboxradius,vector3df(0,GRAVITY,0));
+    m_Camera->addAnimator(anim);
+    //animator no longer needed, drop it
+    anim->drop();
 
 
     int lastFPS = -1;
@@ -979,14 +984,17 @@ bool Game::registerForCollision(IMeshSceneNode *tnode)
     //add triangle to meta selector
     m_MetaTriangleSelector->addTriangleSelector(selector);
 
+    //drop selector no longer needed and add animator to camera
+    selector->drop();
+
+/*
     //create collision response between meta selector and camera
     ISceneNodeAnimator* anim = m_SMgr->createCollisionResponseAnimator(m_MetaTriangleSelector, m_Camera, mybboxradius,vector3df(0,GRAVITY,0));
 
-    //drop selector no longer needed and add animator to camera
-    selector->drop();
     m_Camera->addAnimator(anim);
     //animator no longer needed, drop it
     anim->drop();
+*/
 
     return true;
 }
