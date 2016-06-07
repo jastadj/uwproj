@@ -102,7 +102,9 @@ bool Game::initCamera()
     //m_CameraTarget = vector3df(0,0,0);
     //m_CameraPos = vector3df(0,4,0);
     //m_Camera = m_SMgr->addCameraSceneNode(0, m_CameraPos, m_CameraTarget);
-    m_Camera = m_SMgr->addCameraSceneNodeFPS();
+    //m_Camera = m_SMgr->addCameraSceneNodeFPS();
+    //for collision testing
+    m_Camera = m_SMgr->addCameraSceneNodeFPS(0, 100.0f, .1f, ID_IsNotPickable, 0, 0, false, 3.f);
     m_Camera->setPosition( vector3df(0,4,0));
 
     core::list<ISceneNodeAnimator*>::ConstIterator anim = m_Camera->getAnimators().begin();
@@ -170,13 +172,32 @@ void Game::mainLoop()
     myguiimage->setScaleImage(false);
     */
 
-    SMesh *mycubemesh = getCubeMesh(6);
-    IMeshSceneNode *mycube = m_SMgr->addMeshSceneNode(mycubemesh);
-    mycube->setPosition( vector3df(-3,-12,3));
-    //mycube->setScale(vector3df(2,2,2));
+    /*
+    //create mesh
+    SMesh *mycubemesh = getCubeMesh(128);
+    //create scene node octree type
+    IMeshSceneNode *mycube = m_SMgr->addOctreeSceneNode(mycubemesh, 0, IDFlag_IsPickable);
+    mycube->setPosition( vector3df(-64,-128*2,64));
     mycube->setMaterialTexture(0, m_Wall64TXT[0]);
     mycube->setMaterialFlag(video::EMF_LIGHTING,false);
     mycubemesh->drop();
+
+    //use selector to add to cube mesh
+    scene::ITriangleSelector *selector = m_SMgr->createOctreeTriangleSelector(mycube->getMesh(), mycube, 128);
+    mycube->setTriangleSelector(selector);
+
+    const aabbox3d<f32>& mybbox = mycube->getBoundingBox();
+    vector3df mybboxradius = mybbox.MaxEdge - mybbox.getCenter();
+
+    //create collision response between selector and camera
+    ISceneNodeAnimator* anim = m_SMgr->createCollisionResponseAnimator(selector, m_Camera, mybboxradius,vector3df(0,-10,0));
+    selector->drop(); // As soon as we're done with the selector, drop it.
+    m_Camera->addAnimator(anim);
+    anim->drop();  // And likewise, drop the animator when we're done referring to it.
+    */
+
+
+
 
     int lastFPS = -1;
 
@@ -989,8 +1010,8 @@ SMesh *Game::getCubeMesh(f32 cubesize)
         buf->Indices[5]=5;
         */
 
-        Mesh->setBoundingBox( aabbox3df(0,0,0,cubesize,cubesize,-cubesize));
-        //buf->recalculateBoundingBox();
+        Mesh->setBoundingBox( aabbox3df(0,0,-cubesize,cubesize,cubesize,0));
+        buf->recalculateBoundingBox();
 
 
         return Mesh;
