@@ -12,7 +12,7 @@
 #include "level.hpp"
 
 #define UNIT_SCALE 4
-#define GRAVITY -0.5
+#define GRAVITY -10
 
 //irrlicht namespaces
 using namespace irr;
@@ -99,7 +99,7 @@ private:
     ISceneCollisionManager *m_IMgr;
     IGUIEnvironment *m_GUIEnv;
     MyEventReceiver m_Receiver;
-    ITriangleSelector *m_TriangleSelector;
+    IMetaTriangleSelector *m_MetaTriangleSelector;
 
     //camera
     void updateCamera(vector3df cameratargetpos);
@@ -164,7 +164,7 @@ public:
     IrrlichtDevice *getDevice() { return m_Device;}
     IVideoDriver *getDriver() { return m_Driver;}
     IGUIEnvironment *getGuiEnv() { return m_GUIEnv;}
-    ITriangleSelector *getTriangleSelector() { return m_TriangleSelector;}
+    IMetaTriangleSelector *getMetaTriangleSelector() { return m_MetaTriangleSelector;}
     ICameraSceneNode *getCamera() { return m_Camera;}
 
 };

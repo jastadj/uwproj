@@ -10,7 +10,7 @@ Game::Game()
     //init pointers
     m_Device = NULL;
     m_Camera = NULL;
-    m_TriangleSelector = NULL;
+    m_MetaTriangleSelector = NULL;
 
     m_CurrentLevel = 0;
 
@@ -55,7 +55,7 @@ int Game::start()
 
     //generate level geometry
     std::cout << "Generating level geometry...\n";
-    if(!mLevels[0].buildLevelGeometry()) { std::cout << "Error generating level geometry!!\n"; return -1;}
+    //if(!mLevels[0].buildLevelGeometry()) { std::cout << "Error generating level geometry!!\n"; return -1;}
 
     //start main loop
     std::cout << "Starting main loop...\n";
@@ -87,6 +87,8 @@ bool Game::initIrrlicht()
     //draw screen
     m_Driver->endScene();
 
+    //create meta triangle selector
+    m_MetaTriangleSelector = m_SMgr->createMetaTriangleSelector();
 
     //some 2d rendering config
     //m_Driver->getMaterial2D().TextureLayer[0].BilinearFilter=true;
@@ -106,7 +108,8 @@ bool Game::initCamera()
     //m_Camera = m_SMgr->addCameraSceneNode(0, m_CameraPos, m_CameraTarget);
     //m_Camera = m_SMgr->addCameraSceneNodeFPS();
     //for collision testing
-    m_Camera = m_SMgr->addCameraSceneNodeFPS(0, 100.0f, .1f, ID_IsNotPickable, 0, 0, false, 3.f);
+    //addCameraSceneNodeFPS (ISceneNode *parent=0, f32 rotateSpeed=100.0f, f32 moveSpeed=0.5f, s32 id=-1, SKeyMap *keyMapArray=0, s32 keyMapSize=0, bool noVerticalMovement=false, f32 jumpSpeed=0.f, bool invertMouse=false, bool makeActive=true)=0
+    m_Camera = m_SMgr->addCameraSceneNodeFPS(0, 100.0f, 0.5f, ID_IsNotPickable, 0, 0, false, 3.f);
     //m_Camera->setPosition( vector3df(0,4,0));
     m_Camera->setPosition( vector3df(245.5,22,127.5));
     m_Camera->setRotation( vector3df(0,180,0) );
@@ -202,20 +205,25 @@ void Game::mainLoop()
     */
 
     //collision testing
-    /*
     int cubesize = 4;
-    m_Camera->setPosition( vector3df(0,20,0));
+    m_Camera->setPosition( vector3df(2,20,2));
     m_Camera->setRotation( vector3df(0,0,0));
-    SMesh *mycubemesh = getSquareMesh(0,0,0,0);
-    //create scene node octree type
-    IMeshSceneNode *mycube = m_SMgr->addOctreeSceneNode(mycubemesh);
-    mycube->setPosition( vector3df(-2,0,-2));
-    mycube->setMaterialTexture(0, m_Wall64TXT[0]);
-    mycube->setMaterialFlag(video::EMF_LIGHTING,false);
-    mycubemesh->drop();
-    configMeshSceneNode(mycube);
-    registerForCollision(mycube);
-    */
+    for(int i = 0; i < 64; i++)
+    {
+        for(int n = 0; n < 64; n++)
+        {
+            SMesh *mycubemesh = getSquareMesh(0,0,0,0);
+            //create scene node octree type
+            IMeshSceneNode *mycube = m_SMgr->addOctreeSceneNode(mycubemesh);
+            mycube->setPosition( vector3df(i*cubesize,0,n*cubesize));
+            mycube->setMaterialTexture(0, m_Wall64TXT[0]);
+            mycube->setMaterialFlag(video::EMF_LIGHTING,false);
+            mycubemesh->drop();
+            configMeshSceneNode(mycube);
+            registerForCollision(mycube);
+        }
+    }
+
 
     int lastFPS = -1;
 
@@ -961,18 +969,24 @@ bool Game::configMeshSceneNode(IMeshSceneNode *tnode)
 bool Game::registerForCollision(IMeshSceneNode *tnode)
 {
     //register collision stuff
-    m_TriangleSelector = m_SMgr->createOctreeTriangleSelector(tnode->getMesh(), tnode);
-    tnode->setTriangleSelector(m_TriangleSelector);
+    ITriangleSelector *selector = m_SMgr->createOctreeTriangleSelector(tnode->getMesh(), tnode);
+    tnode->setTriangleSelector(selector);
 
     //calculate collision response elipsoid
     const aabbox3d<f32>& mybbox = tnode->getBoundingBox();
     vector3df mybboxradius = mybbox.MaxEdge - mybbox.getCenter();
 
-    //create collision response between selector and camera
-    ISceneNodeAnimator* anim = m_SMgr->createCollisionResponseAnimator(m_TriangleSelector, m_Camera, mybboxradius,vector3df(0,GRAVITY,0));
-    m_TriangleSelector->drop(); // As soon as we're done with the selector, drop it.
+    //add triangle to meta selector
+    m_MetaTriangleSelector->addTriangleSelector(selector);
+
+    //create collision response between meta selector and camera
+    ISceneNodeAnimator* anim = m_SMgr->createCollisionResponseAnimator(m_MetaTriangleSelector, m_Camera, mybboxradius,vector3df(0,GRAVITY,0));
+
+    //drop selector no longer needed and add animator to camera
+    selector->drop();
     m_Camera->addAnimator(anim);
-    anim->drop();  // And likewise, drop the animator when we're done referring to it.
+    //animator no longer needed, drop it
+    anim->drop();
 
     return true;
 }
@@ -1093,7 +1107,7 @@ SMesh *Game::getSquareMesh(int ul, int ur, int br, int bl)
     buf->Indices.set_used(vcount);
     for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
     //mesh->setBoundingBox( aabbox3df(0,ul*scale-CEIL_HEIGHT,0,1*UNIT_SCALE,br*scale,1*UNIT_SCALE));
-    mesh->setBoundingBox( aabbox3df(0,-1,0,1*UNIT_SCALE,1,1*UNIT_SCALE));
+    mesh->setBoundingBox( aabbox3df(0,-1*UNIT_SCALE,0,1*UNIT_SCALE,0,1*UNIT_SCALE));
     buf->recalculateBoundingBox();
 
     return mesh;
