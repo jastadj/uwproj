@@ -43,6 +43,7 @@ public:
     bool buildLevelGeometry(); //high level, geomery gen for entire map
     bool buildTileGeometry(int x, int y); // lower level, geometry for individual tile
 
+    //NOTE NEED TO CHANGE PARAMETERS TO F32, CANT DIVIDE SCALING WITH INT (UNLESS CASTED FIRST)
     SMesh *generateFloorMesh(int ul, int ur, int br, int bl); // generate floor model
     SMesh *generateFloorMesh(int p1, int p2, int p3); // generate diagonal floor model
 
@@ -68,8 +69,7 @@ private:
     bool mUnk2;
 
     //geometry
-    IMeshSceneNode *mMeshFloor;
-    std::vector<IMeshSceneNode*> mMeshWalls;
+    std::vector<IMeshSceneNode*> mMeshes;
 
     //texture indices
     int mFloorTXTIndex;
@@ -106,8 +106,7 @@ public:
 
     //geometry
     int clearGeometry();
-    bool setFloorMesh(IMeshSceneNode *tfloor);
-    bool addWallMesh(IMeshSceneNode *twall);
+    bool addMesh(IMeshSceneNode *tnode);
 
     //debug
     void printDebug();

@@ -10,8 +10,10 @@ Game::Game()
     //init pointers
     m_Device = NULL;
     m_Camera = NULL;
+    m_TriangleSelector = NULL;
 
     m_CurrentLevel = 0;
+
 }
 
 Game::~Game()
@@ -53,7 +55,7 @@ int Game::start()
 
     //generate level geometry
     std::cout << "Generating level geometry...\n";
-    //if(!mLevels[0].buildLevelGeometry()) { std::cout << "Error generating level geometry!!\n"; return -1;}
+    if(!mLevels[0].buildLevelGeometry()) { std::cout << "Error generating level geometry!!\n"; return -1;}
 
     //start main loop
     std::cout << "Starting main loop...\n";
@@ -87,8 +89,8 @@ bool Game::initIrrlicht()
 
 
     //some 2d rendering config
-    m_Driver->getMaterial2D().TextureLayer[0].BilinearFilter=true;
-    m_Driver->getMaterial2D().AntiAliasing=video::EAAM_FULL_BASIC;
+    //m_Driver->getMaterial2D().TextureLayer[0].BilinearFilter=true;
+    //m_Driver->getMaterial2D().AntiAliasing=video::EAAM_FULL_BASIC;
 
     return true;
 }
@@ -105,7 +107,10 @@ bool Game::initCamera()
     //m_Camera = m_SMgr->addCameraSceneNodeFPS();
     //for collision testing
     m_Camera = m_SMgr->addCameraSceneNodeFPS(0, 100.0f, .1f, ID_IsNotPickable, 0, 0, false, 3.f);
-    m_Camera->setPosition( vector3df(0,4,0));
+    //m_Camera->setPosition( vector3df(0,4,0));
+    m_Camera->setPosition( vector3df(245.5,22,127.5));
+    m_Camera->setRotation( vector3df(0,180,0) );
+
 
     core::list<ISceneNodeAnimator*>::ConstIterator anim = m_Camera->getAnimators().begin();
     ISceneNodeAnimatorCameraFPS *animfps = (ISceneNodeAnimatorCameraFPS*)(*anim);
@@ -196,8 +201,21 @@ void Game::mainLoop()
     anim->drop();  // And likewise, drop the animator when we're done referring to it.
     */
 
-
-
+    //collision testing
+    /*
+    int cubesize = 4;
+    m_Camera->setPosition( vector3df(0,20,0));
+    m_Camera->setRotation( vector3df(0,0,0));
+    SMesh *mycubemesh = getSquareMesh(0,0,0,0);
+    //create scene node octree type
+    IMeshSceneNode *mycube = m_SMgr->addOctreeSceneNode(mycubemesh);
+    mycube->setPosition( vector3df(-2,0,-2));
+    mycube->setMaterialTexture(0, m_Wall64TXT[0]);
+    mycube->setMaterialFlag(video::EMF_LIGHTING,false);
+    mycubemesh->drop();
+    configMeshSceneNode(mycube);
+    registerForCollision(mycube);
+    */
 
     int lastFPS = -1;
 
@@ -253,6 +271,11 @@ void Game::mainLoop()
                 ttile->printDebug();
             }
             else std::cout << "Current tile = NULL!\n";
+        }
+        else if(m_Receiver.isKeyPressed(KEY_F5))
+        {
+            m_CameraPos = m_Camera->getPosition();
+            std::cout << "CAMERA_POS:" << m_CameraPos.X << "," << m_CameraPos.Y << "," << m_CameraPos.Z << std::endl;
         }
 
 
@@ -935,6 +958,25 @@ bool Game::configMeshSceneNode(IMeshSceneNode *tnode)
     return true;
 }
 
+bool Game::registerForCollision(IMeshSceneNode *tnode)
+{
+    //register collision stuff
+    m_TriangleSelector = m_SMgr->createOctreeTriangleSelector(tnode->getMesh(), tnode);
+    tnode->setTriangleSelector(m_TriangleSelector);
+
+    //calculate collision response elipsoid
+    const aabbox3d<f32>& mybbox = tnode->getBoundingBox();
+    vector3df mybboxradius = mybbox.MaxEdge - mybbox.getCenter();
+
+    //create collision response between selector and camera
+    ISceneNodeAnimator* anim = m_SMgr->createCollisionResponseAnimator(m_TriangleSelector, m_Camera, mybboxradius,vector3df(0,GRAVITY,0));
+    m_TriangleSelector->drop(); // As soon as we're done with the selector, drop it.
+    m_Camera->addAnimator(anim);
+    anim->drop();  // And likewise, drop the animator when we're done referring to it.
+
+    return true;
+}
+
 SMesh *Game::getCubeMesh(f32 cubesize)
 {
 
@@ -1018,46 +1060,42 @@ SMesh *Game::getCubeMesh(f32 cubesize)
 
 }
 
-SMesh *Game::getSquareMesh(f32 width, f32 height)
+SMesh *Game::getSquareMesh(int ul, int ur, int br, int bl)
 {
+    SMesh *mesh = NULL;
+    SMeshBuffer *buf = NULL;
 
-        SMesh* Mesh = new SMesh();
+    int vcount = 6;
+    int scale = UNIT_SCALE/4;
 
-        int vcount = 6;
+    //FLOOR MESH
+    mesh = new SMesh();
+    buf = new SMeshBuffer();
 
-        SMeshBuffer *buf = new SMeshBuffer();
-        Mesh->addMeshBuffer(buf);
-        buf->drop();
+    mesh->addMeshBuffer(buf);
+    buf->drop();
 
-        buf->Vertices.reallocate(vcount);
-        buf->Vertices.set_used(vcount);
+    buf->Vertices.reallocate(vcount);
+    buf->Vertices.set_used(vcount);
 
-        //top
-        buf->Vertices[0] = S3DVertex(0*width,0*width,0*width, 0,0,1,    video::SColor(255,255,255,255), 0, 0); //TL
-        buf->Vertices[1] = S3DVertex(1*width,0*width,0*width, 0,0,1,  video::SColor(255,255,255,255), 1, 0); //TR
-        buf->Vertices[2] = S3DVertex(0*width,1*width,0*width, 0,0,1,    video::SColor(255,255,255,255), 0, 1);// BL
+    //triangle 1
+    buf->Vertices[0] = S3DVertex(0*UNIT_SCALE,ul*scale,0*UNIT_SCALE, 0,1,0,    video::SColor(255,255,255,255), 0, 0); //TL
+    buf->Vertices[1] = S3DVertex(0*UNIT_SCALE,ur*scale,1*UNIT_SCALE, 0,1,0,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[2] = S3DVertex(1*UNIT_SCALE,bl*scale,0*UNIT_SCALE, 0,1,0,    video::SColor(255,255,255,255), 0, 1);// BL
+    //triangle 2
+    buf->Vertices[3] = S3DVertex(0*UNIT_SCALE,ur*scale,1*UNIT_SCALE, 0,1,0,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[4] = S3DVertex(1*UNIT_SCALE,br*scale,1*UNIT_SCALE, 0,1,0,    video::SColor(255,255,255,255), 1, 1); //BR
+    buf->Vertices[5] = S3DVertex(1*UNIT_SCALE,bl*scale,0*UNIT_SCALE, 0,1,0,    video::SColor(255,255,255,255), 0, 1); // BL
 
-        buf->Vertices[3] = S3DVertex(1*width,0,0, 0,0,1,    video::SColor(255,255,255,255), 1, 0); //TR
-        buf->Vertices[4] = S3DVertex(1*width,1*width,0, 0,0,1,    video::SColor(255,255,255,255), 1, 1); //BR
-        buf->Vertices[5] = S3DVertex(0,1*width,0, 0,0,1,    video::SColor(255,255,255,255), 0, 1); // BL
 
+    //finalize vertices
+    buf->Indices.reallocate(vcount);
+    buf->Indices.set_used(vcount);
+    for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
+    //mesh->setBoundingBox( aabbox3df(0,ul*scale-CEIL_HEIGHT,0,1*UNIT_SCALE,br*scale,1*UNIT_SCALE));
+    mesh->setBoundingBox( aabbox3df(0,-1,0,1*UNIT_SCALE,1,1*UNIT_SCALE));
+    buf->recalculateBoundingBox();
 
-        buf->Indices.reallocate(vcount);
-        buf->Indices.set_used(vcount);
-
-        for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
-        /*
-        buf->Indices[0]=0;
-        buf->Indices[1]=1;
-        buf->Indices[2]=2;
-        buf->Indices[3]=3;
-        buf->Indices[4]=4;
-        buf->Indices[5]=5;
-        */
-
-        Mesh->setBoundingBox( aabbox3df(0,0,0,width,width,0));
-        //buf->recalculateBoundingBox();
-
-        return Mesh;
+    return mesh;
 
 }

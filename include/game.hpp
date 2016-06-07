@@ -12,6 +12,7 @@
 #include "level.hpp"
 
 #define UNIT_SCALE 4
+#define GRAVITY -0.5
 
 //irrlicht namespaces
 using namespace irr;
@@ -98,6 +99,7 @@ private:
     ISceneCollisionManager *m_IMgr;
     IGUIEnvironment *m_GUIEnv;
     MyEventReceiver m_Receiver;
+    ITriangleSelector *m_TriangleSelector;
 
     //camera
     void updateCamera(vector3df cameratargetpos);
@@ -111,7 +113,7 @@ private:
 
     //mesh stuff
     SMesh *getCubeMesh(f32 cubesize);
-    SMesh *getSquareMesh(f32 width, f32 height);
+    SMesh *getSquareMesh(int ul, int ur, int br, int bl);
 
     //init
     bool initIrrlicht();
@@ -151,6 +153,7 @@ public:
 
     //mesh
     bool configMeshSceneNode(IMeshSceneNode *tnode);
+    bool registerForCollision(IMeshSceneNode *tnode);
 
     //textures
     const std::vector<ITexture*> *getWall64Textures() const { return &m_Wall64TXT;}
@@ -161,6 +164,8 @@ public:
     IrrlichtDevice *getDevice() { return m_Device;}
     IVideoDriver *getDriver() { return m_Driver;}
     IGUIEnvironment *getGuiEnv() { return m_GUIEnv;}
+    ITriangleSelector *getTriangleSelector() { return m_TriangleSelector;}
+    ICameraSceneNode *getCamera() { return m_Camera;}
 
 };
 #endif // CLASS_GAME

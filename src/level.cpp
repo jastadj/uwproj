@@ -56,6 +56,9 @@ bool Level::buildTileGeometry(int x, int y)
     std::vector<int> theight_ew(4,0);
     std::vector<int> bheight_ew(4,0);
 
+    //container for nodes
+    std::vector<IMeshSceneNode*> scenenodelist;
+
     //adjacent tiles
     Tile *tilenorth = NULL;
     Tile *tilesouth = NULL;
@@ -355,7 +358,7 @@ bool Level::buildTileGeometry(int x, int y)
     if(floormesh != NULL)
     {
         //create mesh in scene
-        IMeshSceneNode *tnode = m_SMgr->addMeshSceneNode(floormesh);
+        IMeshSceneNode *tnode = m_SMgr->addOctreeSceneNode(floormesh);
 
         //orient mesh depending on type
         switch(ttype)
@@ -384,13 +387,12 @@ bool Level::buildTileGeometry(int x, int y)
         //set floor texture and abs position
         tnode->setMaterialTexture(0, (*f32txt)[ttile->getFloorTXT()]);
 
+        gptr->registerForCollision(tnode);
 
-        //update mesh with common flags
-        gptr->configMeshSceneNode(tnode);
+        //add mesh and node to list
+        scenenodelist.push_back(tnode);
 
-        //link mesh to tile
-        ttile->setFloorMesh(tnode);
-        //drop smesh
+        //drop mesh
         floormesh->drop();
     }
 
@@ -409,7 +411,7 @@ bool Level::buildTileGeometry(int x, int y)
         if(dwallmesh != NULL)
         {
             //create scene node
-            IMeshSceneNode *tnode = m_SMgr->addMeshSceneNode(dwallmesh);
+            IMeshSceneNode *tnode = m_SMgr->addOctreeSceneNode(dwallmesh);
 
             //orient scene node
             switch(ttype)
@@ -436,12 +438,10 @@ bool Level::buildTileGeometry(int x, int y)
             //set wall texture (common for all walls of tile)
             tnode->setMaterialTexture(0, (*w64txt)[ttile->getWallTXT()]);
 
-            //update mesh with common flags
-            gptr->configMeshSceneNode(tnode);
+            //add mesh and node to list
+            scenenodelist.push_back(tnode);
 
-            //link mesh to tile
-            ttile->addWallMesh(tnode);
-            //drop smesh
+            //drop mesh
             dwallmesh->drop();
         }
 
@@ -457,7 +457,7 @@ bool Level::buildTileGeometry(int x, int y)
             if(wallmesh != NULL)
             {
                 //create scene node
-                IMeshSceneNode *tnode = m_SMgr->addMeshSceneNode(wallmesh);
+                IMeshSceneNode *tnode = m_SMgr->addOctreeSceneNode(wallmesh);
 
                 //orient scene node
                 tnode->setPosition( vector3df( y*UNIT_SCALE,0, x*UNIT_SCALE ) );
@@ -466,12 +466,10 @@ bool Level::buildTileGeometry(int x, int y)
                 //set wall texture (common for all walls of tile)
                 tnode->setMaterialTexture(0, (*w64txt)[ttile->getWallTXT()]);
 
-                //update mesh with common flags
-                gptr->configMeshSceneNode(tnode);
+                //add mesh and node to list
+                scenenodelist.push_back(tnode);
 
-                //link mesh to tile
-                ttile->addWallMesh(tnode);
-                //drop smesh
+                //drop mesh
                 wallmesh->drop();
             }
     }
@@ -485,7 +483,7 @@ bool Level::buildTileGeometry(int x, int y)
             if(wallmesh != NULL)
             {
                 //create scene node
-                IMeshSceneNode *tnode = m_SMgr->addMeshSceneNode(wallmesh);
+                IMeshSceneNode *tnode = m_SMgr->addOctreeSceneNode(wallmesh);
 
                 //orient scene node
                 tnode->setPosition( vector3df( y*UNIT_SCALE+UNIT_SCALE,0, x*UNIT_SCALE+UNIT_SCALE ) );
@@ -494,12 +492,10 @@ bool Level::buildTileGeometry(int x, int y)
                 //set wall texture (common for all walls of tile)
                 tnode->setMaterialTexture(0, (*w64txt)[ttile->getWallTXT()]);
 
-                //update mesh with common flags
-                gptr->configMeshSceneNode(tnode);
+                //add mesh and node to list
+                scenenodelist.push_back(tnode);
 
-                //link mesh to tile
-                ttile->addWallMesh(tnode);
-                //drop smesh
+                //drop mesh
                 wallmesh->drop();
             }
     }
@@ -513,7 +509,7 @@ bool Level::buildTileGeometry(int x, int y)
             if(wallmesh != NULL)
             {
                 //create scene node
-                IMeshSceneNode *tnode = m_SMgr->addMeshSceneNode(wallmesh);
+                IMeshSceneNode *tnode = m_SMgr->addOctreeSceneNode(wallmesh);
 
                 //orient scene node
                 tnode->setPosition( vector3df( y*UNIT_SCALE+UNIT_SCALE,0, x*UNIT_SCALE ) );
@@ -522,12 +518,10 @@ bool Level::buildTileGeometry(int x, int y)
                 //set wall texture (common for all walls of tile)
                 tnode->setMaterialTexture(0, (*w64txt)[ttile->getWallTXT()]);
 
-                //update mesh with common flags
-                gptr->configMeshSceneNode(tnode);
+                //add mesh and node to list
+                scenenodelist.push_back(tnode);
 
-                //link mesh to tile
-                ttile->addWallMesh(tnode);
-                //drop smesh
+                //drop mesh
                 wallmesh->drop();
             }
     }
@@ -541,7 +535,7 @@ bool Level::buildTileGeometry(int x, int y)
             if(wallmesh != NULL)
             {
                 //create scene node
-                IMeshSceneNode *tnode = m_SMgr->addMeshSceneNode(wallmesh);
+                IMeshSceneNode *tnode = m_SMgr->addOctreeSceneNode(wallmesh);
 
                 //orient scene node
                 tnode->setPosition( vector3df( y*UNIT_SCALE,0, x*UNIT_SCALE+UNIT_SCALE ) );
@@ -550,15 +544,32 @@ bool Level::buildTileGeometry(int x, int y)
                 //set wall texture (common for all walls of tile)
                 tnode->setMaterialTexture(0, (*w64txt)[ttile->getWallTXT()]);
 
-                //update mesh with common flags
-                gptr->configMeshSceneNode(tnode);
+                //add mesh and node to list
+                scenenodelist.push_back(tnode);
 
-                //link mesh to tile
-                ttile->addWallMesh(tnode);
-                //drop smesh
+                //drop mesh
                 wallmesh->drop();
             }
     }
+
+
+    //perform common operations to all meshes\scene nodes
+    for(int i = 0; i < int(scenenodelist.size()); i++)
+    {
+        //select target mesh and scene node
+        IMeshSceneNode *tnode = scenenodelist[i];
+
+        //update scene node with common flags
+        gptr->configMeshSceneNode(tnode);
+
+        //register collision stuff
+        //gptr->registerForCollision(tnode);
+
+        //add scene node reference to tile
+        ttile->addMesh(tnode);
+
+    }
+
 
     return true;
 }
@@ -597,7 +608,9 @@ SMesh *Level::generateFloorMesh(int ul, int ur, int br, int bl)
     buf->Indices.reallocate(vcount);
     buf->Indices.set_used(vcount);
     for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
-    mesh->setBoundingBox( aabbox3df(0,-0.1,0,1*scale,0.1,1*scale));
+    //mesh->setBoundingBox( aabbox3df(0,ul*scale-CEIL_HEIGHT,0,1*UNIT_SCALE,br*scale,1*UNIT_SCALE));
+    //mesh->setBoundingBox( aabbox3df(0,0,0,1*UNIT_SCALE,1*UNIT_SCALE,1*UNIT_SCALE));
+    mesh->setBoundingBox( aabbox3df(0,-1,0,1*UNIT_SCALE,1,1*UNIT_SCALE));
     buf->recalculateBoundingBox();
 
     return mesh;
@@ -806,8 +819,6 @@ Tile::Tile()
     mUnk1 = false;
     mUnk2 = false;
 
-    //geometry
-    mMeshFloor = NULL;
 
 }
 
@@ -819,45 +830,21 @@ Tile::~Tile()
 
 int Tile::clearGeometry()
 {
-    //counts valid geometry cleared
-    int clearcounter = 0;
-
-    //drop meshes
-    if(mMeshFloor != NULL)
+    int meshcount = int(mMeshes.size());
+    for(int i = 0; i < meshcount; i++)
     {
-        mMeshFloor->drop();
-        clearcounter++;
+        mMeshes[i]->drop();
     }
+    mMeshes.clear();
 
-    for(int i = 0; i < int(mMeshWalls.size()); i++)
-    {
-        mMeshWalls[i]->drop();
-        clearcounter++;
-    }
-    mMeshWalls.clear();
-
-    return clearcounter;
+    return meshcount;
 }
 
-bool Tile::setFloorMesh(IMeshSceneNode *tfloor)
+bool Tile::addMesh(IMeshSceneNode *tmesh)
 {
-    if(tfloor == NULL) return false;
+    if(tmesh == NULL) return false;
 
-    if(mMeshFloor != NULL)
-    {
-        std::cout << "Error, unable to set floor mesh, geometry not cleared first!\n";
-        return false;
-    }
-
-    mMeshFloor = tfloor;
-    return true;
-}
-
-bool Tile::addWallMesh(IMeshSceneNode *twall)
-{
-    if(twall == NULL) return false;
-
-    mMeshWalls.push_back(twall);
+    mMeshes.push_back(tmesh);
     return true;
 }
 
@@ -911,11 +898,6 @@ void Tile::printDebug()
     std::cout << "UNK1 = " << getUnk1() << std::endl;
     std::cout << "UNK2 = " << getUnk2() << std::endl;
     std::cout << "FIRST OBJ INDEX : " << getFirstObjectIndex() << std::endl;
-    std::cout << "\nWALL MESHES : " << mMeshWalls.size() << std::endl;
-    std::cout << "FLOOR MESH : ";
-    if(mMeshFloor == NULL) std::cout << "NULL\n";
-    else std::cout << "Y\n";
-
-
+    std::cout << "\nMESHES : " << mMeshes.size() << std::endl;
 
 }
