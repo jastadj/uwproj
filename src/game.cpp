@@ -47,7 +47,8 @@ int Game::start()
     if(!loadTexture("UWDATA\\f32.tr", &m_Floor32TXT)) { std::cout << "Error loading textures!\n"; return -1;}
         else std::cout << "Loaded " << m_Floor32TXT.size() << " floor32 textures.\n";
     std::cout << "Loading graphics...\n";
-    if(!loadGraphic("UWDATA\\charhead.gr", &m_CharHeadTXT)) {std::cout << "Error loading charhead graphic!\n"; return -1;}
+    //note : this needs to be fixed, throws bad alloc, need to investigate parsing for graphics load
+    //if(!loadGraphic("UWDATA\\charhead.gr", &m_CharHeadTXT)) {std::cout << "Error loading charhead graphic!\n"; return -1;}
 
 
 
@@ -55,7 +56,7 @@ int Game::start()
 
     //generate level geometry
     std::cout << "Generating level geometry...\n";
-    //if(!mLevels[0].buildLevelGeometry()) { std::cout << "Error generating level geometry!!\n"; return -1;}
+    if(!mLevels[0].buildLevelGeometry()) { std::cout << "Error generating level geometry!!\n"; return -1;}
 
     //start main loop
     std::cout << "Starting main loop...\n";
@@ -205,6 +206,7 @@ void Game::mainLoop()
     */
 
     //collision testing
+    /*
     int cubesize = 4;
     m_Camera->setPosition( vector3df(2,20,2));
     m_Camera->setRotation( vector3df(0,0,0));
@@ -223,6 +225,11 @@ void Game::mainLoop()
             registerForCollision(mycube);
         }
     }
+    */
+
+    //init collision
+    const aabbox3d<f32> mybbox(0,0,0,UNIT_SCALE, UNIT_SCALE, UNIT_SCALE);
+    vector3df mybboxradius = mybbox.MaxEdge - mybbox.getCenter();
     //create collision response between meta selector and camera
     ISceneNodeAnimator* anim = m_SMgr->createCollisionResponseAnimator(m_MetaTriangleSelector, m_Camera, mybboxradius,vector3df(0,GRAVITY,0));
     m_Camera->addAnimator(anim);
@@ -978,8 +985,8 @@ bool Game::registerForCollision(IMeshSceneNode *tnode)
     tnode->setTriangleSelector(selector);
 
     //calculate collision response elipsoid
-    const aabbox3d<f32>& mybbox = tnode->getBoundingBox();
-    vector3df mybboxradius = mybbox.MaxEdge - mybbox.getCenter();
+    //const aabbox3d<f32>& mybbox = tnode->getBoundingBox();
+    //vector3df mybboxradius = mybbox.MaxEdge - mybbox.getCenter();
 
     //add triangle to meta selector
     m_MetaTriangleSelector->addTriangleSelector(selector);

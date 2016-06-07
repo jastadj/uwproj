@@ -387,7 +387,7 @@ bool Level::buildTileGeometry(int x, int y)
         //set floor texture and abs position
         tnode->setMaterialTexture(0, (*f32txt)[ttile->getFloorTXT()]);
 
-        gptr->registerForCollision(tnode);
+        //gptr->registerForCollision(tnode);
 
         //add mesh and node to list
         scenenodelist.push_back(tnode);
@@ -563,7 +563,7 @@ bool Level::buildTileGeometry(int x, int y)
         gptr->configMeshSceneNode(tnode);
 
         //register collision stuff
-        //gptr->registerForCollision(tnode);
+        gptr->registerForCollision(tnode);
 
         //add scene node reference to tile
         ttile->addMesh(tnode);
