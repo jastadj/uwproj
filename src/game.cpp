@@ -53,7 +53,7 @@ int Game::start()
 
     //generate level geometry
     std::cout << "Generating level geometry...\n";
-    //if(!mLevels[0].buildLevelGeometry()) { std::cout << "Error generating level geometry!!\n"; return -1;}
+    if(!mLevels[0].buildLevelGeometry()) { std::cout << "Error generating level geometry!!\n"; return -1;}
 
     //start main loop
     std::cout << "Starting main loop...\n";
@@ -85,6 +85,11 @@ bool Game::initIrrlicht()
     //draw screen
     m_Driver->endScene();
 
+
+    //some 2d rendering config
+    m_Driver->getMaterial2D().TextureLayer[0].BilinearFilter=true;
+    m_Driver->getMaterial2D().AntiAliasing=video::EAAM_FULL_BASIC;
+
     return true;
 }
 
@@ -112,6 +117,289 @@ bool Game::initCamera()
 
     return true;
 }
+
+/////////////////////////////////////////////////////////////
+//  MAIN LOOP
+void Game::mainLoop()
+{
+    bool drawaxis = true;
+
+    //add light test
+    scene::ILightSceneNode* light1 = m_SMgr->addLightSceneNode(0, vector3df(0,0,0), SColorf(1.0f, 0.5f, 0.5f, 0.f), 100.0f);
+    light1->setLightType(video::ELT_SPOT);
+    light1->setRotation(vector3df(0,180,0));
+    light1->getLightData().Falloff = 5;
+    //light1->getLightData().DiffuseColor = SColor(100,100,100,100);
+    //light1->getLightData().SpecularColor = SColor(0,0,0,0);
+    //light1->enableCastShadow(false);
+    m_SMgr->setAmbientLight( SColor(100,100,100,100));
+
+
+
+/*
+    //test
+    int txtindex = 0;
+    SMesh *squaremesh = getSquareMesh(UNIT_SCALE*8, UNIT_SCALE*8);
+    IMeshSceneNode *mysquare = m_SMgr->addMeshSceneNode(squaremesh);
+        mysquare->setPosition(vector3df(0,UNIT_SCALE*8 , 0));
+        mysquare->setRotation(vector3df(180, 270, 0));
+        mysquare->setMaterialTexture(0, m_Wall64TXT[txtindex]);
+        mysquare->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
+        mysquare->setMaterialFlag(video::EMF_LIGHTING, false);
+        //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
+        //mycube->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
+        //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
+        mysquare->updateAbsolutePosition();
+    squaremesh->drop();
+*/
+
+    //test 2
+    /*
+    SMesh *mycubemesh = getCubeMesh(5);
+    IMeshSceneNode *mycube = m_SMgr->addMeshSceneNode(mycubemesh);
+    mycube->setPosition( vector3df(15,5,0));
+    mycube->setScale(vector3df(2,2,2));
+    mycube->setMaterialTexture(0, m_Wall64TXT[0]);
+    mycube->setMaterialFlag(video::EMF_LIGHTING,false);
+    mycubemesh->drop();
+    */
+
+    IGUIImage *myguiimage = m_GUIEnv->addImage(m_CharHeadTXT[1], position2d<s32>(0,0), false);
+    //IGUIImage *myguiimage = m_GUIEnv->addImage(m_Wall64TXT[0], position2d<s32>(0,0), false);
+    myguiimage->setScaleImage(false);
+
+
+
+    int lastFPS = -1;
+
+    // In order to do framerate independent movement, we have to know
+    // how long it was since the last frame
+    u32 then = m_Device->getTimer()->getTime();
+
+    //flag to store if mouse button was clicked on this frame
+    bool mouseLeftClicked = false;
+
+
+    //main loop
+    while(m_Device->run())
+    {
+
+        const SEvent *event = NULL;
+        mouseLeftClicked = false;
+
+        m_MousePos = m_Device->getCursorControl()->getPosition();
+        //std::cout << "Mouse:" << m_MousePos.X << "," << m_MousePos.Y << std::endl;
+
+
+
+        // Work out a frame delta time.
+        const u32 now = m_Device->getTimer()->getTime();
+        const f32 frameDeltaTime = (f32)(now - then) / 1000.f; // Time in seconds
+        then = now;
+
+
+        //check if keys are held for movement
+        if(m_Receiver.isKeyPressed(KEY_KEY_A))
+        {
+
+        }
+        else if(m_Receiver.isKeyPressed(KEY_KEY_D))
+        {
+
+        }
+        else if(m_Receiver.isKeyPressed(KEY_KEY_W))
+        {
+
+        }
+        else if(m_Receiver.isKeyPressed(KEY_KEY_S))
+        {
+
+        }
+        else if(m_Receiver.isKeyPressed(KEY_F1))
+        {
+            m_CameraPos = m_Camera->getPosition();
+            Tile *ttile = mLevels[m_CurrentLevel].getTile(int(m_CameraPos.Z)/UNIT_SCALE, int(m_CameraPos.X)/UNIT_SCALE);
+            if(ttile != NULL)
+            {
+                ttile->printDebug();
+            }
+            else std::cout << "Current tile = NULL!\n";
+        }
+
+
+        //process events in que
+        while(m_Receiver.processEvents(event))
+        {
+            //key event
+            if(event->EventType == EET_KEY_INPUT_EVENT)
+            {
+                //key pressed
+                if(event->KeyInput.PressedDown)
+                {
+                    if(event->KeyInput.Key == KEY_ESCAPE) m_Device->closeDevice();
+                    else if(event->KeyInput.Key == KEY_SPACE) m_CameraPos.Z += 10;
+                    else if(event->KeyInput.Key == KEY_KEY_E)
+                    {
+
+                        /*
+                        txtindex++;
+                        if(txtindex >= int(m_Wall64TXT.size()) ) txtindex = 0;
+                        mysquare->setMaterialTexture(0, m_Wall64TXT[txtindex]);
+                        std::cout << "TEXTURE INDEX = " << txtindex << std::endl;
+                        */
+
+
+                    }
+                    else if(event->KeyInput.Key == KEY_KEY_Q)
+                    {
+
+                        /*
+                        txtindex--;
+                        if(txtindex < 0) txtindex = int(m_Wall64TXT.size()-1);
+                        mysquare->setMaterialTexture(0, m_Wall64TXT[txtindex]);
+                        std::cout << "TEXTURE INDEX = " << txtindex << std::endl;
+                        */
+
+                    }
+                    else if(event->KeyInput.Key == KEY_KEY_T)
+                    {
+
+                    }
+
+                }
+                //key released
+                else
+                {
+
+                }
+
+
+            }
+            //mouse event
+            if(event->EventType == EET_MOUSE_INPUT_EVENT)
+            {
+                //if mouse left button pressed
+                if(event->MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN)
+                {
+                    mouseLeftClicked = true;
+                }
+                //else right mouse button pressed
+                else if(event->MouseInput.Event == EMIE_RMOUSE_PRESSED_DOWN)
+                {
+
+                }
+                //else mouse wheel moved
+                else if(event->MouseInput.Event == EMIE_MOUSE_WHEEL)
+                {
+                    //mouse wheel up
+                    if(event->MouseInput.Wheel > 0)
+                    {
+                        m_Camera->setFOV( m_Camera->getFOV()*0.9);
+                    }
+                    //mouse wheel down
+                    else if(event->MouseInput.Wheel < 0)
+                    {
+                        m_Camera->setFOV( m_Camera->getFOV()*1.1);
+                    }
+                }
+            }
+        }
+
+        //update actor and camera
+        //updateCamera(vector3df(0,0,0));
+        //m_CameraPos = m_Camera->getPosition();
+        //m_Camera->setPosition( vector3df(m_CameraPos.X, m_CameraPos.Y-0.1*frameDeltaTime, m_CameraPos.Z));
+
+
+
+        //clear scene
+        m_Driver->beginScene(true, true, SColor(255,100,101,140));
+
+        //current floor plane
+        plane3df myplane(vector3df(0,0,-25), vector3df(0,0,1));
+        //line from camera to mouse cursor
+        line3df myline = m_IMgr->getRayFromScreenCoordinates(m_MousePos);
+        vector3df myint;
+        //get intersection of camera_mouse_line to the floor plane
+        myplane.getIntersectionWithLimitedLine(myline.end, myline.start, myint);
+
+
+        //test draw bounding box for grid 0 0
+        //mymap[0][0]->setDebugDataVisible(irr::scene::EDS_BBOX);
+
+
+        //make grid transparent if mouse is touching it
+        /*
+        for(int i = 0; i < int(mymap.size()); i++)
+        {
+            for(int n = 0; n < int(mymap[i].size()); n++)
+            {
+                if(mymap[i][n] == NULL) continue;
+
+                if( mymap[i][n]->getTransformedBoundingBox().isPointInside(myint) )
+                {
+                    mymap[i][n]->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
+
+                    if(mouseLeftClicked)
+                    {
+                        mymap[i][n]->remove();
+                        mymap[i][n] = NULL;
+                    }
+
+                }
+                else mymap[i][n]->setMaterialType(video::EMT_SOLID);
+            }
+        }
+        */
+
+
+        //draw scene
+        m_SMgr->drawAll();
+
+        //draw axis
+        if(drawaxis)
+        {
+            SMaterial mymat;
+            mymat.setFlag(video::EMF_LIGHTING, false);
+            m_Driver->setMaterial(mymat);
+            m_Driver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
+            m_Driver->draw3DLine(vector3df(0,0,0), vector3df(0,0,100), SColor(255,0,0,255)); // z-axis blue
+            m_Driver->draw3DLine(vector3df(0,0,0), vector3df(100,0,0), SColor(255,255,0,0)); // x-axis red
+            m_Driver->draw3DLine(vector3df(0,0,0), vector3df(0,100,0), SColor(255,000,255,0)); // y-axis green
+        }
+
+
+        //draw gui
+        m_GUIEnv->drawAll();
+
+        /*
+        m_Driver->setMaterial(SMaterial());
+        m_Driver->setTransform(video::ETS_WORLD, IdentityMatrix);
+        m_Driver->draw3DLine( vector3df(0,0,0), vector3df(100,0,0), SColor(0,255,0,0));
+        */
+
+        //done and display
+        m_Driver->endScene();
+
+        int fps = m_Driver->getFPS();
+
+        if (lastFPS != fps)
+        {
+            core::stringw tmp(L"UWproj [");
+            tmp += m_Driver->getName();
+            tmp += L"] fps: ";
+            tmp += fps;
+
+            m_Device->setWindowCaption(tmp.c_str());
+            lastFPS = fps;
+        }
+
+    }
+
+    return;
+}
+
+
 
 void Game::updateCamera(vector3df cameratargetpos)
 {
@@ -487,9 +775,15 @@ bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
         unsigned char btypebuf[1];
         unsigned char bwidthbuf[1];
         unsigned char bheightbuf[1];
+        unsigned char bauxpalbuf[1];
+        unsigned char bsizebuf[2];
         int btype;
         int bwidth;
         int bheight;
+        int bauxpal;
+        int bsize;
+
+
 
         //texture
         ITexture *newtxt = NULL;
@@ -503,27 +797,32 @@ bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
         ifile.seekg(offsets[i]);
 
         //read in header and set data
-        readBin(&ifile, btypebuf, 1);
-        btype = int(btypebuf[0]);
-        readBin(&ifile, bwidthbuf, 1);
-        bwidth = int(bwidthbuf[0]);
-        readBin(&ifile, bheightbuf, 1);
-        bheight = int(bheightbuf[0]);
-
         //bitmap data is read differently depending on what bitmap type it is
         // types are:
         //          0x04 = 8bit uncompressed
         //          0x08 = 4bit run length
         //          0x0A = 4bit uncompressed
+        readBin(&ifile, btypebuf, 1);
+        btype = int(btypebuf[0]);
 
+        readBin(&ifile, bwidthbuf, 1);
+        bwidth = int(bwidthbuf[0]);
 
+        readBin(&ifile, bheightbuf, 1);
+        bheight = int(bheightbuf[0]);
 
+        //NOTE 4-bit images also have an auxillary palette selection byte
+        //if 4-bit uncompressed, read in aux pal byte
+        if(btype == 0x0a)
+        {
+            readBin(&ifile, bauxpalbuf, 1);
+            bauxpal = int(bauxpalbuf[0]);
+        }
 
+        //get size
+        readBin(&ifile, bsizebuf, 2);
+        bsize = lsbSum(bsizebuf, 2);
 
-
-
-        //set the stream position to offset
-        ifile.seekg(offsets[i]);
 
         //read bitmap data
         //if uncompressed format
@@ -539,11 +838,25 @@ bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
                     readBin(&ifile, bbyte, 1);
 
                     //if 8-bit
+                    if(btype == 0x04)
+                    {
+                        //set the pixel at x,y using current selected palette with read in palette index #
+                        newimg->setPixel(p, n, m_Palettes[palSel][int(bbyte[0])]);
+                    }
+                    else if(btype == 0x0a)
+                    {
+                        //first hi byte, the lo byte
+                        int hibyte = getBitVal( int(bbyte), 4, 4);
+                        int lobyte = getBitVal( int(bbyte), 0, 4);
 
-                    if 4 bit take upper nibble first then second
+                        //set the pixel at x,y using current selected palette with read in palette index #
+                        newimg->setPixel(p, n, m_Palettes[palSel][hibyte]);
+                        newimg->setPixel(p, n, m_Palettes[palSel][lobyte]);
 
-                    //set the pixel at x,y using current selected palette with read in palette index #
-                    newimg->setPixel(p, n, m_Palettes[palSel][int(pindex[0])]);
+                        //increase p counter (since we did two in one loop)
+                        p++;
+                    }
+
 
                 }
             }
@@ -566,332 +879,6 @@ bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
     ifile.close();
 
     return true;
-}
-
-/////////////////////////////////////////////////////////////
-//  MAIN LOOP
-void Game::mainLoop()
-{
-    bool drawaxis = true;
-
-    //add light test
-    scene::ILightSceneNode* light1 = m_SMgr->addLightSceneNode(0, vector3df(0,0,0), SColorf(1.0f, 0.5f, 0.5f, 0.f), 100.0f);
-    light1->setLightType(video::ELT_SPOT);
-    light1->setRotation(vector3df(0,180,0));
-    light1->getLightData().Falloff = 5;
-    //light1->getLightData().DiffuseColor = SColor(100,100,100,100);
-    //light1->getLightData().SpecularColor = SColor(0,0,0,0);
-    //light1->enableCastShadow(false);
-    m_SMgr->setAmbientLight( SColor(100,100,100,100));
-
-/*
-    int msize = 12;
-    f32 cubesize = 50;
-    SMesh *cubemesh = getCubeMesh(cubesize);
-    std::vector< std::vector<ISceneNode*> > mymap;
-    mymap.resize(msize);
-    for(int i = 0; i < msize; i++)
-    {
-        for(int n = 0; n < msize; n++)
-        {
-            vector3df cubepos(cubesize*n, cubesize*i, 0);
-            IMeshSceneNode *mycube = m_SMgr->addMeshSceneNode(cubemesh);
-            mymap[i].push_back(mycube);
-            if(mycube)
-            {
-                mycube->setPosition(vector3df(n*cubesize, i*cubesize, 0));
-                mycube->setMaterialTexture(0, m_Driver->getTexture(".\\Data\\Art\\wall.jpg"));
-                mycube->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
-                //mycube->setMaterialFlag(video::EMF_LIGHTING, false);
-                //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
-                //mycube->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
-                //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
-                mycube->updateAbsolutePosition();
-
-            }
-        }
-    }
-*/
-
-/*
-    //test
-    int txtindex = 0;
-    SMesh *squaremesh = getSquareMesh(UNIT_SCALE*8, UNIT_SCALE*8);
-    IMeshSceneNode *mysquare = m_SMgr->addMeshSceneNode(squaremesh);
-        mysquare->setPosition(vector3df(0,UNIT_SCALE*8 , 0));
-        mysquare->setRotation(vector3df(180, 270, 0));
-        mysquare->setMaterialTexture(0, m_Wall64TXT[txtindex]);
-        mysquare->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
-        mysquare->setMaterialFlag(video::EMF_LIGHTING, false);
-        //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
-        //mycube->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
-        //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
-        mysquare->updateAbsolutePosition();
-    squaremesh->drop();
-*/
-
-    //test 2
-    /*
-    SMesh *mycubemesh = getCubeMesh(5);
-    IMeshSceneNode *mycube = m_SMgr->addMeshSceneNode(mycubemesh);
-    mycube->setPosition( vector3df(15,5,0));
-    mycube->setScale(vector3df(2,2,2));
-    mycube->setMaterialTexture(0, m_Wall64TXT[0]);
-    mycube->setMaterialFlag(video::EMF_LIGHTING,false);
-    mycubemesh->drop();
-    */
-
-    //std::vector<IMeshSceneNode*> testtiles = generateTileMeshes(mLevels[0].getTile(30,2), 0, 0);
-    //if(testtiles.empty()) std::cout << "DID NOT GENERATE TILES!\n";
-
-    //generate level meshes
-/*
-    for(int i = 0; i < TILE_ROWS; i++)
-    {
-        for(int n = 0; n < TILE_COLS; n++)
-        {
-            std::vector<IMeshSceneNode*> tilemeshes;
-
-            Tile *ttile = mLevels[m_CurrentLevel].getTile(n,i);
-
-            tilemeshes = generateTileMeshes(ttile, n, i);
-
-            //dump meshes into master list
-            for(int p = 0; p < int(tilemeshes.size()); p++)
-            {
-                mLevelMeshes.push_back(tilemeshes[p]);
-            }
-        }
-    }
-*/
-
-    int lastFPS = -1;
-
-    // In order to do framerate independent movement, we have to know
-    // how long it was since the last frame
-    u32 then = m_Device->getTimer()->getTime();
-
-    //flag to store if mouse button was clicked on this frame
-    bool mouseLeftClicked = false;
-
-
-    //main loop
-    while(m_Device->run())
-    {
-
-        const SEvent *event = NULL;
-        mouseLeftClicked = false;
-
-        m_MousePos = m_Device->getCursorControl()->getPosition();
-        //std::cout << "Mouse:" << m_MousePos.X << "," << m_MousePos.Y << std::endl;
-
-
-
-        // Work out a frame delta time.
-        const u32 now = m_Device->getTimer()->getTime();
-        const f32 frameDeltaTime = (f32)(now - then) / 1000.f; // Time in seconds
-        then = now;
-
-
-        //check if keys are held for movement
-        if(m_Receiver.isKeyPressed(KEY_KEY_A))
-        {
-
-        }
-        else if(m_Receiver.isKeyPressed(KEY_KEY_D))
-        {
-
-        }
-        else if(m_Receiver.isKeyPressed(KEY_KEY_W))
-        {
-
-        }
-        else if(m_Receiver.isKeyPressed(KEY_KEY_S))
-        {
-
-        }
-        else if(m_Receiver.isKeyPressed(KEY_F1))
-        {
-            m_CameraPos = m_Camera->getPosition();
-            Tile *ttile = mLevels[m_CurrentLevel].getTile(int(m_CameraPos.Z)/UNIT_SCALE, int(m_CameraPos.X)/UNIT_SCALE);
-            if(ttile != NULL)
-            {
-                ttile->printDebug();
-            }
-            else std::cout << "Current tile = NULL!\n";
-        }
-
-
-        //process events in que
-        while(m_Receiver.processEvents(event))
-        {
-            //key event
-            if(event->EventType == EET_KEY_INPUT_EVENT)
-            {
-                //key pressed
-                if(event->KeyInput.PressedDown)
-                {
-                    if(event->KeyInput.Key == KEY_ESCAPE) m_Device->closeDevice();
-                    else if(event->KeyInput.Key == KEY_SPACE) m_CameraPos.Z += 10;
-                    else if(event->KeyInput.Key == KEY_KEY_E)
-                    {
-
-                        /*
-                        txtindex++;
-                        if(txtindex >= int(m_Wall64TXT.size()) ) txtindex = 0;
-                        mysquare->setMaterialTexture(0, m_Wall64TXT[txtindex]);
-                        std::cout << "TEXTURE INDEX = " << txtindex << std::endl;
-                        */
-
-
-                    }
-                    else if(event->KeyInput.Key == KEY_KEY_Q)
-                    {
-
-                        /*
-                        txtindex--;
-                        if(txtindex < 0) txtindex = int(m_Wall64TXT.size()-1);
-                        mysquare->setMaterialTexture(0, m_Wall64TXT[txtindex]);
-                        std::cout << "TEXTURE INDEX = " << txtindex << std::endl;
-                        */
-
-                    }
-                    else if(event->KeyInput.Key == KEY_KEY_T)
-                    {
-
-                    }
-
-                }
-                //key released
-                else
-                {
-
-                }
-
-
-            }
-            //mouse event
-            if(event->EventType == EET_MOUSE_INPUT_EVENT)
-            {
-                //if mouse left button pressed
-                if(event->MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN)
-                {
-                    mouseLeftClicked = true;
-                }
-                //else right mouse button pressed
-                else if(event->MouseInput.Event == EMIE_RMOUSE_PRESSED_DOWN)
-                {
-
-                }
-                //else mouse wheel moved
-                else if(event->MouseInput.Event == EMIE_MOUSE_WHEEL)
-                {
-                    //mouse wheel up
-                    if(event->MouseInput.Wheel > 0)
-                    {
-                        m_Camera->setFOV( m_Camera->getFOV()*0.9);
-                    }
-                    //mouse wheel down
-                    else if(event->MouseInput.Wheel < 0)
-                    {
-                        m_Camera->setFOV( m_Camera->getFOV()*1.1);
-                    }
-                }
-            }
-        }
-
-        //update actor and camera
-        //updateCamera(vector3df(0,0,0));
-        //m_CameraPos = m_Camera->getPosition();
-        //m_Camera->setPosition( vector3df(m_CameraPos.X, m_CameraPos.Y-0.1*frameDeltaTime, m_CameraPos.Z));
-
-
-
-        //clear scene
-        m_Driver->beginScene(true, true, SColor(255,100,101,140));
-
-        //current floor plane
-        plane3df myplane(vector3df(0,0,-25), vector3df(0,0,1));
-        //line from camera to mouse cursor
-        line3df myline = m_IMgr->getRayFromScreenCoordinates(m_MousePos);
-        vector3df myint;
-        //get intersection of camera_mouse_line to the floor plane
-        myplane.getIntersectionWithLimitedLine(myline.end, myline.start, myint);
-
-
-        //test draw bounding box for grid 0 0
-        //mymap[0][0]->setDebugDataVisible(irr::scene::EDS_BBOX);
-
-
-        //make grid transparent if mouse is touching it
-        /*
-        for(int i = 0; i < int(mymap.size()); i++)
-        {
-            for(int n = 0; n < int(mymap[i].size()); n++)
-            {
-                if(mymap[i][n] == NULL) continue;
-
-                if( mymap[i][n]->getTransformedBoundingBox().isPointInside(myint) )
-                {
-                    mymap[i][n]->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
-
-                    if(mouseLeftClicked)
-                    {
-                        mymap[i][n]->remove();
-                        mymap[i][n] = NULL;
-                    }
-
-                }
-                else mymap[i][n]->setMaterialType(video::EMT_SOLID);
-            }
-        }
-        */
-
-
-        //draw scene
-        m_SMgr->drawAll();
-
-        //draw axis
-        if(drawaxis)
-        {
-            SMaterial mymat;
-            mymat.setFlag(video::EMF_LIGHTING, false);
-            m_Driver->setMaterial(mymat);
-            m_Driver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
-            m_Driver->draw3DLine(vector3df(0,0,0), vector3df(0,0,100), SColor(255,0,0,255)); // z-axis blue
-            m_Driver->draw3DLine(vector3df(0,0,0), vector3df(100,0,0), SColor(255,255,0,0)); // x-axis red
-            m_Driver->draw3DLine(vector3df(0,0,0), vector3df(0,100,0), SColor(255,000,255,0)); // y-axis green
-        }
-
-
-        //draw gui
-        m_GUIEnv->drawAll();
-
-        /*
-        m_Driver->setMaterial(SMaterial());
-        m_Driver->setTransform(video::ETS_WORLD, IdentityMatrix);
-        m_Driver->draw3DLine( vector3df(0,0,0), vector3df(100,0,0), SColor(0,255,0,0));
-        */
-
-        //done and display
-        m_Driver->endScene();
-
-        int fps = m_Driver->getFPS();
-
-        if (lastFPS != fps)
-        {
-            core::stringw tmp(L"UWproj [");
-            tmp += m_Driver->getName();
-            tmp += L"] fps: ";
-            tmp += fps;
-
-            m_Device->setWindowCaption(tmp.c_str());
-            lastFPS = fps;
-        }
-
-    }
-
-    return;
 }
 
 bool Game::configMeshSceneNode(IMeshSceneNode *tnode)
