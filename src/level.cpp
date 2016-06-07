@@ -383,7 +383,7 @@ bool Level::buildTileGeometry(int x, int y)
 
         //set floor texture and abs position
         tnode->setMaterialTexture(0, (*f32txt)[ttile->getFloorTXT()]);
-        tnode->updateAbsolutePosition();
+
 
         //update mesh with common flags
         gptr->configMeshSceneNode(tnode);
@@ -436,9 +436,6 @@ bool Level::buildTileGeometry(int x, int y)
             //set wall texture (common for all walls of tile)
             tnode->setMaterialTexture(0, (*w64txt)[ttile->getWallTXT()]);
 
-            //note : this is common and needs to be done for all meshes, should be able to do a loop for all tile nodes?
-            tnode->updateAbsolutePosition();
-
             //update mesh with common flags
             gptr->configMeshSceneNode(tnode);
 
@@ -469,9 +466,6 @@ bool Level::buildTileGeometry(int x, int y)
                 //set wall texture (common for all walls of tile)
                 tnode->setMaterialTexture(0, (*w64txt)[ttile->getWallTXT()]);
 
-                //note : this is common and needs to be done for all meshes, should be able to do a loop for all tile nodes?
-                tnode->updateAbsolutePosition();
-
                 //update mesh with common flags
                 gptr->configMeshSceneNode(tnode);
 
@@ -499,9 +493,6 @@ bool Level::buildTileGeometry(int x, int y)
 
                 //set wall texture (common for all walls of tile)
                 tnode->setMaterialTexture(0, (*w64txt)[ttile->getWallTXT()]);
-
-                //note : this is common and needs to be done for all meshes, should be able to do a loop for all tile nodes?
-                tnode->updateAbsolutePosition();
 
                 //update mesh with common flags
                 gptr->configMeshSceneNode(tnode);
@@ -531,9 +522,6 @@ bool Level::buildTileGeometry(int x, int y)
                 //set wall texture (common for all walls of tile)
                 tnode->setMaterialTexture(0, (*w64txt)[ttile->getWallTXT()]);
 
-                //note : this is common and needs to be done for all meshes, should be able to do a loop for all tile nodes?
-                tnode->updateAbsolutePosition();
-
                 //update mesh with common flags
                 gptr->configMeshSceneNode(tnode);
 
@@ -561,9 +549,6 @@ bool Level::buildTileGeometry(int x, int y)
 
                 //set wall texture (common for all walls of tile)
                 tnode->setMaterialTexture(0, (*w64txt)[ttile->getWallTXT()]);
-
-                //note : this is common and needs to be done for all meshes, should be able to do a loop for all tile nodes?
-                tnode->updateAbsolutePosition();
 
                 //update mesh with common flags
                 gptr->configMeshSceneNode(tnode);

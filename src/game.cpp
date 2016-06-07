@@ -53,7 +53,7 @@ int Game::start()
 
     //generate level geometry
     std::cout << "Generating level geometry...\n";
-    if(!mLevels[0].buildLevelGeometry()) { std::cout << "Error generating level geometry!!\n"; return -1;}
+    //if(!mLevels[0].buildLevelGeometry()) { std::cout << "Error generating level geometry!!\n"; return -1;}
 
     //start main loop
     std::cout << "Starting main loop...\n";
@@ -164,11 +164,19 @@ void Game::mainLoop()
     mycubemesh->drop();
     */
 
+    /*
     IGUIImage *myguiimage = m_GUIEnv->addImage(m_CharHeadTXT[1], position2d<s32>(0,0), false);
     //IGUIImage *myguiimage = m_GUIEnv->addImage(m_Wall64TXT[0], position2d<s32>(0,0), false);
     myguiimage->setScaleImage(false);
+    */
 
-
+    SMesh *mycubemesh = getCubeMesh(6);
+    IMeshSceneNode *mycube = m_SMgr->addMeshSceneNode(mycubemesh);
+    mycube->setPosition( vector3df(-3,-12,3));
+    //mycube->setScale(vector3df(2,2,2));
+    mycube->setMaterialTexture(0, m_Wall64TXT[0]);
+    mycube->setMaterialFlag(video::EMF_LIGHTING,false);
+    mycubemesh->drop();
 
     int lastFPS = -1;
 
@@ -899,6 +907,9 @@ bool Game::configMeshSceneNode(IMeshSceneNode *tnode)
     tnode->getMaterial(0).getTextureMatrix(0).setScale(1);
     tnode->getMaterial(0).TextureLayer->TextureWrapU = video::ETC_REPEAT;
     tnode->getMaterial(0).TextureLayer->TextureWrapV = video::ETC_REPEAT;
+
+    //update
+    tnode->updateAbsolutePosition();
 
     return true;
 }
