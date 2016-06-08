@@ -108,6 +108,7 @@ private:
     ICameraSceneNode *m_Camera;
     vector3df m_CameraPos;
     vector3df m_CameraRot;
+    vector3df m_CameraVel;
     ISceneNode *m_CameraTarget;
     f32 m_CameraDefaultFOV;
 

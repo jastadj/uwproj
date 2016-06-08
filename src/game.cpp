@@ -105,24 +105,7 @@ bool Game::initCamera()
 
     //add camera to scene
     //m_CameraTarget = vector3df(0,0,0);
-    m_CameraPos = vector3df(245.5,22,127.5);
-    m_CameraRot = vector3df(0,180,0);
     m_Camera = m_SMgr->addCameraSceneNode(0, m_CameraPos);
-    //m_Camera = m_SMgr->addCameraSceneNodeFPS();
-    //for collision testing
-    //addCameraSceneNodeFPS (ISceneNode *parent=0, f32 rotateSpeed=100.0f, f32 moveSpeed=0.5f, s32 id=-1, SKeyMap *keyMapArray=0, s32 keyMapSize=0, bool noVerticalMovement=false, f32 jumpSpeed=0.f, bool invertMouse=false, bool makeActive=true)=0
-    //m_Camera = m_SMgr->addCameraSceneNodeFPS(0, 100.0f, 0.5f, ID_IsNotPickable, 0, 0, false, 3.f);
-    //m_Camera->setPosition( vector3df(0,4,0));
-    m_Camera->setPosition( m_CameraPos);
-    m_Camera->setRotation( m_CameraRot );
-
-
-    //core::list<ISceneNodeAnimator*>::ConstIterator anim = m_Camera->getAnimators().begin();
-    //ISceneNodeAnimatorCameraFPS *animfps = (ISceneNodeAnimatorCameraFPS*)(*anim);
-    //animfps->setMoveSpeed(0.05);
-
-    //level camera (avoid camera rotation when pointing at target)
-     m_Camera->setUpVector(vector3df(0,1,0));
 
     //capture default FOV
     m_CameraDefaultFOV = m_Camera->getFOV();
@@ -131,6 +114,33 @@ bool Game::initCamera()
     m_CameraTarget = m_SMgr->addEmptySceneNode();
     m_CameraTarget->setPosition( vector3df(0,0,1));
     m_Camera->addChild(m_CameraTarget);
+
+    m_CameraPos = vector3df(245.5,22,127.5);
+    m_CameraRot = vector3df(0,180,0);
+
+    //level camera (avoid camera rotation when pointing at target)
+     m_Camera->setUpVector(vector3df(0,1,0));
+
+    updateCamera();
+
+    //m_Camera = m_SMgr->addCameraSceneNodeFPS();
+    //for collision testing
+    //addCameraSceneNodeFPS (ISceneNode *parent=0, f32 rotateSpeed=100.0f, f32 moveSpeed=0.5f, s32 id=-1, SKeyMap *keyMapArray=0, s32 keyMapSize=0, bool noVerticalMovement=false, f32 jumpSpeed=0.f, bool invertMouse=false, bool makeActive=true)=0
+    //m_Camera = m_SMgr->addCameraSceneNodeFPS(0, 100.0f, 0.5f, ID_IsNotPickable, 0, 0, false, 3.f);
+    //m_Camera->setPosition( vector3df(0,4,0));
+    //m_Camera->setPosition( m_CameraPos);
+    //m_Camera->setRotation( m_CameraRot );
+
+
+    //core::list<ISceneNodeAnimator*>::ConstIterator anim = m_Camera->getAnimators().begin();
+    //ISceneNodeAnimatorCameraFPS *animfps = (ISceneNodeAnimatorCameraFPS*)(*anim);
+    //animfps->setMoveSpeed(0.05);
+
+
+
+
+
+
 
 
     return true;
@@ -280,29 +290,21 @@ void Game::mainLoop()
         {
 
         }
-        else if(m_Receiver.isKeyPressed(KEY_KEY_W))
+
+        if(m_Receiver.isKeyPressed(KEY_KEY_W))
+        {
+            m_CameraVel.Z = 1;
+        }
+        else m_CameraVel.Z = 0;
+
+        if(m_Receiver.isKeyPressed(KEY_KEY_S))
         {
 
         }
-        else if(m_Receiver.isKeyPressed(KEY_KEY_S))
+        else if(m_Receiver.isKeyPressed(KEY_KEY_T))
         {
+        }
 
-        }
-        else if(m_Receiver.isKeyPressed(KEY_F1))
-        {
-            m_CameraPos = m_Camera->getPosition();
-            Tile *ttile = mLevels[m_CurrentLevel].getTile(int(m_CameraPos.Z)/UNIT_SCALE, int(m_CameraPos.X)/UNIT_SCALE);
-            if(ttile != NULL)
-            {
-                ttile->printDebug();
-            }
-            else std::cout << "Current tile = NULL!\n";
-        }
-        else if(m_Receiver.isKeyPressed(KEY_F5))
-        {
-            m_CameraPos = m_Camera->getPosition();
-            std::cout << "CAMERA_POS:" << m_CameraPos.X << "," << m_CameraPos.Y << "," << m_CameraPos.Z << std::endl;
-        }
 
 
         //process events in que
@@ -316,6 +318,9 @@ void Game::mainLoop()
                 {
                     if(event->KeyInput.Key == KEY_ESCAPE) m_Device->closeDevice();
                     else if(event->KeyInput.Key == KEY_SPACE) m_CameraPos.Z += 10;
+                    else if(event->KeyInput.Key == KEY_KEY_W)
+                    {
+                    }
                     else if(event->KeyInput.Key == KEY_KEY_A)
                     {
                         m_CameraRot.Y -=10.0f;
@@ -349,7 +354,21 @@ void Game::mainLoop()
                     }
                     else if(event->KeyInput.Key == KEY_KEY_T)
                     {
-
+                    }
+                    else if(m_Receiver.isKeyPressed(KEY_F1))
+                    {
+                        m_CameraPos = m_Camera->getPosition();
+                        Tile *ttile = mLevels[m_CurrentLevel].getTile(int(m_CameraPos.Z)/UNIT_SCALE, int(m_CameraPos.X)/UNIT_SCALE);
+                        if(ttile != NULL)
+                        {
+                            ttile->printDebug();
+                        }
+                        else std::cout << "Current tile = NULL!\n";
+                    }
+                    else if(m_Receiver.isKeyPressed(KEY_F5))
+                    {
+                        m_CameraPos = m_Camera->getPosition();
+                        std::cout << "CAMERA_POS:" << m_CameraPos.X << "," << m_CameraPos.Y << "," << m_CameraPos.Z << std::endl;
                     }
 
                 }
@@ -491,13 +510,22 @@ void Game::mainLoop()
 
 void Game::updateCamera()
 {
-    //std::cout << m_Camera->getRotation().X << "," << m_Camera->getRotation().Y << "," << m_Camera->getRotation().Z << std::endl;
 
-    //m_CameraTarget = cameratargetpos;
+
+    matrix4 m;
+    m.setRotationDegrees(m_CameraRot);
+    m.transformVect(m_CameraVel);
+    //m_CameraTarget->setPosition(m_CameraPos +m_CameraVel);
+    m_CameraPos += m_CameraVel;
+    //node->updateAbsolutePosition();
+
+    //m_CameraPos += m_CameraVel;
     m_Camera->setPosition(m_CameraPos);
     m_Camera->setRotation(m_CameraRot);
     m_Camera->setTarget(m_CameraTarget->getAbsolutePosition());
     //m_Camera->setTarget(m_CameraTarget);
+
+    std::cout << "camera target pos:" << m_CameraTarget->getPosition().X << "," << m_CameraTarget->getPosition().Y << "," << m_CameraTarget->getPosition().Z << std::endl;
 }
 
 bool Game::loadLevel()
