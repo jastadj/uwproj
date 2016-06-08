@@ -71,7 +71,7 @@ bool Game::initIrrlicht()
     if(m_Device != NULL) return false;
 
     //init device
-    m_Device = createDevice( video::EDT_OPENGL, dimension2d<u32>(800, 600), 16, false, false, false, &m_Receiver);
+    m_Device = createDevice( video::EDT_OPENGL, dimension2d<u32>(SCREEN_WIDTH, SCREEN_HEIGHT), 16, false, false, false, &m_Receiver);
     if(!m_Device) {std::cout << "Error creating device.\n";return false;}
     m_Device->setWindowCaption(L"UWproj");
 
@@ -105,26 +105,33 @@ bool Game::initCamera()
 
     //add camera to scene
     //m_CameraTarget = vector3df(0,0,0);
-    //m_CameraPos = vector3df(0,4,0);
-    //m_Camera = m_SMgr->addCameraSceneNode(0, m_CameraPos, m_CameraTarget);
+    m_CameraPos = vector3df(245.5,22,127.5);
+    m_CameraRot = vector3df(0,180,0);
+    m_Camera = m_SMgr->addCameraSceneNode(0, m_CameraPos);
     //m_Camera = m_SMgr->addCameraSceneNodeFPS();
     //for collision testing
     //addCameraSceneNodeFPS (ISceneNode *parent=0, f32 rotateSpeed=100.0f, f32 moveSpeed=0.5f, s32 id=-1, SKeyMap *keyMapArray=0, s32 keyMapSize=0, bool noVerticalMovement=false, f32 jumpSpeed=0.f, bool invertMouse=false, bool makeActive=true)=0
-    m_Camera = m_SMgr->addCameraSceneNodeFPS(0, 100.0f, 0.5f, ID_IsNotPickable, 0, 0, false, 3.f);
+    //m_Camera = m_SMgr->addCameraSceneNodeFPS(0, 100.0f, 0.5f, ID_IsNotPickable, 0, 0, false, 3.f);
     //m_Camera->setPosition( vector3df(0,4,0));
-    m_Camera->setPosition( vector3df(245.5,22,127.5));
-    m_Camera->setRotation( vector3df(0,180,0) );
+    m_Camera->setPosition( m_CameraPos);
+    m_Camera->setRotation( m_CameraRot );
 
 
-    core::list<ISceneNodeAnimator*>::ConstIterator anim = m_Camera->getAnimators().begin();
-    ISceneNodeAnimatorCameraFPS *animfps = (ISceneNodeAnimatorCameraFPS*)(*anim);
-    animfps->setMoveSpeed(0.05);
+    //core::list<ISceneNodeAnimator*>::ConstIterator anim = m_Camera->getAnimators().begin();
+    //ISceneNodeAnimatorCameraFPS *animfps = (ISceneNodeAnimatorCameraFPS*)(*anim);
+    //animfps->setMoveSpeed(0.05);
 
     //level camera (avoid camera rotation when pointing at target)
-     //m_Camera->setUpVector(vector3df(1,0,0));
+     m_Camera->setUpVector(vector3df(0,1,0));
 
     //capture default FOV
     m_CameraDefaultFOV = m_Camera->getFOV();
+
+    //create an empty scene node in front of the camera as "target"
+    m_CameraTarget = m_SMgr->addEmptySceneNode();
+    m_CameraTarget->setPosition( vector3df(0,0,1));
+    m_Camera->addChild(m_CameraTarget);
+
 
     return true;
 }
@@ -228,6 +235,7 @@ void Game::mainLoop()
     */
 
     //init collision
+    /*
     const aabbox3d<f32> mybbox(0,0,0,UNIT_SCALE, UNIT_SCALE, UNIT_SCALE);
     vector3df mybboxradius = mybbox.MaxEdge - mybbox.getCenter();
     //create collision response between meta selector and camera
@@ -235,6 +243,7 @@ void Game::mainLoop()
     m_Camera->addAnimator(anim);
     //animator no longer needed, drop it
     anim->drop();
+    */
 
 
     int lastFPS = -1;
@@ -246,7 +255,6 @@ void Game::mainLoop()
     //flag to store if mouse button was clicked on this frame
     bool mouseLeftClicked = false;
 
-
     //main loop
     while(m_Device->run())
     {
@@ -256,8 +264,6 @@ void Game::mainLoop()
 
         m_MousePos = m_Device->getCursorControl()->getPosition();
         //std::cout << "Mouse:" << m_MousePos.X << "," << m_MousePos.Y << std::endl;
-
-
 
         // Work out a frame delta time.
         const u32 now = m_Device->getTimer()->getTime();
@@ -310,6 +316,14 @@ void Game::mainLoop()
                 {
                     if(event->KeyInput.Key == KEY_ESCAPE) m_Device->closeDevice();
                     else if(event->KeyInput.Key == KEY_SPACE) m_CameraPos.Z += 10;
+                    else if(event->KeyInput.Key == KEY_KEY_A)
+                    {
+                        m_CameraRot.Y -=10.0f;
+                    }
+                    else if(event->KeyInput.Key == KEY_KEY_D)
+                    {
+                        m_CameraRot.Y +=10.0f;
+                    }
                     else if(event->KeyInput.Key == KEY_KEY_E)
                     {
 
@@ -378,7 +392,8 @@ void Game::mainLoop()
         }
 
         //update actor and camera
-        //updateCamera(vector3df(0,0,0));
+        updateCamera();
+
         //m_CameraPos = m_Camera->getPosition();
         //m_Camera->setPosition( vector3df(m_CameraPos.X, m_CameraPos.Y-0.1*frameDeltaTime, m_CameraPos.Z));
 
@@ -387,6 +402,7 @@ void Game::mainLoop()
         //clear scene
         m_Driver->beginScene(true, true, SColor(255,100,101,140));
 
+        /*
         //current floor plane
         plane3df myplane(vector3df(0,0,-25), vector3df(0,0,1));
         //line from camera to mouse cursor
@@ -394,7 +410,7 @@ void Game::mainLoop()
         vector3df myint;
         //get intersection of camera_mouse_line to the floor plane
         myplane.getIntersectionWithLimitedLine(myline.end, myline.start, myint);
-
+        */
 
         //test draw bounding box for grid 0 0
         //mymap[0][0]->setDebugDataVisible(irr::scene::EDS_BBOX);
@@ -473,12 +489,14 @@ void Game::mainLoop()
 
 
 
-void Game::updateCamera(vector3df cameratargetpos)
+void Game::updateCamera()
 {
     //std::cout << m_Camera->getRotation().X << "," << m_Camera->getRotation().Y << "," << m_Camera->getRotation().Z << std::endl;
 
     //m_CameraTarget = cameratargetpos;
     m_Camera->setPosition(m_CameraPos);
+    m_Camera->setRotation(m_CameraRot);
+    m_Camera->setTarget(m_CameraTarget->getAbsolutePosition());
     //m_Camera->setTarget(m_CameraTarget);
 }
 

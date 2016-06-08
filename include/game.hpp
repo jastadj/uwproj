@@ -11,6 +11,8 @@
 
 #include "level.hpp"
 
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
 #define UNIT_SCALE 4
 #define GRAVITY -10
 
@@ -102,10 +104,11 @@ private:
     IMetaTriangleSelector *m_MetaTriangleSelector;
 
     //camera
-    void updateCamera(vector3df cameratargetpos);
+    void updateCamera();
     ICameraSceneNode *m_Camera;
     vector3df m_CameraPos;
-    vector3df m_CameraTarget;
+    vector3df m_CameraRot;
+    ISceneNode *m_CameraTarget;
     f32 m_CameraDefaultFOV;
 
     //mouse

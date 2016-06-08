@@ -563,7 +563,7 @@ bool Level::buildTileGeometry(int x, int y)
         gptr->configMeshSceneNode(tnode);
 
         //register collision stuff
-        gptr->registerForCollision(tnode);
+        //gptr->registerForCollision(tnode);
 
         //add scene node reference to tile
         ttile->addMesh(tnode);
