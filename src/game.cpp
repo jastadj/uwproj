@@ -104,22 +104,27 @@ bool Game::initCamera()
     if(m_Camera != NULL) return false;
 
     //add camera to scene
-    //m_CameraTarget = vector3df(0,0,0);
     m_Camera = m_SMgr->addCameraSceneNode(0, m_CameraPos);
+
+    //create an empty scene node in front of the camera as "target"
+    m_CameraTarget = m_SMgr->addEmptySceneNode();
 
     //capture default FOV
     m_CameraDefaultFOV = m_Camera->getFOV();
 
-    //create an empty scene node in front of the camera as "target"
-    m_CameraTarget = m_SMgr->addEmptySceneNode();
-    m_CameraTarget->setPosition( vector3df(0,0,1));
-    m_Camera->addChild(m_CameraTarget);
+
+    //m_CameraTarget->setPosition( vector3df(0,0,1));
+    //m_Camera->addChild(m_CameraTarget);
+    //m_CameraTarget->addChild(m_Camera);
 
     m_CameraPos = vector3df(245.5,22,127.5);
     m_CameraRot = vector3df(0,180,0);
 
     //level camera (avoid camera rotation when pointing at target)
      m_Camera->setUpVector(vector3df(0,1,0));
+
+    //unbind camera to target
+    m_Camera->bindTargetAndRotation(false);
 
     updateCamera();
 
@@ -284,27 +289,22 @@ void Game::mainLoop()
         //check if keys are held for movement
         if(m_Receiver.isKeyPressed(KEY_KEY_A))
         {
-
+            m_CameraRot.Y -=10.0f;
         }
         else if(m_Receiver.isKeyPressed(KEY_KEY_D))
         {
-
+            m_CameraRot.Y +=10.0f;
         }
 
         if(m_Receiver.isKeyPressed(KEY_KEY_W))
         {
             m_CameraVel.Z = 1;
         }
+        else if(m_Receiver.isKeyPressed(KEY_KEY_S) )
+        {
+            m_CameraVel.Z = -1;
+        }
         else m_CameraVel.Z = 0;
-
-        if(m_Receiver.isKeyPressed(KEY_KEY_S))
-        {
-
-        }
-        else if(m_Receiver.isKeyPressed(KEY_KEY_T))
-        {
-        }
-
 
 
         //process events in que
@@ -323,11 +323,11 @@ void Game::mainLoop()
                     }
                     else if(event->KeyInput.Key == KEY_KEY_A)
                     {
-                        m_CameraRot.Y -=10.0f;
+
                     }
                     else if(event->KeyInput.Key == KEY_KEY_D)
                     {
-                        m_CameraRot.Y +=10.0f;
+
                     }
                     else if(event->KeyInput.Key == KEY_KEY_E)
                     {
@@ -511,18 +511,22 @@ void Game::mainLoop()
 void Game::updateCamera()
 {
 
-
+/*
     matrix4 m;
     m.setRotationDegrees(m_CameraRot);
     m.transformVect(m_CameraVel);
     //m_CameraTarget->setPosition(m_CameraPos +m_CameraVel);
     m_CameraPos += m_CameraVel;
     //node->updateAbsolutePosition();
+*/
 
-    //m_CameraPos += m_CameraVel;
-    m_Camera->setPosition(m_CameraPos);
+    m_CameraPos += m_CameraVel;
+    m_Camera->setPosition(m_Camera->getAbsolutePosition() + m_CameraVel);
+    //m_CameraTarget->setPosition( m_CameraTarget->getAbsolutePosition() + m_CameraVel);
+    //m_CameraTarget->updateAbsolutePosition();
     m_Camera->setRotation(m_CameraRot);
-    m_Camera->setTarget(m_CameraTarget->getAbsolutePosition());
+    m_Camera->updateAbsolutePosition();
+    m_Camera->setTarget(m_CameraPos);
     //m_Camera->setTarget(m_CameraTarget);
 
     std::cout << "camera target pos:" << m_CameraTarget->getPosition().X << "," << m_CameraTarget->getPosition().Y << "," << m_CameraTarget->getPosition().Z << std::endl;
