@@ -103,6 +103,9 @@ bool Game::initCamera()
     //already initialized!!
     if(m_Camera != NULL) return false;
 
+    m_CameraPos = vector3df(245.5,22,127.5);
+    m_CameraRot = vector3df(0,0,0);
+
     //add camera to scene
     m_Camera = m_SMgr->addCameraSceneNode(0, m_CameraPos);
 
@@ -117,14 +120,13 @@ bool Game::initCamera()
     //m_Camera->addChild(m_CameraTarget);
     //m_CameraTarget->addChild(m_Camera);
 
-    m_CameraPos = vector3df(245.5,22,127.5);
-    m_CameraRot = vector3df(0,180,0);
+
 
     //level camera (avoid camera rotation when pointing at target)
      m_Camera->setUpVector(vector3df(0,1,0));
 
     //unbind camera to target
-    m_Camera->bindTargetAndRotation(false);
+    //m_Camera->bindTargetAndRotation(false);
 
     updateCamera();
 
@@ -510,26 +512,33 @@ void Game::mainLoop()
 
 void Game::updateCamera()
 {
+    m_CameraPos += m_CameraVel;
 
-/*
     matrix4 m;
     m.setRotationDegrees(m_CameraRot);
-    m.transformVect(m_CameraVel);
+    vector3df ctarget(0,0,1);
+    m.transformVect(ctarget);
     //m_CameraTarget->setPosition(m_CameraPos +m_CameraVel);
     m_CameraPos += m_CameraVel;
     //node->updateAbsolutePosition();
-*/
 
-    m_CameraPos += m_CameraVel;
-    m_Camera->setPosition(m_Camera->getAbsolutePosition() + m_CameraVel);
+
+    //m_CameraPos += m_CameraVel;
+    m_Camera->setPosition(m_CameraPos);
+    m_CameraTarget->setPosition(m_CameraPos + ctarget);
     //m_CameraTarget->setPosition( m_CameraTarget->getAbsolutePosition() + m_CameraVel);
     //m_CameraTarget->updateAbsolutePosition();
-    m_Camera->setRotation(m_CameraRot);
+    //m_Camera->setRotation(m_CameraRot);
+    m_Camera->setTarget(m_CameraTarget->getPosition());
     m_Camera->updateAbsolutePosition();
-    m_Camera->setTarget(m_CameraPos);
-    //m_Camera->setTarget(m_CameraTarget);
 
+    //m_Camera->setTarget(m_CameraTarget);
+    /*
+    std::cout << "camera pos:" << m_Camera->getPosition().X << "," << m_Camera->getPosition().Y << "," << m_Camera->getPosition().Z << std::endl;
     std::cout << "camera target pos:" << m_CameraTarget->getPosition().X << "," << m_CameraTarget->getPosition().Y << "," << m_CameraTarget->getPosition().Z << std::endl;
+    std::cout << "camera rot:" << m_CameraRot.Y << std::endl;
+    */
+
 }
 
 bool Game::loadLevel()
