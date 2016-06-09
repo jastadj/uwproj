@@ -515,14 +515,22 @@ void Game::mainLoop()
 
 void Game::updateCamera()
 {
-    m_CameraPos += m_CameraVel;
+    //adjust camera position with velocity vector
+    //m_CameraPos += m_CameraVel;
 
+    //create matrix
     matrix4 m;
+    //rotate matrix by camera rotation
     m.setRotationDegrees(m_CameraRot);
-    vector3df ctarget(0,0,1);
+    //create target position (camera target relative to camera - see camera init)
+    vector3df ctarget = vector3df(0,0,1);
+    vector3df cvelmod = m_CameraVel;
+    //vector3df cpos = m_CameraVel;
+    //transform camera target (relative to camera node) to take rotation into account
     m.transformVect(ctarget);
+    m.transformVect(cvelmod);
     //m_CameraTarget->setPosition(m_CameraPos +m_CameraVel);
-    m_CameraPos += m_CameraVel;
+    m_CameraPos += cvelmod;
     //node->updateAbsolutePosition();
 
 
@@ -532,8 +540,11 @@ void Game::updateCamera()
     //m_CameraTarget->setPosition( m_CameraTarget->getAbsolutePosition() + m_CameraVel);
     //m_CameraTarget->updateAbsolutePosition();
     //m_Camera->setRotation(m_CameraRot);
-    m_Camera->setTarget(m_CameraTarget->getPosition());
     m_Camera->updateAbsolutePosition();
+    m_CameraTarget->updateAbsolutePosition();
+    m_Camera->setTarget(m_CameraTarget->getPosition());
+
+
 
     //m_Camera->setTarget(m_CameraTarget);
     /*
