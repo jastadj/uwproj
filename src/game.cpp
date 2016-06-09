@@ -115,6 +115,9 @@ bool Game::initCamera()
     //capture default FOV
     m_CameraDefaultFOV = m_Camera->getFOV();
 
+    //additional camera settings
+    m_Camera->setUpVector(vector3df(0,1,0));
+    m_Camera->setFarValue(UNIT_SCALE*20);
 
     //m_CameraTarget->setPosition( vector3df(0,0,1));
     //m_Camera->addChild(m_CameraTarget);
@@ -123,7 +126,7 @@ bool Game::initCamera()
 
 
     //level camera (avoid camera rotation when pointing at target)
-     m_Camera->setUpVector(vector3df(0,1,0));
+
 
     //unbind camera to target
     //m_Camera->bindTargetAndRotation(false);
