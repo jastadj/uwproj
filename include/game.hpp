@@ -159,7 +159,7 @@ public:
     //start initialization
     int start();
 
-    //mesh
+    //mesh stuff
     bool configMeshSceneNode(IMeshSceneNode *tnode);
     bool registerForCollision(IMeshSceneNode *tnode);
 

@@ -121,7 +121,8 @@ bool Game::initCamera()
     //additional camera settings
     m_Camera->setUpVector(vector3df(0,1,0));
     m_Camera->setFarValue(UNIT_SCALE*20);
-
+    m_Camera->setNearValue(0.1f);
+    //m_Camera->setAutomaticCulling(EAC_OFF);
     //m_CameraTarget->setPosition( vector3df(0,0,1));
     //m_Camera->addChild(m_CameraTarget);
     //m_CameraTarget->addChild(m_Camera);
@@ -316,6 +317,15 @@ void Game::mainLoop()
         }
         else m_CameraVel.Z = 0;
 
+        if(m_Receiver.isKeyPressed(KEY_KEY_Q))
+        {
+            m_CameraVel.Y = frameDeltaTime * MOVE_SPEED;
+        }
+        else if(m_Receiver.isKeyPressed(KEY_KEY_E))
+        {
+            m_CameraVel.Y = -frameDeltaTime * MOVE_SPEED;
+        }
+        else m_CameraVel.Y = 0;
 
         //process events in que
         while(m_Receiver.processEvents(event))
@@ -327,7 +337,9 @@ void Game::mainLoop()
                 if(event->KeyInput.PressedDown)
                 {
                     if(event->KeyInput.Key == KEY_ESCAPE) m_Device->closeDevice();
-                    else if(event->KeyInput.Key == KEY_SPACE) m_CameraPos.Z += 10;
+                    else if(event->KeyInput.Key == KEY_SPACE)
+                    {
+                    }
                     else if(event->KeyInput.Key == KEY_KEY_W)
                     {
                     }
@@ -341,26 +353,9 @@ void Game::mainLoop()
                     }
                     else if(event->KeyInput.Key == KEY_KEY_E)
                     {
-
-                        /*
-                        txtindex++;
-                        if(txtindex >= int(m_Wall64TXT.size()) ) txtindex = 0;
-                        mysquare->setMaterialTexture(0, m_Wall64TXT[txtindex]);
-                        std::cout << "TEXTURE INDEX = " << txtindex << std::endl;
-                        */
-
-
                     }
                     else if(event->KeyInput.Key == KEY_KEY_Q)
                     {
-
-                        /*
-                        txtindex--;
-                        if(txtindex < 0) txtindex = int(m_Wall64TXT.size()-1);
-                        mysquare->setMaterialTexture(0, m_Wall64TXT[txtindex]);
-                        std::cout << "TEXTURE INDEX = " << txtindex << std::endl;
-                        */
-
                     }
                     else if(event->KeyInput.Key == KEY_KEY_T)
                     {
@@ -526,8 +521,8 @@ void Game::updateCamera()
     //m_CameraPos += m_CameraVel;
 
     //apply gravity
-    m_CameraVel.Y -= GRAVITY_ACCEL * frameDeltaTime;
-    if(m_CameraVel.Y > -TERMINAL_GRAVITY) m_CameraVel.Y = TERMINAL_GRAVITY * frameDeltaTime;
+    //m_CameraVel.Y -= GRAVITY_ACCEL * frameDeltaTime;
+    //if(m_CameraVel.Y > -TERMINAL_GRAVITY) m_CameraVel.Y = TERMINAL_GRAVITY * frameDeltaTime;
 
     //create matrix
     matrix4 m;
@@ -1050,6 +1045,9 @@ bool Game::configMeshSceneNode(IMeshSceneNode *tnode)
     tnode->setMaterialFlag(video::EMF_BILINEAR_FILTER, false );
     tnode->setMaterialFlag(video::EMF_TRILINEAR_FILTER, false );
     tnode->setMaterialFlag(video::EMF_ANISOTROPIC_FILTER, false );
+
+    //automatic culling
+    tnode->setAutomaticCulling(EAC_FRUSTUM_SPHERE ) ;
 
     //texture repeating
     tnode->getMaterial(0).getTextureMatrix(0).setScale(1);
