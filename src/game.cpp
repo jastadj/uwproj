@@ -294,20 +294,20 @@ void Game::mainLoop()
         //check if keys are held for movement
         if(m_Receiver.isKeyPressed(KEY_KEY_A))
         {
-            m_CameraRot.Y -=10.0f;
+            m_CameraRot.Y -= frameDeltaTime * ROTATION_SPEED;
         }
         else if(m_Receiver.isKeyPressed(KEY_KEY_D))
         {
-            m_CameraRot.Y +=10.0f;
+            m_CameraRot.Y += frameDeltaTime * ROTATION_SPEED;
         }
 
         if(m_Receiver.isKeyPressed(KEY_KEY_W))
         {
-            m_CameraVel.Z = 1;
+            m_CameraVel.Z = frameDeltaTime * MOVE_SPEED;
         }
         else if(m_Receiver.isKeyPressed(KEY_KEY_S) )
         {
-            m_CameraVel.Z = -1;
+            m_CameraVel.Z = -frameDeltaTime * MOVE_SPEED;
         }
         else m_CameraVel.Z = 0;
 

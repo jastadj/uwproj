@@ -15,6 +15,8 @@
 #define SCREEN_HEIGHT 480
 #define UNIT_SCALE 4
 #define GRAVITY -10
+#define ROTATION_SPEED 100
+#define MOVE_SPEED 10
 
 //irrlicht namespaces
 using namespace irr;
