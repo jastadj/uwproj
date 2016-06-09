@@ -103,7 +103,7 @@ bool Game::initCamera()
     //already initialized!!
     if(m_Camera != NULL) return false;
 
-    m_CameraPos = vector3df(245.5,22,127.5);
+    m_CameraPos = vector3df(245.5,15,127.5);
     m_CameraRot = vector3df(0,0,0);
 
     //add camera to scene
