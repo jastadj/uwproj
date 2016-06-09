@@ -14,7 +14,8 @@
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
 #define UNIT_SCALE 4
-#define GRAVITY -10
+#define GRAVITY_ACCEL 0.001
+#define TERMINAL_GRAVITY 0.1
 #define ROTATION_SPEED 100
 #define MOVE_SPEED 10
 
@@ -104,6 +105,7 @@ private:
     IGUIEnvironment *m_GUIEnv;
     MyEventReceiver m_Receiver;
     IMetaTriangleSelector *m_MetaTriangleSelector;
+    f32 frameDeltaTime;
 
     //camera
     void updateCamera();

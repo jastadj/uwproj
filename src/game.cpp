@@ -91,6 +91,9 @@ bool Game::initIrrlicht()
     //create meta triangle selector
     m_MetaTriangleSelector = m_SMgr->createMetaTriangleSelector();
 
+    //init frame delta time
+    frameDeltaTime = 1.f;
+
     //some 2d rendering config
     //m_Driver->getMaterial2D().TextureLayer[0].BilinearFilter=true;
     //m_Driver->getMaterial2D().AntiAliasing=video::EAAM_FULL_BASIC;
@@ -275,6 +278,8 @@ void Game::mainLoop()
     //flag to store if mouse button was clicked on this frame
     bool mouseLeftClicked = false;
 
+
+
     //main loop
     while(m_Device->run())
     {
@@ -287,7 +292,7 @@ void Game::mainLoop()
 
         // Work out a frame delta time.
         const u32 now = m_Device->getTimer()->getTime();
-        const f32 frameDeltaTime = (f32)(now - then) / 1000.f; // Time in seconds
+        frameDeltaTime = (f32)(now - then) / 1000.f; // Time in seconds
         then = now;
 
 
@@ -416,6 +421,8 @@ void Game::mainLoop()
         }
 
         //update actor and camera
+        //apply gravity to camera
+
         updateCamera();
 
         //m_CameraPos = m_Camera->getPosition();
@@ -517,6 +524,10 @@ void Game::updateCamera()
 {
     //adjust camera position with velocity vector
     //m_CameraPos += m_CameraVel;
+
+    //apply gravity
+    m_CameraVel.Y -= GRAVITY_ACCEL * frameDeltaTime;
+    if(m_CameraVel.Y > -TERMINAL_GRAVITY) m_CameraVel.Y = TERMINAL_GRAVITY * frameDeltaTime;
 
     //create matrix
     matrix4 m;
