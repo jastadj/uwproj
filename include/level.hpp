@@ -33,6 +33,8 @@ class Level
 private:
     std::vector< std::vector<Tile> > mTiles;
 
+    int m_CeilingTextureIndex;
+
 public:
     Level();
     ~Level();
@@ -53,6 +55,10 @@ public:
     SMesh *generateDiagonalWallMesh(int tl, int tr, int br, int bl); // generate diagonal wall model
 
     std::vector<Tile*> getAdjacentTilesAt(int x, int y);
+
+    //a level uses one ceiling texture
+    int getCeilingTextureIndex() { return m_CeilingTextureIndex;}
+    void setCeilingTextureIndex(int nindex) { m_CeilingTextureIndex = nindex;}
 
     void printDebug();
 };

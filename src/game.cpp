@@ -618,6 +618,12 @@ void Game::updateCamera()
 
 }
 
+bool Game::collidingWithMap(vector3df pos, vector3df vel)
+{
+    return false;
+}
+
+
 bool Game::loadLevel()
 {
     //read in level archive
@@ -721,6 +727,9 @@ bool Game::loadLevel()
 
         //save texture map data for shits and giggles
         mLevels.back().mTextureMapping = texturemap[i];
+
+        //set ceiling texture index from texture map (level uses one for whole map)
+        mLevels.back().setCeilingTextureIndex( texturemap[i][txtmapwalls+txtmapfloors-1]);
 
         //jump file position pointer to offset to begin reading in level data
         ifile.seekg(blockoffsets[i]);
@@ -1336,7 +1345,3 @@ SMesh *Game::getSquareMesh(int ul, int ur, int br, int bl)
 
 }
 
-bool Game::collidingWithMap(vector3df pos, vector3df vel)
-{
-    return false;
-}

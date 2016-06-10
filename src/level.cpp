@@ -419,7 +419,7 @@ bool Level::buildTileGeometry(int x, int y)
         //rotate ceiling to face down and position ceiling to top of level height
         cnode->setRotation(vector3df(0,0,180));
         cnode->setPosition(vector3df(y*UNIT_SCALE+UNIT_SCALE, CEIL_HEIGHT+1, x*UNIT_SCALE));
-        cnode->setMaterialTexture(0, (*f32txt)[9]); // note, ceiling is always 10th floor texture?
+        cnode->setMaterialTexture(0, (*f32txt)[m_CeilingTextureIndex]); // note, ceiling is always 10th floor texture?
         //add node to tile node list
         scenenodelist.push_back(cnode);
     //drop ceiling mesh
