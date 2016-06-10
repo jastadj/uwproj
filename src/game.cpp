@@ -641,12 +641,27 @@ bool Game::processCollision(vector3df *pos, vector3df *vel)
     if(vel->X < 0)
     {
         //if current tile a diagonal open to
-        if(ttile->getType() == TILETYPE_D_SE || ttile->getType() == TILETYPE_D_SW)
+        if(ttile->getType() == TILETYPE_D_SE)
         {
-            std::cout << "diag!\n";
+            if( -tsubpos.X + TILE_UNIT >= tsubpos.Y)
+            {
+                pos->X += -vel->X;
+                vel->X = 0;
+                std::cout << "diag collision!\n";
+            }
+        }
+        else if(ttile->getType() == TILETYPE_D_SW)
+        {
+            std::cout << "subpos : " << tsubpos.X << "," << tsubpos.Y << std::endl;
+            if(tsubpos.X + TILE_UNIT*0.25 >= tsubpos.Y)
+            {
+                pos->X += -vel->X;
+                vel->X = 0;
+                std::cout << "diag collision!\n";
+            }
         }
         //is position close enough to wall?
-        if(tsubpos.Y <= 1)
+        else if(tsubpos.Y <= 1)
         {
 
             //is there a tile in direction?
