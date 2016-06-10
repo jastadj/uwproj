@@ -49,7 +49,8 @@ int Game::start()
     std::cout << "Loading graphics...\n";
     //note : this needs to be fixed, throws bad alloc, need to investigate parsing for graphics load
     //if(!loadGraphic("UWDATA\\charhead.gr", &m_CharHeadTXT)) {std::cout << "Error loading charhead graphic!\n"; return -1;}
-
+    std::cout << "Loading bitmaps...\n";
+    if(!loadBitmap("UWDATA\\pres1.byt", &m_Bitmaps, 5)) {std::cout << "Error loading bitmap!\n"; return -1;}
 
 
     //mLevels[0].printDebug();
@@ -71,7 +72,8 @@ bool Game::initIrrlicht()
     if(m_Device != NULL) return false;
 
     //init device
-    m_Device = createDevice( video::EDT_OPENGL, dimension2d<u32>(SCREEN_WIDTH, SCREEN_HEIGHT), 16, false, false, false, &m_Receiver);
+    bool fullscreen = false;
+    m_Device = createDevice( video::EDT_OPENGL, dimension2d<u32>(SCREEN_WIDTH, SCREEN_HEIGHT), 16, fullscreen, false, false, &m_Receiver);
     if(!m_Device) {std::cout << "Error creating device.\n";return false;}
     m_Device->setWindowCaption(L"UWproj");
 
@@ -206,11 +208,11 @@ void Game::mainLoop()
     mycubemesh->drop();
     */
 
-    /*
-    IGUIImage *myguiimage = m_GUIEnv->addImage(m_CharHeadTXT[1], position2d<s32>(0,0), false);
+
+    IGUIImage *myguiimage = m_GUIEnv->addImage(m_Bitmaps[0], position2d<s32>(0,0), false);
     //IGUIImage *myguiimage = m_GUIEnv->addImage(m_Wall64TXT[0], position2d<s32>(0,0), false);
-    myguiimage->setScaleImage(false);
-    */
+    //myguiimage->setScaleImage(false);
+
 
     /*
     //create mesh
@@ -268,6 +270,12 @@ void Game::mainLoop()
     //animator no longer needed, drop it
     anim->drop();
     */
+
+
+    //dimension2du d = core::dimension2du(320, 200);
+    //m_Driver->OnResize(d);
+    // now irrlicht internally ajusted device's resolution, but active camera will not update its aspect ratio automatically (which is OK, because you may no need it), so if you want the camera to be OK after this resize, you need to write also something like:
+    //m_SMgr->getActiveCamera()->setAspectRatio((float)d.Width/d.Height);
 
 
     int lastFPS = -1;
@@ -1026,6 +1034,71 @@ bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
         //drop image, no longer needed
         newimg->drop();
     }
+
+    ifile.close();
+
+    return true;
+}
+
+bool Game::loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int tpalindex)
+{
+    const int bitmap_width = 320;
+    const int bitmap_height = 200;
+
+    if(tlist == NULL) return false;
+
+    //open bitmap (.byt) file
+    std::ifstream ifile;
+    ifile.open(tfilename.c_str(), std::ios_base::binary);
+
+    //check if bitmap file loaded properly
+    if(!ifile.is_open())
+    {
+        std::cout << "Error loading " << tfilename << std::endl;
+        return false;
+    }
+
+    //check if palette is valid
+    if(tpalindex < 0 || tpalindex >= int(m_Palettes.size()) )
+    {
+        std::cout << "Error loading bitmap : Invalid palette index # - " << tpalindex << std::endl;
+        return false;
+    }
+
+    //texture
+    ITexture *newtxt = NULL;
+    IImage *newimg = NULL;
+    //create new image using bitmap dimensions
+    newimg = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(bitmap_width, bitmap_height));
+
+    //read in each bitmap byte
+    for(int i = 0; i < bitmap_height; i++)
+    {
+        for(int n = 0; n < bitmap_width; n++)
+        {
+            unsigned char bbyte[1];
+
+            readBin(&ifile, bbyte, 1);
+
+            newimg->setPixel(n, i, m_Palettes[tpalindex][int(bbyte[0])]);
+        }
+    }
+
+    //create texture name
+    std::stringstream texturename;
+    texturename << "txt_" << tfilename;
+
+    //create texture from image
+    IImage *stretchedimage = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(bitmap_width*2, bitmap_height*2));
+    newimg->copyToScaling(stretchedimage);
+    newtxt = m_Driver->addTexture( texturename.str().c_str(), stretchedimage );
+
+    //push texture into texture list
+    tlist->push_back(newtxt);
+
+    //drop image, no longer needed
+    newimg->drop();
+    stretchedimage->drop();
 
     ifile.close();
 

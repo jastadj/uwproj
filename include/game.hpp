@@ -11,8 +11,8 @@
 
 #include "level.hpp"
 
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
+#define SCREEN_WIDTH 320*2
+#define SCREEN_HEIGHT 200*2
 #define UNIT_SCALE 4
 #define GRAVITY_ACCEL 0.001
 #define TERMINAL_GRAVITY 0.1
@@ -130,6 +130,7 @@ private:
     bool loadPalette();
     bool loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist);
     bool loadTexture(std::string tfilename, std::vector<ITexture*> *tlist);
+    bool loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int tpalindex);
 
 
     //levels
@@ -144,6 +145,7 @@ private:
     std::vector<ITexture*> m_Wall64TXT;
     std::vector<ITexture*> m_Floor32TXT;
     std::vector<ITexture*> m_CharHeadTXT;
+    std::vector<ITexture*> m_Bitmaps;
 
     //mainloop
     void mainLoop();
