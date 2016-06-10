@@ -20,7 +20,9 @@ using namespace gui;
 enum _TILETYPE{TILETYPE_SOLID, TILETYPE_OPEN, TILETYPE_D_SE, TILETYPE_D_SW, TILETYPE_D_NE, TILETYPE_D_NW,
                 TILETYPE_SL_N, TILETYPE_SL_S, TILETYPE_SL_E, TILETYPE_SL_W, TILETYPE_TOTAL};
 
-enum _COORDS{NW, NE, SE, SW};
+enum _DCOORDS{NW, NE, SE, SW};
+
+enum _DIRS{NORTH,EAST,SOUTH,WEST};
 
 //forward declaration
 class Tile;
@@ -49,6 +51,8 @@ public:
 
     SMesh *generateWallMesh(int tl, int tr, int br, int bl); // generate wall model
     SMesh *generateDiagonalWallMesh(int tl, int tr, int br, int bl); // generate diagonal wall model
+
+    std::vector<Tile*> getAdjacentTilesAt(int x, int y);
 
     void printDebug();
 };

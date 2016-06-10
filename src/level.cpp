@@ -24,6 +24,18 @@ Tile *Level::getTile(int x, int y)
     return &mTiles[y][x];
 }
 
+std::vector<Tile*> Level::getAdjacentTilesAt(int x, int y)
+{
+    std::vector<Tile*> adjacents;
+
+    adjacents.push_back( getTile(x, y-1));
+    adjacents.push_back( getTile(x+1, y));
+    adjacents.push_back( getTile(x, y+1));
+    adjacents.push_back( getTile(x-1, y));
+
+    return adjacents;
+}
+
 // high level level generation, call each tile to build its geometry
 bool Level::buildLevelGeometry()
 {
