@@ -640,9 +640,15 @@ bool Game::processCollision(vector3df *pos, vector3df *vel)
     //if moving northward
     if(vel->X < 0)
     {
+        //if current tile a diagonal open to
+        if(ttile->getType() == TILETYPE_D_SE || ttile->getType() == TILETYPE_D_SW)
+        {
+            std::cout << "diag!\n";
+        }
         //is position close enough to wall?
         if(tsubpos.Y <= 1)
         {
+
             //is there a tile in direction?
             if(adjtiles[NORTH])
             {
