@@ -354,7 +354,8 @@ bool Level::buildTileGeometry(int x, int y)
     // else generate a full floor
     else floormesh = generateFloorMesh(bheight_ns[0], bheight_ns[1], bheight_ns[2], bheight_ns[3]);
 
-    //create floor scene node
+
+    //create floor node
     if(floormesh != NULL)
     {
         //create mesh in scene
@@ -394,7 +395,23 @@ bool Level::buildTileGeometry(int x, int y)
 
         //drop mesh
         floormesh->drop();
+
     }
+
+    //ceiling mesh generation
+    SMesh *ceilmesh = NULL;
+        //generate mesh
+        ceilmesh = generateFloorMesh(0,0,0,0);
+        //create scene node
+        IMeshSceneNode *cnode = m_SMgr->addOctreeSceneNode(ceilmesh);
+        //rotate ceiling to face down and position ceiling to top of level height
+        cnode->setRotation(vector3df(0,0,180));
+        cnode->setPosition(vector3df(y*UNIT_SCALE+UNIT_SCALE, CEIL_HEIGHT+1, x*UNIT_SCALE));
+        cnode->setMaterialTexture(0, (*f32txt)[9]); // note, ceiling is always 10th floor texture?
+        //add node to tile node list
+        scenenodelist.push_back(cnode);
+    //drop ceiling mesh
+    ceilmesh->drop();
 
     //wall mesh generation
     //diagonal walls

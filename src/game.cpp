@@ -550,8 +550,6 @@ void Game::updateCamera()
     vector3df current_campos = m_CameraPos;
     vector3df current_camtgt = m_CameraTarget->getPosition();
 
-
-
     //create matrix
     matrix4 m;
     //rotate matrix by camera rotation
@@ -1340,5 +1338,5 @@ SMesh *Game::getSquareMesh(int ul, int ur, int br, int bl)
 
 bool Game::collidingWithMap(vector3df pos, vector3df vel)
 {
-
+    return false;
 }
