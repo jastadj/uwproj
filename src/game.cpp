@@ -51,6 +51,9 @@ int Game::start()
     //if(!loadGraphic("UWDATA\\charhead.gr", &m_CharHeadTXT)) {std::cout << "Error loading charhead graphic!\n"; return -1;}
     std::cout << "Loading bitmaps...\n";
     if(!loadBitmap("UWDATA\\pres1.byt", &m_Bitmaps, 5)) {std::cout << "Error loading bitmap!\n"; return -1;}
+    if(!loadBitmap("UWDATA\\pres2.byt", &m_Bitmaps, 5)) {std::cout << "Error loading bitmap!\n"; return -1;}
+    if(!loadBitmap("UWDATA\\main.byt", &m_Bitmaps, 0)) {std::cout << "Error loading bitmap!\n"; return -1;}
+    if(!loadBitmap("UWDATA\\opscr.byt", &m_Bitmaps, 2)) {std::cout << "Error loading bitmap!\n"; return -1;}
 
 
     //mLevels[0].printDebug();
@@ -79,6 +82,9 @@ bool Game::initIrrlicht()
 
     //get video
     m_Driver = m_Device->getVideoDriver();
+    m_Driver->setTextureCreationFlag(irr::video::ETCF_ALWAYS_32_BIT,true);
+    m_Driver->setTextureCreationFlag(irr::video::ETCF_ALWAYS_16_BIT,false);
+    m_Driver->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS,false);
 
     //get scene manager
     m_SMgr = m_Device->getSceneManager();
@@ -209,9 +215,8 @@ void Game::mainLoop()
     */
 
 
-    IGUIImage *myguiimage = m_GUIEnv->addImage(m_Bitmaps[0], position2d<s32>(0,0), false);
-    //IGUIImage *myguiimage = m_GUIEnv->addImage(m_Wall64TXT[0], position2d<s32>(0,0), false);
-    //myguiimage->setScaleImage(false);
+    IGUIImage *myguiimage = m_GUIEnv->addImage(m_Bitmaps[2], position2d<s32>(0,0), true);
+
 
 
     /*
@@ -400,6 +405,8 @@ void Game::mainLoop()
                 if(event->MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN)
                 {
                     mouseLeftClicked = true;
+
+                    std::cout << "mouse clicked @" << m_MousePos.X << "," << m_MousePos.Y << std::endl;
                 }
                 //else right mouse button pressed
                 else if(event->MouseInput.Event == EMIE_RMOUSE_PRESSED_DOWN)
@@ -434,7 +441,9 @@ void Game::mainLoop()
 
 
         //clear scene
-        m_Driver->beginScene(true, true, SColor(255,100,101,140));
+        m_Driver->beginScene(true, true, SColor(255,0,0,0));
+        //set 3d view position and size
+        m_Driver->setViewPort(rect<s32>(SCREEN_WORLD_POS_X, SCREEN_WORLD_POS_Y, SCREEN_WORLD_WIDTH, SCREEN_WORLD_HEIGHT));
 
         /*
         //current floor plane
@@ -492,6 +501,7 @@ void Game::mainLoop()
 
 
         //draw gui
+        m_Driver->setViewPort(rect<s32>(0,0,SCREEN_WIDTH, SCREEN_HEIGHT));
         m_GUIEnv->drawAll();
 
         /*
@@ -778,7 +788,9 @@ bool Game::loadPalette()
             //read in color data (0-63 intensity for red, green , and blue)
             readBin(&pfile, rgb, 3);
 
-            m_Palettes[i][p] = SColor(255, (int(rgb[0])+1)*4-1, (int(rgb[1])+1)*4-1, (int(rgb[2])+1)*4-1 );
+            //index 0 always = transparent
+            if(p == 0) m_Palettes[i][p] = SColor(0, 0, 0, 0 );
+            else m_Palettes[i][p] = SColor(255, (int(rgb[0])+1)*4-1, (int(rgb[1])+1)*4-1, (int(rgb[2])+1)*4-1 );
 
         }
     }
@@ -1092,6 +1104,7 @@ bool Game::loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int 
     IImage *stretchedimage = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(bitmap_width*2, bitmap_height*2));
     newimg->copyToScaling(stretchedimage);
     newtxt = m_Driver->addTexture( texturename.str().c_str(), stretchedimage );
+    m_Driver->makeColorKeyTexture(newtxt,  m_Palettes[tpalindex][0]);
 
     //push texture into texture list
     tlist->push_back(newtxt);
