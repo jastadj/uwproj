@@ -443,7 +443,7 @@ void Game::mainLoop()
         //clear scene
         m_Driver->beginScene(true, true, SColor(255,0,0,0));
         //set 3d view position and size
-        m_Driver->setViewPort(rect<s32>(SCREEN_WORLD_POS_X, SCREEN_WORLD_POS_Y, SCREEN_WORLD_WIDTH, SCREEN_WORLD_HEIGHT));
+        if(SHOW_MAIN_UI) m_Driver->setViewPort(rect<s32>(SCREEN_WORLD_POS_X, SCREEN_WORLD_POS_Y, SCREEN_WORLD_WIDTH, SCREEN_WORLD_HEIGHT));
 
         /*
         //current floor plane
@@ -501,8 +501,12 @@ void Game::mainLoop()
 
 
         //draw gui
-        m_Driver->setViewPort(rect<s32>(0,0,SCREEN_WIDTH, SCREEN_HEIGHT));
-        m_GUIEnv->drawAll();
+        if(SHOW_MAIN_UI)
+        {
+            m_Driver->setViewPort(rect<s32>(0,0,SCREEN_WIDTH, SCREEN_HEIGHT));
+
+            m_GUIEnv->drawAll();
+        }
 
         /*
         m_Driver->setMaterial(SMaterial());
@@ -1101,7 +1105,7 @@ bool Game::loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int 
     texturename << "txt_" << tfilename;
 
     //create texture from image
-    IImage *stretchedimage = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(bitmap_width*2, bitmap_height*2));
+    IImage *stretchedimage = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(bitmap_width*SCREEN_SCALE, bitmap_height*SCREEN_SCALE));
     newimg->copyToScaling(stretchedimage);
     newtxt = m_Driver->addTexture( texturename.str().c_str(), stretchedimage );
     m_Driver->makeColorKeyTexture(newtxt,  m_Palettes[tpalindex][0]);
