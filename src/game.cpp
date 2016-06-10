@@ -636,11 +636,12 @@ bool Game::processCollision(vector3df *pos, vector3df *vel)
     std::vector<Tile*> adjtiles = mLevels[m_CurrentLevel].getAdjacentTilesAt(tpos.X, tpos.Y);
 
 
+    //check north/south collision
     //if moving northward
     if(vel->X < 0)
     {
         //is position close enough to wall?
-        if(tsubpos.X <= 1)
+        if(tsubpos.Y <= 1)
         {
             //is there a tile in direction?
             if(adjtiles[NORTH])
@@ -648,7 +649,10 @@ bool Game::processCollision(vector3df *pos, vector3df *vel)
                 //is that tile solid?
                 if(adjtiles[NORTH]->getType() == TILETYPE_SOLID)
                 {
-
+                    //kill vel
+                    pos->X += -vel->X;
+                    vel->X = 0;
+                    std::cout << "north wall collision!\n";
                 }
             }
         }
@@ -656,7 +660,6 @@ bool Game::processCollision(vector3df *pos, vector3df *vel)
     //moving southward?
     else if(vel->X > 0)
     {
-        std::cout << "moving southward\n";
         //is position close enough to wall?
         if(tsubpos.Y >= TILE_UNIT-1)
         {
@@ -674,6 +677,49 @@ bool Game::processCollision(vector3df *pos, vector3df *vel)
             }
         }
     }
+
+    //check east/west collision
+    //if moving westward
+    if(vel->Z < 0)
+    {
+        //is position close enough to wall?
+        if(tsubpos.X <= 1)
+        {
+            //is there a tile in direction?
+            if(adjtiles[WEST])
+            {
+                //is that tile solid?
+                if(adjtiles[WEST]->getType() == TILETYPE_SOLID)
+                {
+                    //kill vel
+                    pos->Z += -vel->Z;
+                    vel->Z = 0;
+                    std::cout << "north wall collision!\n";
+                }
+            }
+        }
+    }
+    //moving eastward
+    else if(vel->Z > 0)
+    {
+        //is position close enough to wall?
+        if(tsubpos.X >= TILE_UNIT-1)
+        {
+            //is there a tile in direction?
+            if(adjtiles[EAST])
+            {
+                //is that tile solid?
+                if(adjtiles[EAST]->getType() == TILETYPE_SOLID)
+                {
+                    //kill vel
+                    pos->Z += -vel->Z;
+                    vel->Z = 0;
+                    std::cout << "east wall collision!\n";
+                }
+            }
+        }
+    }
+
 
     //temp debug
     pos->Y = ttile->getHeight()+3;
