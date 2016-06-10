@@ -620,6 +620,12 @@ void Game::updateCamera()
 
 bool Game::collidingWithMap(vector3df pos, vector3df vel)
 {
+    vector2di tpos(pos.Z/UNIT_SCALE, pos.X/UNIT_SCALE);
+    Tile *ttile = mLevels[m_CurrentLevel].getTile(tpos.X, tpos.Y);
+
+    //if tile is solid, return true
+    if(ttile->getType() == TILETYPE_SOLID) return true;
+
     return false;
 }
 
