@@ -171,6 +171,9 @@ public:
     bool configMeshSceneNode(IMeshSceneNode *tnode);
     bool registerForCollision(IMeshSceneNode *tnode);
 
+    //world funcitons
+    bool collidingWithMap(vector3df pos, vector3df vel);
+
     //textures
     const std::vector<ITexture*> *getWall64Textures() const { return &m_Wall64TXT;}
     const std::vector<ITexture*> *getFloor32Textures() const { return &m_Floor32TXT;}

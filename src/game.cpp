@@ -585,7 +585,7 @@ void Game::updateCamera()
     //primitive collision checking against solid tiles
     if(ttile != NULL)
     {
-        if(ttile->getType() == TILETYPE_SOLID)
+        if(collidingWithMap(m_CameraPos, m_CameraVel))
         {
             m_CameraPos = current_campos;
             m_Camera->setPosition(m_CameraPos);
@@ -1335,5 +1335,10 @@ SMesh *Game::getSquareMesh(int ul, int ur, int br, int bl)
     buf->recalculateBoundingBox();
 
     return mesh;
+
+}
+
+bool Game::collidingWithMap(vector3df pos, vector3df vel)
+{
 
 }
