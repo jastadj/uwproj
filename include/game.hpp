@@ -25,6 +25,7 @@
 #define TERMINAL_GRAVITY 0.1
 #define ROTATION_SPEED 100
 #define MOVE_SPEED 10
+#define STANDING_HEIGHT 3
 
 //irrlicht namespaces
 using namespace irr;

@@ -722,7 +722,7 @@ bool Game::processCollision(vector3df *pos, vector3df *vel)
 
 
     //temp debug
-    pos->Y = ttile->getHeight()+3;
+    pos->Y = ttile->getHeight()+STANDING_HEIGHT;
 
     return true;
 }
