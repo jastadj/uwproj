@@ -143,7 +143,7 @@ bool Game::initCamera()
     //unbind camera to target
     //m_Camera->bindTargetAndRotation(false);
 
-    updateCamera();
+    //updateCamera();
 
     //m_Camera = m_SMgr->addCameraSceneNodeFPS();
     //for collision testing
@@ -546,6 +546,12 @@ void Game::updateCamera()
     //m_CameraVel.Y -= GRAVITY_ACCEL * frameDeltaTime;
     //if(m_CameraVel.Y > -TERMINAL_GRAVITY) m_CameraVel.Y = TERMINAL_GRAVITY * frameDeltaTime;
 
+    //capture current camera positions
+    vector3df current_campos = m_CameraPos;
+    vector3df current_camtgt = m_CameraTarget->getPosition();
+
+
+
     //create matrix
     matrix4 m;
     //rotate matrix by camera rotation
@@ -561,7 +567,7 @@ void Game::updateCamera()
     m_CameraPos += cvelmod;
     //node->updateAbsolutePosition();
 
-
+/*
     //m_CameraPos += m_CameraVel;
     m_Camera->setPosition(m_CameraPos);
     m_CameraTarget->setPosition(m_CameraPos + ctarget);
@@ -571,7 +577,38 @@ void Game::updateCamera()
     m_Camera->updateAbsolutePosition();
     m_CameraTarget->updateAbsolutePosition();
     m_Camera->setTarget(m_CameraTarget->getPosition());
+*/
 
+    //if new target is not a valid tile, revert to original position
+    Tile *ttile = mLevels[0].getTile( m_CameraPos.Z / UNIT_SCALE, m_CameraPos.X / UNIT_SCALE);
+
+    //primitive collision checking against solid tiles
+    if(ttile != NULL)
+    {
+        if(ttile->getType() == TILETYPE_SOLID)
+        {
+            m_CameraPos = current_campos;
+            m_Camera->setPosition(m_CameraPos);
+            m_CameraTarget->setPosition(current_camtgt);
+        }
+        //else set camera on the floor
+        else
+        {
+            m_CameraPos.Y = ttile->getHeight()+3;
+
+            m_Camera->setPosition(m_CameraPos);
+            m_CameraTarget->setPosition(m_CameraPos + ctarget);
+            m_Camera->updateAbsolutePosition();
+            m_CameraTarget->updateAbsolutePosition();
+            m_Camera->setTarget(m_CameraTarget->getPosition());
+        }
+    }
+    else
+    {
+        m_CameraPos = current_campos;
+        m_Camera->setPosition(m_CameraPos);
+        m_CameraTarget->setPosition(current_camtgt);
+    }
 
 
     //m_Camera->setTarget(m_CameraTarget);
