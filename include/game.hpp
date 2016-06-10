@@ -20,6 +20,7 @@
 #define SCREEN_WORLD_HEIGHT 132*SCREEN_SCALE
 #define SHOW_MAIN_UI 1
 #define UNIT_SCALE 4
+#define TILE_UNIT 8
 #define GRAVITY_ACCEL 0.001
 #define TERMINAL_GRAVITY 0.1
 #define ROTATION_SPEED 100
@@ -172,7 +173,7 @@ public:
     bool registerForCollision(IMeshSceneNode *tnode);
 
     //world funcitons
-    bool collidingWithMap(vector3df pos, vector3df vel);
+    bool processCollision(vector3df *pos, vector3df *vel);
 
     //textures
     const std::vector<ITexture*> *getWall64Textures() const { return &m_Wall64TXT;}

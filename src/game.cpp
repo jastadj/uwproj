@@ -577,36 +577,26 @@ void Game::updateCamera()
     m_Camera->setTarget(m_CameraTarget->getPosition());
 */
 
-    //if new target is not a valid tile, revert to original position
-    Tile *ttile = mLevels[0].getTile( m_CameraPos.Z / UNIT_SCALE, m_CameraPos.X / UNIT_SCALE);
-
-    //primitive collision checking against solid tiles
-    if(ttile != NULL)
+    //if collision process properly
+    if(processCollision(&m_CameraPos, &cvelmod))
     {
-        if(collidingWithMap(m_CameraPos, m_CameraVel))
-        {
-            m_CameraPos = current_campos;
-            m_Camera->setPosition(m_CameraPos);
-            m_CameraTarget->setPosition(current_camtgt);
-        }
-        //else set camera on the floor
-        else
-        {
-            m_CameraPos.Y = ttile->getHeight()+3;
+        //m_CameraPos.Y = ttile->getHeight()+3;
 
-            m_Camera->setPosition(m_CameraPos);
-            m_CameraTarget->setPosition(m_CameraPos + ctarget);
-            m_Camera->updateAbsolutePosition();
-            m_CameraTarget->updateAbsolutePosition();
-            m_Camera->setTarget(m_CameraTarget->getPosition());
-        }
+        m_Camera->setPosition(m_CameraPos);
+        m_CameraTarget->setPosition(m_CameraPos + ctarget);
+        m_Camera->updateAbsolutePosition();
+        m_CameraTarget->updateAbsolutePosition();
+        m_Camera->setTarget(m_CameraTarget->getPosition());
     }
+    //else if it didn't (tile null or solid?), revert
     else
     {
         m_CameraPos = current_campos;
         m_Camera->setPosition(m_CameraPos);
         m_CameraTarget->setPosition(current_camtgt);
     }
+
+
 
 
     //m_Camera->setTarget(m_CameraTarget);
@@ -618,15 +608,77 @@ void Game::updateCamera()
 
 }
 
-bool Game::collidingWithMap(vector3df pos, vector3df vel)
+bool Game::processCollision(vector3df *pos, vector3df *vel)
 {
-    vector2di tpos(pos.Z/UNIT_SCALE, pos.X/UNIT_SCALE);
+    if(pos == NULL || vel == NULL) return false;
+
+    //if no velocity, don't bother updating anything
+    //if( *vel == vector3df(0,0,0)) return true;
+
+    //calculate coordinates by tile
+    vector2di tpos(pos->Z/UNIT_SCALE, pos->X/UNIT_SCALE);
+
+    //calculate coordinates within tile
+    vector2df tsubpos( ((pos->Z/UNIT_SCALE)-tpos.X)*TILE_UNIT , ((pos->X/UNIT_SCALE)-tpos.Y)*TILE_UNIT );
+
+    //get tile coordinates are in
     Tile *ttile = mLevels[m_CurrentLevel].getTile(tpos.X, tpos.Y);
 
     //if tile is solid, return true
-    if(ttile->getType() == TILETYPE_SOLID) return true;
+    if(ttile->getType() == TILETYPE_SOLID)
+    {
+        //std::cout << "current tile is solid, returning false!\n";
+        return false;
+    }
+    //else std::cout << "vel:" << vel->X << "," << vel->Y << "," << vel->Z << std::endl;
 
-    return false;
+    //get all adjacent tiles
+    std::vector<Tile*> adjtiles = mLevels[m_CurrentLevel].getAdjacentTilesAt(tpos.X, tpos.Y);
+
+
+    //if moving northward
+    if(vel->X < 0)
+    {
+        //is position close enough to wall?
+        if(tsubpos.X <= 1)
+        {
+            //is there a tile in direction?
+            if(adjtiles[NORTH])
+            {
+                //is that tile solid?
+                if(adjtiles[NORTH]->getType() == TILETYPE_SOLID)
+                {
+
+                }
+            }
+        }
+    }
+    //moving southward?
+    else if(vel->X > 0)
+    {
+        std::cout << "moving southward\n";
+        //is position close enough to wall?
+        if(tsubpos.Y >= TILE_UNIT-1)
+        {
+            //is there a tile in direction?
+            if(adjtiles[SOUTH])
+            {
+                //is that tile solid?
+                if(adjtiles[SOUTH]->getType() == TILETYPE_SOLID)
+                {
+                    //kill vel
+                    pos->X += -vel->X;
+                    vel->X = 0;
+                    std::cout << "south wall collision!\n";
+                }
+            }
+        }
+    }
+
+    //temp debug
+    pos->Y = ttile->getHeight()+3;
+
+    return true;
 }
 
 
