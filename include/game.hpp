@@ -11,7 +11,7 @@
 
 #include "level.hpp"
 
-#define SCREEN_SCALE 4
+#define SCREEN_SCALE 2
 #define SCREEN_WIDTH 320*SCREEN_SCALE
 #define SCREEN_HEIGHT 200*SCREEN_SCALE
 #define SCREEN_WORLD_POS_X 50*SCREEN_SCALE
@@ -23,8 +23,8 @@
 #define TILE_UNIT 8
 #define GRAVITY_ACCEL 0.001
 #define TERMINAL_GRAVITY 0.1
-#define ROTATION_SPEED 100
-#define MOVE_SPEED 10
+#define ROTATION_SPEED 120
+#define MOVE_SPEED 15
 #define STANDING_HEIGHT 3
 
 //irrlicht namespaces
