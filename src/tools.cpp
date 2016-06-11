@@ -60,3 +60,16 @@ int getBitVal(int data, int startbit, int length)
 
     return (data >> startbit) & mask;
 }
+
+irr::core::vector2df projectVectorAontoB(irr::core::vector2df va, irr::core::vector2df vb)
+{
+
+    float ndot(va.X*vb.X + va.Y*vb.Y);
+    float magsqr( sqrt(vb.X*vb.X + vb.Y*vb.Y) );
+
+    magsqr = magsqr*magsqr;
+
+    return irr::core::vector2df( (vb.X*ndot)/magsqr, (vb.Y*ndot)/magsqr);
+
+
+}
