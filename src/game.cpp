@@ -630,7 +630,7 @@ bool Game::processCollision(vector3df *pos, vector3df *vel)
         //std::cout << "current tile is solid, returning false!\n";
         return false;
     }
-    else std::cout << "vel:" << vel->X << "," << vel->Y << "," << vel->Z << std::endl;
+    //else std::cout << "vel:" << vel->X << "," << vel->Y << "," << vel->Z << std::endl;
 
     //get all adjacent tiles
     std::vector<Tile*> adjtiles = mLevels[m_CurrentLevel].getAdjacentTilesAt(tpos.X, tpos.Y);
@@ -644,16 +644,14 @@ bool Game::processCollision(vector3df *pos, vector3df *vel)
         //if current tile a diagonal open to
         if(ttile->getType() == TILETYPE_D_SE)
         {
-            if( -tsubpos.X + TILE_UNIT >= tsubpos.Y)
+            if( tsubpos.Y <= TILE_UNIT - tsubpos.X + TILE_UNIT*0.125)
             {
-                //pos->X -= vel->X;
-
+                diagvel = projectVectorAontoB(vector2df(vel->Z, vel->X), vector2df(1,-1));
             }
         }
         else if(ttile->getType() == TILETYPE_D_SW)
         {
-            std::cout << "subpos : " << tsubpos.X << "," << tsubpos.Y << std::endl;
-            if(tsubpos.Y - TILE_UNIT*0.125<= tsubpos.X)
+            if(tsubpos.Y - TILE_UNIT*0.125 <= tsubpos.X)
             {
                 diagvel = projectVectorAontoB(vector2df(vel->Z, vel->X), vector2df(1,1));
             }
@@ -679,6 +677,23 @@ bool Game::processCollision(vector3df *pos, vector3df *vel)
     //moving southward?
     else if(vel->X > 0)
     {
+        //if current tile a diagonal open to
+        if(ttile->getType() == TILETYPE_D_NE)
+        {
+            if( tsubpos.Y >= tsubpos.X - TILE_UNIT*0.125)
+            {
+                diagvel = projectVectorAontoB(vector2df(vel->Z, vel->X), vector2df(1,1));
+            }
+        }
+        else if(ttile->getType() == TILETYPE_D_NW)
+        {
+            std::cout << "JOHN TEST\n";
+            if(tsubpos.Y >= TILE_UNIT - tsubpos.X + TILE_UNIT*0.125)
+            {
+                diagvel = projectVectorAontoB(vector2df(vel->Z, vel->X), vector2df(1,-1));
+            }
+
+        }
         //is position close enough to wall?
         if(tsubpos.Y >= TILE_UNIT-1)
         {
@@ -701,13 +716,19 @@ bool Game::processCollision(vector3df *pos, vector3df *vel)
     //if moving westward
     if(vel->Z < 0)
     {
-        if(ttile->getType() == TILETYPE_D_NW)
+        if(ttile->getType() == TILETYPE_D_NE)
         {
-
+            if(tsubpos.X <= tsubpos.Y + TILE_UNIT*0.125)
+            {
+                diagvel = projectVectorAontoB(vector2df(vel->Z, vel->X), vector2df(1,1));
+            }
         }
-        else if(ttile->getType() == TILETYPE_D_SW)
+        else if(ttile->getType() == TILETYPE_D_SE)
         {
-
+            if(tsubpos.X <=  TILE_UNIT - tsubpos.Y + TILE_UNIT*0.125)
+            {
+                diagvel = projectVectorAontoB(vector2df(vel->Z, vel->X), vector2df(1,-1));
+            }
         }
         //is position close enough to wall?
         else if(tsubpos.X <= 1)
@@ -729,9 +750,12 @@ bool Game::processCollision(vector3df *pos, vector3df *vel)
     //moving eastward
     else if(vel->Z > 0)
     {
-        if(ttile->getType() == TILETYPE_D_NE)
+        if(ttile->getType() == TILETYPE_D_NW)
         {
-
+            if(tsubpos.X >= TILE_UNIT - tsubpos.Y - TILE_UNIT*0.125)
+            {
+                diagvel = projectVectorAontoB(vector2df(vel->Z, vel->X), vector2df(1,-1));
+            }
         }
         else if(ttile->getType() == TILETYPE_D_SW)
         {
