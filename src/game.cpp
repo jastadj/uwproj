@@ -50,6 +50,8 @@ int Game::start()
     std::cout << "Loading palette data...\n";
         errorcode = loadPalette();
         if(errorcode) { std::cout << "Error loading palette!  ERROR CODE " << errorcode << "\n"; return -1;}
+        errorcode = loadAuxPalette();
+        if(errorcode) { std::cout << "Error loading aux palette!  ERROR CODE " << errorcode << "\n"; return -1;}
 
     std::cout << "Loading textures...\n";
         errorcode = loadTexture("UWDATA\\w64.tr", &m_Wall64TXT);
@@ -242,7 +244,8 @@ void Game::mainLoop()
 
 
     IGUIImage *myguiimage = m_GUIEnv->addImage(m_Bitmaps[2], position2d<s32>(0,0), true);
-    std::vector<ITexture*> *texturestotest = &m_CharHeadTXT;
+
+    std::vector<ITexture*> *texturestotest = &m_Cursors;
     int texturestotestsize = int(texturestotest->size());
     int texturestotestindex = 0;
     IGUIImage *mymousecursor = m_GUIEnv->addImage( (*texturestotest)[texturestotestindex], position2d<s32>(0,0), true);
@@ -311,7 +314,6 @@ void Game::mainLoop()
     // now irrlicht internally ajusted device's resolution, but active camera will not update its aspect ratio automatically (which is OK, because you may no need it), so if you want the camera to be OK after this resize, you need to write also something like:
     //m_SMgr->getActiveCamera()->setAspectRatio((float)d.Width/d.Height);
 
-
     int lastFPS = -1;
 
     // In order to do framerate independent movement, we have to know
@@ -320,8 +322,6 @@ void Game::mainLoop()
 
     //flag to store if mouse button was clicked on this frame
     bool mouseLeftClicked = false;
-
-
 
     //main loop
     while(m_Device->run())
@@ -406,6 +406,7 @@ void Game::mainLoop()
                     {
                         texturestotestindex--;
                         if(texturestotestindex < 0) texturestotestindex = texturestotestsize-1;
+                        mymousecursor->setVisible(false);
                         mymousecursor = m_GUIEnv->addImage( (*texturestotest)[texturestotestindex], position2d<s32>(0,0), true);
                         mymousecursor->setImage( (*texturestotest)[texturestotestindex]);
                     }
@@ -413,6 +414,7 @@ void Game::mainLoop()
                     {
                         texturestotestindex++;
                         if(texturestotestindex >= texturestotestsize) texturestotestindex = 0;
+                        mymousecursor->setVisible(false);
                         mymousecursor = m_GUIEnv->addImage( (*texturestotest)[texturestotestindex], position2d<s32>(0,0), true);
                         mymousecursor->setImage( (*texturestotest)[texturestotestindex]);
                     }
@@ -1102,6 +1104,46 @@ int Game::loadPalette()
     return 0;
 }
 
+int Game::loadAuxPalette()
+{
+    std::string palfile = "UWDATA\\allpals.dat";
+    std::ifstream pfile;
+    pfile.open(palfile.c_str(), std::ios_base::binary);
+
+    // aux palettes are indices into palette #0, so make sure it exists first!
+    if(m_Palettes.empty()) return -2;
+
+    //check if file loaded
+    if(!pfile.is_open()) return -1; // error unable to open file
+
+    //resize palettes for 16 colors x 31 palettes
+    m_AuxPalettes.resize(31);
+    for(int i = 0; i < int(m_AuxPalettes.size()); i++) m_AuxPalettes[i].resize(16);
+
+    //UW palette intensities are 64, mult by 4 to get 256 intensity
+    // (3x 8-bit r, g, b) = 1 index
+    // each palette has 256 indices
+    // pal file has 8 palettes
+
+    for(int i = 0; i < int(m_AuxPalettes.size()); i++)
+    {
+        for(int p = 0; p < int(m_AuxPalettes[i].size()); p++)
+        {
+            unsigned char palindex[1];
+
+            //read in color data (0-63 intensity for red, green , and blue)
+            if(!readBin(&pfile, palindex, 1)) return -3; // error reading aux pal byte
+
+            //index 0 always = transparent
+            m_AuxPalettes[i][p] = m_Palettes[0][int(palindex[0])];
+        }
+    }
+
+    pfile.close();
+
+    return 0;
+}
+
 int Game::loadTexture(std::string tfilename, std::vector<ITexture*> *tlist)
 {
     if(tlist == NULL) return -1; //error texture list is null
@@ -1203,6 +1245,9 @@ int Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
 
     //check if graphic file loaded properly
     if(!ifile.is_open()) return -1; // error loading file
+
+    //check if palettes have been loaded first
+    if(m_Palettes.empty() || m_AuxPalettes.empty()) return -13; // error palettes are empty
 
     //temp vars
     unsigned char fformatbuf[1];
@@ -1340,9 +1385,8 @@ int Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
                         //std::cout << "Img dim:" << bwidth << "," << bheight << " p=" << p << " , n=" << n << std::endl;
 
                         //set the pixel at x,y using current selected palette with read in palette index #
-                        //newimg->setPixel(p, n, m_Palettes[palSel][hibyte]);
-                        //newimg->setPixel(p, n, m_Palettes[palSel][lobyte]);
-                        newimg->setPixel(0,0, m_Palettes[0][0]);
+                        newimg->setPixel(p, n, m_AuxPalettes[palSel][hibyte]);
+                        newimg->setPixel(p+1, n, m_AuxPalettes[palSel][lobyte]);
 
                         //increase p counter (since we did two in one loop)
                         p++;

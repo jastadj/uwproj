@@ -138,6 +138,7 @@ private:
     int initCamera();
     int loadLevel();
     int loadPalette();
+    int loadAuxPalette();
     int loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist);
     int loadTexture(std::string tfilename, std::vector<ITexture*> *tlist);
     int loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int tpalindex);
@@ -150,6 +151,7 @@ private:
 
     //palettes
     std::vector< std::vector<SColor> > m_Palettes;
+    std::vector< std::vector<SColor> > m_AuxPalettes;
 
     //textures
     std::vector<ITexture*> m_Wall64TXT;
