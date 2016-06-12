@@ -75,8 +75,7 @@ bool Game::initIrrlicht()
     if(m_Device != NULL) return false;
 
     //init device
-    bool fullscreen = false;
-    m_Device = createDevice( video::EDT_OPENGL, dimension2d<u32>(SCREEN_WIDTH, SCREEN_HEIGHT), 16, fullscreen, false, false, &m_Receiver);
+    m_Device = createDevice( video::EDT_OPENGL, dimension2d<u32>(SCREEN_WIDTH, SCREEN_HEIGHT), 16, FULLSCREEN, false, false, &m_Receiver);
     if(!m_Device) {std::cout << "Error creating device.\n";return false;}
     m_Device->setWindowCaption(L"UWproj");
 
@@ -175,14 +174,17 @@ void Game::mainLoop()
     bool drawaxis = true;
 
     //add light test
-    scene::ILightSceneNode* light1 = m_SMgr->addLightSceneNode(0, vector3df(0,0,0), SColorf(1.0f, 0.5f, 0.5f, 0.f), 100.0f);
-    light1->setLightType(video::ELT_SPOT);
-    light1->setRotation(vector3df(0,180,0));
-    light1->getLightData().Falloff = 5;
+    scene::ILightSceneNode* light1 = m_SMgr->addLightSceneNode(0, vector3df(0,0,0), SColorf(1.0f, 1.0f, 1.0f, 1.f), 4.0f);
+    light1->setLightType(video::ELT_POINT);
+    //light1->setRotation(vector3df(0,180,0));
+    //light1->getLightData().Falloff = 5;
+    light1->enableCastShadow(false);
+    light1->setRadius(2);
+
     //light1->getLightData().DiffuseColor = SColor(100,100,100,100);
     //light1->getLightData().SpecularColor = SColor(0,0,0,0);
     //light1->enableCastShadow(false);
-    m_SMgr->setAmbientLight( SColor(100,100,100,100));
+    //m_SMgr->setAmbientLight( SColor(100,100,100,100));
 
 
 
@@ -434,7 +436,7 @@ void Game::mainLoop()
         //apply gravity to camera
 
         updateCamera();
-
+        light1->setPosition(m_CameraPos);
         //m_CameraPos = m_Camera->getPosition();
         //m_Camera->setPosition( vector3df(m_CameraPos.X, m_CameraPos.Y-0.1*frameDeltaTime, m_CameraPos.Z));
 
@@ -1349,7 +1351,7 @@ bool Game::configMeshSceneNode(IMeshSceneNode *tnode)
     if(tnode == NULL) return false;
 
     tnode->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
-    tnode->setMaterialFlag(video::EMF_LIGHTING, false);
+    //tnode->setMaterialFlag(video::EMF_LIGHTING, false);
     //tnode->setMaterialFlag(video::EMF_TEXTURE_WRAP, true);
     //tnode->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
     //tnode->setMaterialFlag(video::EMF_BLEND_OPERATION, true);

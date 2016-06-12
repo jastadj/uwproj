@@ -11,6 +11,7 @@
 
 #include "level.hpp"
 
+#define FULLSCREEN 1
 #define SCREEN_SCALE 2
 #define SCREEN_WIDTH 320*SCREEN_SCALE
 #define SCREEN_HEIGHT 200*SCREEN_SCALE
