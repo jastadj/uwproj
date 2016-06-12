@@ -14,6 +14,9 @@ Game::Game()
 
     m_CurrentLevel = 0;
 
+    //debug
+    dbg_noclip = false;
+    dbg_nolighting = false;
 }
 
 Game::~Game()
@@ -332,11 +335,11 @@ void Game::mainLoop()
         }
         else m_CameraVel.Z = 0;
 
-        if(m_Receiver.isKeyPressed(KEY_KEY_Q))
+        if(m_Receiver.isKeyPressed(KEY_KEY_E))
         {
             m_CameraVel.Y = frameDeltaTime * MOVE_SPEED;
         }
-        else if(m_Receiver.isKeyPressed(KEY_KEY_E))
+        else if(m_Receiver.isKeyPressed(KEY_KEY_Q))
         {
             m_CameraVel.Y = -frameDeltaTime * MOVE_SPEED;
         }
@@ -384,6 +387,17 @@ void Game::mainLoop()
                             ttile->printDebug();
                         }
                         else std::cout << "Current tile = NULL!\n";
+                    }
+                    else if(m_Receiver.isKeyPressed(KEY_F2))
+                    {
+                        dbg_noclip = !dbg_noclip;
+                        std::cout << "debug no clip = " << dbg_noclip << std::endl;
+                    }
+                    else if(m_Receiver.isKeyPressed(KEY_F3))
+                    {
+                        dbg_nolighting = !dbg_nolighting;
+                        std::cout << "debug no lighting = " << dbg_nolighting << std::endl;
+                        reconfigureAllLevelMeshes();
                     }
                     else if(m_Receiver.isKeyPressed(KEY_F5))
                     {
@@ -612,7 +626,8 @@ void Game::updateCamera()
 
 bool Game::processCollision(vector3df *pos, vector3df *vel)
 {
-    if(pos == NULL || vel == NULL) return false;
+    if(dbg_noclip) return true;
+    else if(pos == NULL || vel == NULL) return false;
 
     //if no velocity, don't bother updating anything
     //if( *vel == vector3df(0,0,0)) return true;
@@ -796,9 +811,39 @@ bool Game::processCollision(vector3df *pos, vector3df *vel)
         pos->X += vel->X;
     }
 
+    //calculate floor height for slope
+    //note tile's height + STANDING_HEIGHT is where player should be when standing
+    //get current floor height value
+    float cheight = ttile->getHeight();
 
-    //temp debug
-    pos->Y = ttile->getHeight()+STANDING_HEIGHT;
+    //if on a ramp, calculate height
+    if(ttile->getType() >= 6 && ttile->getType() <= 9)
+    {
+        float m = 0.125;
+        switch(ttile->getType())
+        {
+        //ramp sloping up to the south...
+        case TILETYPE_SL_S:
+            pos->Y = m*(tsubpos.Y) + cheight + STANDING_HEIGHT;
+            break;
+        case TILETYPE_SL_N:
+            pos->Y = -m*(tsubpos.Y) + 1 + cheight + STANDING_HEIGHT;
+            break;
+        case TILETYPE_SL_W:
+            pos->Y = -m*(tsubpos.X) + 1 + cheight + STANDING_HEIGHT;
+            break;
+        case TILETYPE_SL_E:
+            pos->Y = m*(tsubpos.X) + cheight + STANDING_HEIGHT;
+            break;
+        default:
+            std::cout << "Error calculating slope height, undefined slope!\n";
+            pos->Y = ttile->getHeight()+STANDING_HEIGHT;
+            break;
+
+        }
+    }
+    else pos->Y = ttile->getHeight()+STANDING_HEIGHT;
+
 
     return true;
 }
@@ -1351,7 +1396,8 @@ bool Game::configMeshSceneNode(IMeshSceneNode *tnode)
     if(tnode == NULL) return false;
 
     tnode->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
-    //tnode->setMaterialFlag(video::EMF_LIGHTING, false);
+    if(dbg_nolighting) tnode->setMaterialFlag(video::EMF_LIGHTING, false);
+    else tnode->setMaterialFlag(video::EMF_LIGHTING, true);
     //tnode->setMaterialFlag(video::EMF_TEXTURE_WRAP, true);
     //tnode->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
     //tnode->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
@@ -1523,5 +1569,24 @@ SMesh *Game::getSquareMesh(int ul, int ur, int br, int bl)
 
     return mesh;
 
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////
+//  DEBUG
+void Game::reconfigureAllLevelMeshes()
+{
+    std::cout << "Reconfiguring all level meshes...";
+    std::vector<IMeshSceneNode*> lmeshes = mLevels[m_CurrentLevel].getMeshes();
+
+    for(int i = 0; i < int(lmeshes.size()); i++)
+    {
+        if(!configMeshSceneNode(lmeshes[i]))
+        {
+            std::cout << "Error configuring mesh #" << i << std::endl;
+        }
+    }
+
+    std::cout << "done.\n";
 }
 

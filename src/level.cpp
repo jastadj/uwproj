@@ -782,6 +782,26 @@ SMesh *Level::generateDiagonalWallMesh(int tl, int tr, int br, int bl)
     return mesh;
 }
 
+std::vector<IMeshSceneNode*> Level::getMeshes()
+{
+    std::vector<IMeshSceneNode*> meshes;
+
+    for(int i = 0; i < int(mTiles.size()); i++)
+    {
+        for(int n = 0; n < int(mTiles[i].size()); n++)
+        {
+            std::vector<IMeshSceneNode*> tmeshes = mTiles[i][n].getMeshes();
+
+            for(int p = 0; p < int(tmeshes.size()); p++)
+            {
+                meshes.push_back( tmeshes[p]);
+            }
+        }
+    }
+
+    return meshes;
+}
+
 void Level::printDebug()
 {
 
@@ -875,6 +895,11 @@ bool Tile::addMesh(IMeshSceneNode *tmesh)
 
     mMeshes.push_back(tmesh);
     return true;
+}
+
+std::vector<IMeshSceneNode*> Tile::getMeshes()
+{
+    return mMeshes;
 }
 
 void Tile::printDebug()

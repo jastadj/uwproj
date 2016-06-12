@@ -60,6 +60,8 @@ public:
     int getCeilingTextureIndex() { return m_CeilingTextureIndex;}
     void setCeilingTextureIndex(int nindex) { m_CeilingTextureIndex = nindex;}
 
+    std::vector<IMeshSceneNode*> getMeshes();
+
     void printDebug();
 };
 
@@ -117,6 +119,7 @@ public:
     //geometry
     int clearGeometry();
     bool addMesh(IMeshSceneNode *tnode);
+    std::vector<IMeshSceneNode*> getMeshes();
 
     //debug
     void printDebug();

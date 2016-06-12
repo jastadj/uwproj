@@ -159,6 +159,11 @@ private:
     //mainloop
     void mainLoop();
 
+    //debug
+    bool dbg_noclip;
+    bool dbg_nolighting;
+    void reconfigureAllLevelMeshes();
+
 public:
     static Game *getInstance()
     {
