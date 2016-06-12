@@ -1376,17 +1376,19 @@ int Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
                     //if 4-bit
                     else if(btype == 0x0a)
                     {
+                        //std::cout << "bbyte val = " << int(bbyte[0]) << std::endl;
                         //std::cout << "loading 4-bit image type\n";
                         //first hi byte, the lo byte
-                        int hibyte = getBitVal( int(bbyte), 4, 4);
-                        int lobyte = getBitVal( int(bbyte), 0, 4);
+                        int lobyte = getBitVal( int(bbyte[0]), 0, 4);
+                        int hibyte = getBitVal( int(bbyte[0]), 4, 4);
+
 
                         //std::cout << "Setting 4-bit pixel hibyte=" << std::hex << hibyte << " , lobyte=" << lobyte << std::endl;
                         //std::cout << "Img dim:" << bwidth << "," << bheight << " p=" << p << " , n=" << n << std::endl;
 
                         //set the pixel at x,y using current selected palette with read in palette index #
-                        newimg->setPixel(p, n, m_AuxPalettes[palSel][hibyte]);
-                        newimg->setPixel(p+1, n, m_AuxPalettes[palSel][lobyte]);
+                        newimg->setPixel(p, n, m_AuxPalettes[bauxpal][hibyte]);
+                        newimg->setPixel(p+1, n, m_AuxPalettes[bauxpal][lobyte]);
 
                         //increase p counter (since we did two in one loop)
                         p++;
@@ -1401,19 +1403,24 @@ int Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
         std::stringstream texturename;
         texturename << "txt_" << i;
 
+
+
         //create texture from image
-        newtxt = m_Driver->addTexture( texturename.str().c_str(), newimg );
-        if(newtxt == NULL) return -12; // error creating texture
+        IImage *stretchedimage = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(bwidth*SCREEN_SCALE, bheight*SCREEN_SCALE));
+        newimg->copyToScaling(stretchedimage);
+        newtxt = m_Driver->addTexture( texturename.str().c_str(), stretchedimage );
         //set transparency color (pink, 255,0,255)
         //note : this is palette index #0, set automatically when
         //       loading in palettes (see loadPalette())
         m_Driver->makeColorKeyTexture(newtxt,  SColor(TRANSPARENCY_COLOR));
 
+        if(newtxt == NULL) return -12; // error creating texture
         //push texture into texture list
         tlist->push_back(newtxt);
 
         //drop image, no longer needed
         newimg->drop();
+        stretchedimage->drop();
     }
 
     ifile.close();
