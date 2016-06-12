@@ -764,13 +764,13 @@ SMesh *Level::generateDiagonalWallMesh(int tl, int tr, int br, int bl)
     txtscaley = (txtscaleytop - txtscaleybot) / UNIT_SCALE;
 
     //triangle 1
-    buf->Vertices[0] = S3DVertex(0*UNIT_SCALE,tl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, 0); //TL
-    buf->Vertices[1] = S3DVertex(1*UNIT_SCALE,tr*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
-    buf->Vertices[2] = S3DVertex(0*UNIT_SCALE,bl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, txtscaley);// BL
+    buf->Vertices[0] = S3DVertex(0*UNIT_SCALE,tl*scale,0*UNIT_SCALE, 1,0,-1,    video::SColor(255,255,255,255), 0, 0); //TL
+    buf->Vertices[1] = S3DVertex(1*UNIT_SCALE,tr*scale,1*UNIT_SCALE, 1,0,-1,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[2] = S3DVertex(0*UNIT_SCALE,bl*scale,0*UNIT_SCALE, 1,0,-1,    video::SColor(255,255,255,255), 0, txtscaley);// BL
     //triangle 2
-    buf->Vertices[3] = S3DVertex(1*UNIT_SCALE,tr*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, 0); //TR
-    buf->Vertices[4] = S3DVertex(1*UNIT_SCALE,br*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, txtscaley); //BR
-    buf->Vertices[5] = S3DVertex(0*UNIT_SCALE,bl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, txtscaley); // BL
+    buf->Vertices[3] = S3DVertex(1*UNIT_SCALE,tr*scale,1*UNIT_SCALE, 1,0,-1,    video::SColor(255,255,255,255), 1, 0); //TR
+    buf->Vertices[4] = S3DVertex(1*UNIT_SCALE,br*scale,1*UNIT_SCALE, 1,0,-1,    video::SColor(255,255,255,255), 1, txtscaley); //BR
+    buf->Vertices[5] = S3DVertex(0*UNIT_SCALE,bl*scale,0*UNIT_SCALE, 1,0,-1,    video::SColor(255,255,255,255), 0, txtscaley); // BL
 
     //finalize vertices
     buf->Indices.reallocate(vcount);
