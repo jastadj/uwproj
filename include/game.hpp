@@ -11,6 +11,7 @@
 
 #include "level.hpp"
 
+#define TRANSPARENCY_COLOR 0,255,0,255
 #define FULLSCREEN 0
 #define SCREEN_SCALE 4
 #define SCREEN_WIDTH 320*SCREEN_SCALE

@@ -15,8 +15,8 @@ Game::Game()
     m_CurrentLevel = 0;
 
     //debug
-    dbg_noclip = false;
-    dbg_nolighting = false;
+    dbg_noclip = true;
+    dbg_nolighting = true;
 }
 
 Game::~Game()
@@ -1062,7 +1062,7 @@ bool Game::loadPalette()
             readBin(&pfile, rgb, 3);
 
             //index 0 always = transparent
-            if(p == 0) m_Palettes[i][p] = SColor(0, 0, 0, 0 );
+            if(p == 0) m_Palettes[i][p] = SColor(TRANSPARENCY_COLOR );
             else m_Palettes[i][p] = SColor(255, (int(rgb[0])+1)*4-1, (int(rgb[1])+1)*4-1, (int(rgb[2])+1)*4-1 );
 
         }
@@ -1312,6 +1312,10 @@ bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
 
         //create texture from image
         newtxt = m_Driver->addTexture( texturename.str().c_str(), newimg );
+        //set transparency color (pink, 255,0,255)
+        //note : this is palette index #0, set automatically when
+        //       loading in palettes (see loadPalette())
+        m_Driver->makeColorKeyTexture(newtxt,  SColor(TRANSPARENCY_COLOR));
 
         //push texture into texture list
         tlist->push_back(newtxt);
@@ -1377,7 +1381,10 @@ bool Game::loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int 
     IImage *stretchedimage = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(bitmap_width*SCREEN_SCALE, bitmap_height*SCREEN_SCALE));
     newimg->copyToScaling(stretchedimage);
     newtxt = m_Driver->addTexture( texturename.str().c_str(), stretchedimage );
-    m_Driver->makeColorKeyTexture(newtxt,  m_Palettes[tpalindex][0]);
+    //set transparency color (pink, 255,0,255)
+    //note : this is palette index #0, set automatically when
+    //       loading in palettes (see loadPalette())
+    m_Driver->makeColorKeyTexture(newtxt,  SColor(TRANSPARENCY_COLOR));
 
     //push texture into texture list
     tlist->push_back(newtxt);
