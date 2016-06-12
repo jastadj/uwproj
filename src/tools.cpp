@@ -6,8 +6,6 @@ bool readBin(std::ifstream *fptr, unsigned char *data, int length, bool quiet)
 
     if(fptr == NULL) return false;;
 
-
-
     if(!quiet)
     {
         std::cout << "Start offset : 0x" << std::hex << fptr->tellg() << " (" << std::dec << fptr->tellg() << ")\n";

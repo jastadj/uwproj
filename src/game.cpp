@@ -29,57 +29,78 @@ Game::~Game()
 //
 int Game::start()
 {
+    int errorcode = 0;
+
     std::cout << "Game started.\n";
 
     //init irrlicht
     std::cout << "Initialzing irrlicht...\n";
-    if(!initIrrlicht()) {std::cout << "Error initializing irrlicht!\n"; return -1;}
+        errorcode = initIrrlicht();
+        if(errorcode) {std::cout << "Error initializing irrlicht!  ERROR CODE " << errorcode << "\n"; return -1;}
 
     std::cout << "Initializing camera...\n";
-    if(!initCamera()) {std::cout << "Error initializing camera!\n"; return -1;}
-
+        errorcode = initCamera();
+        if(errorcode) {std::cout << "Error initializing camera!  ERROR CODE " << errorcode << "\n"; return -1;}
 
     //load UW data
     std::cout << "Loading level data...\n";
-    if(!loadLevel()) {std::cout << "Error loading level data!\n"; return -1;}
+        errorcode = loadLevel();
+        if(errorcode) {std::cout << "Error loading level data!  ERROR CODE " << errorcode << "\n"; return -1;}
+
     std::cout << "Loading palette data...\n";
-    if(!loadPalette()) { std::cout << "Error loading palette!\n"; return -1;}
+        errorcode = loadPalette();
+        if(errorcode) { std::cout << "Error loading palette!  ERROR CODE " << errorcode << "\n"; return -1;}
+
     std::cout << "Loading textures...\n";
-    if(!loadTexture("UWDATA\\w64.tr", &m_Wall64TXT)) { std::cout << "Error loading textures!\n"; return -1;}
-        else std::cout << "Loaded " << m_Wall64TXT.size() << " wall64 textures.\n";
-    if(!loadTexture("UWDATA\\f32.tr", &m_Floor32TXT)) { std::cout << "Error loading textures!\n"; return -1;}
-        else std::cout << "Loaded " << m_Floor32TXT.size() << " floor32 textures.\n";
+        errorcode = loadTexture("UWDATA\\w64.tr", &m_Wall64TXT);
+        if(errorcode) { std::cout << "Error loading textures!  ERROR CODE " << errorcode << "\n"; return -1;}
+            else std::cout << "Loaded " << m_Wall64TXT.size() << " wall64 textures.\n";
+        errorcode = loadTexture("UWDATA\\f32.tr", &m_Floor32TXT);
+        if(errorcode) { std::cout << "Error loading textures!  ERROR CODE " << errorcode << "\n"; return -1;}
+            else std::cout << "Loaded " << m_Floor32TXT.size() << " floor32 textures.\n";
+
     std::cout << "Loading graphics...\n";
     //note : this needs to be fixed, throws bad alloc, need to investigate parsing for graphics load
-    //if(!loadGraphic("UWDATA\\charhead.gr", &m_CharHeadTXT)) {std::cout << "Error loading charhead graphic!\n"; return -1;}
+        errorcode = loadGraphic("UWDATA\\charhead.gr", &m_CharHeadTXT);
+        if(errorcode) {std::cout << "Error loading charhead graphic!  ERROR CODE " << errorcode << "\n"; return -1;}
+        errorcode = loadGraphic("UWDATA\\cursors.gr", &m_Cursors);
+        if(errorcode) {std::cout << "Error loading cursors graphic!  ERROR CODE " << errorcode << "\n"; return -1;}
+
+
     std::cout << "Loading bitmaps...\n";
-    if(!loadBitmap("UWDATA\\pres1.byt", &m_Bitmaps, 5)) {std::cout << "Error loading bitmap!\n"; return -1;}
-    if(!loadBitmap("UWDATA\\pres2.byt", &m_Bitmaps, 5)) {std::cout << "Error loading bitmap!\n"; return -1;}
-    if(!loadBitmap("UWDATA\\main.byt", &m_Bitmaps, 0)) {std::cout << "Error loading bitmap!\n"; return -1;}
-    if(!loadBitmap("UWDATA\\opscr.byt", &m_Bitmaps, 2)) {std::cout << "Error loading bitmap!\n"; return -1;}
+        errorcode = loadBitmap("UWDATA\\pres1.byt", &m_Bitmaps, 5);
+        if(errorcode) {std::cout << "Error loading bitmap!  ERROR CODE " << errorcode << "\n"; return -1;}
+        errorcode = loadBitmap("UWDATA\\pres2.byt", &m_Bitmaps, 5);
+        if(errorcode) {std::cout << "Error loading bitmap!  ERROR CODE " << errorcode << "\n"; return -1;}
+        errorcode = loadBitmap("UWDATA\\main.byt", &m_Bitmaps, 0);
+        if(errorcode) {std::cout << "Error loading bitmap!  ERROR CODE " << errorcode << "\n"; return -1;}
+        errorcode = loadBitmap("UWDATA\\opscr.byt", &m_Bitmaps, 2);
+        if(errorcode) {std::cout << "Error loading bitmap!  ERROR CODE " << errorcode << "\n"; return -1;}
 
 
     //mLevels[0].printDebug();
 
     //generate level geometry
     std::cout << "Generating level geometry...\n";
-    if(!mLevels[0].buildLevelGeometry()) { std::cout << "Error generating level geometry!!\n"; return -1;}
+        errorcode = mLevels[0].buildLevelGeometry();
+        if(!errorcode) { std::cout << "Error generating level geometry!!  ERROR CODE " << errorcode << "\n"; return -1;}
 
     //start main loop
     std::cout << "Starting main loop...\n";
     mainLoop();
 
+
     return 0;
 }
 
-bool Game::initIrrlicht()
+int Game::initIrrlicht()
 {
     //already initialized!!
-    if(m_Device != NULL) return false;
+    if(m_Device != NULL) return -1; // error, already initialized
 
     //init device
     m_Device = createDevice( video::EDT_OPENGL, dimension2d<u32>(SCREEN_WIDTH, SCREEN_HEIGHT), 16, FULLSCREEN, false, false, &m_Receiver);
-    if(!m_Device) {std::cout << "Error creating device.\n";return false;}
+    if(!m_Device) return -2; // error device unable to be created successfully
     m_Device->setWindowCaption(L"UWproj");
 
     //get video
@@ -108,13 +129,13 @@ bool Game::initIrrlicht()
     //m_Driver->getMaterial2D().TextureLayer[0].BilinearFilter=true;
     //m_Driver->getMaterial2D().AntiAliasing=video::EAAM_FULL_BASIC;
 
-    return true;
+    return 0;
 }
 
-bool Game::initCamera()
+int Game::initCamera()
 {
     //already initialized!!
-    if(m_Camera != NULL) return false;
+    if(m_Camera != NULL) return -1; // error already initialized!
 
     m_CameraPos = vector3df(245.5,15,127.5);
     m_CameraRot = vector3df(0,0,0);
@@ -167,7 +188,7 @@ bool Game::initCamera()
 
 
 
-    return true;
+    return 0;
 }
 
 /////////////////////////////////////////////////////////////
@@ -221,7 +242,10 @@ void Game::mainLoop()
 
 
     IGUIImage *myguiimage = m_GUIEnv->addImage(m_Bitmaps[2], position2d<s32>(0,0), true);
-
+    std::vector<ITexture*> *texturestotest = &m_CharHeadTXT;
+    int texturestotestsize = int(texturestotest->size());
+    int texturestotestindex = 0;
+    IGUIImage *mymousecursor = m_GUIEnv->addImage( (*texturestotest)[texturestotestindex], position2d<s32>(0,0), true);
 
 
     /*
@@ -378,6 +402,20 @@ void Game::mainLoop()
                     else if(event->KeyInput.Key == KEY_KEY_T)
                     {
                     }
+                    else if(event->KeyInput.Key == KEY_KEY_Z)
+                    {
+                        texturestotestindex--;
+                        if(texturestotestindex < 0) texturestotestindex = texturestotestsize-1;
+                        mymousecursor = m_GUIEnv->addImage( (*texturestotest)[texturestotestindex], position2d<s32>(0,0), true);
+                        mymousecursor->setImage( (*texturestotest)[texturestotestindex]);
+                    }
+                    else if(event->KeyInput.Key == KEY_KEY_X)
+                    {
+                        texturestotestindex++;
+                        if(texturestotestindex >= texturestotestsize) texturestotestindex = 0;
+                        mymousecursor = m_GUIEnv->addImage( (*texturestotest)[texturestotestindex], position2d<s32>(0,0), true);
+                        mymousecursor->setImage( (*texturestotest)[texturestotestindex]);
+                    }
                     else if(m_Receiver.isKeyPressed(KEY_F1))
                     {
                         m_CameraPos = m_Camera->getPosition();
@@ -454,6 +492,8 @@ void Game::mainLoop()
         //m_CameraPos = m_Camera->getPosition();
         //m_Camera->setPosition( vector3df(m_CameraPos.X, m_CameraPos.Y-0.1*frameDeltaTime, m_CameraPos.Z));
 
+        //update mouse cursor graphic
+        mymousecursor->setRelativePosition( position2d<s32>(m_MousePos.X, m_MousePos.Y));
 
 
         //clear scene
@@ -849,7 +889,7 @@ bool Game::processCollision(vector3df *pos, vector3df *vel)
 }
 
 
-bool Game::loadLevel()
+int Game::loadLevel()
 {
     //read in level archive
     std::ifstream ifile;
@@ -869,18 +909,13 @@ bool Game::loadLevel()
 
     //attempt to open level archive
     ifile.open(tfile.c_str(), std::ios_base::binary);
-    if(!ifile.is_open())
-    {
-        std::cout << "Error opening " << tfile << std::endl;
-        return false;
-    }
-    else std::cout << "Successfuly opened " << tfile << std::endl;
+    if(!ifile.is_open()) return -1; // error unable to open file
 
     //read block count from header
     unsigned char blockcountbuf[2];
-    readBin(&ifile, blockcountbuf, 2);
+    if(!readBin(&ifile, blockcountbuf, 2)) return -2; // error unable to read block count
     blockcount = uint16_t(lsbSum(blockcountbuf, 2));
-    std::cout << std::dec << "Block count:" << blockcount << std::endl;
+    //std::cout << std::dec << "Block count:" << blockcount << std::endl;
 
     //read block offsets
     for(int i = 0; i < int(blockcount); i++)
@@ -1025,23 +1060,17 @@ bool Game::loadLevel()
     ifile.close();
 
     std::cout << std::dec;
-    return true;
+    return 0;
 }
 
-bool Game::loadPalette()
+int Game::loadPalette()
 {
     std::string palfile = "UWDATA\\pals.dat";
     std::ifstream pfile;
     pfile.open(palfile.c_str(), std::ios_base::binary);
 
     //check if file loaded
-    if(!pfile.is_open())
-    {
-        std::cout << "Error loading " << palfile << std::endl;
-        return false;
-    }
-    else std::cout << "Successfuly loaded " << palfile << std::endl;
-
+    if(!pfile.is_open()) return -1; // error unable to open file
 
     //resize palettes for 256
     m_Palettes.resize(8);
@@ -1070,23 +1099,19 @@ bool Game::loadPalette()
 
     pfile.close();
 
-    return true;
+    return 0;
 }
 
-bool Game::loadTexture(std::string tfilename, std::vector<ITexture*> *tlist)
+int Game::loadTexture(std::string tfilename, std::vector<ITexture*> *tlist)
 {
-    if(tlist == NULL) return false;
+    if(tlist == NULL) return -1; //error texture list is null
 
     //open texture file
     std::ifstream ifile;
     ifile.open(tfilename.c_str(), std::ios_base::binary);
 
     //check if texture file loaded properly
-    if(!ifile.is_open())
-    {
-        std::cout << "Error loading " << tfilename << std::endl;
-        return false;
-    }
+    if(!ifile.is_open()) return -2; // error unable to open file
 
 
     //temp variables
@@ -1140,7 +1165,7 @@ bool Game::loadTexture(std::string tfilename, std::vector<ITexture*> *tlist)
                 if(!readBin(&ifile, pindex, 1))
                 {
                     std::cout << "Error reading texture at 0x" << std::hex << offsets[i] << std::endl;
-                    return false;
+                    return -8; // error reading texture at offset
                 }
 
 
@@ -1164,23 +1189,20 @@ bool Game::loadTexture(std::string tfilename, std::vector<ITexture*> *tlist)
     }
     ifile.close();
 
-    return true;
+    return 0;
 }
 
-bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
+int Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
 {
     if(tlist == NULL) return false;
 
     //open graphic (.gr) file
     std::ifstream ifile;
+    std::cout << "Opening file...\n";
     ifile.open(tfilename.c_str(), std::ios_base::binary);
 
     //check if graphic file loaded properly
-    if(!ifile.is_open())
-    {
-        std::cout << "Error loading " << tfilename << std::endl;
-        return false;
-    }
+    if(!ifile.is_open()) return -1; // error loading file
 
     //temp vars
     unsigned char fformatbuf[1];
@@ -1190,18 +1212,23 @@ bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
     int bitmapcnt = 0;
 
     //read header data
-    readBin(&ifile, fformatbuf, 1);
+    std::cout << "Reading file header...\n";
+    if(!readBin(&ifile, fformatbuf, 1)) return -2; // error reading header format
     //fformat = int(fformatbuf[0]);
-    readBin(&ifile, bitmapcntbuf, 2);
+    if(!readBin(&ifile, bitmapcntbuf, 2) ) return -3; // error reading header bitmap count
     bitmapcnt = lsbSum(bitmapcntbuf, 2);
 
     //for each bitmap count, read in offsets
+    std::cout << "Reading offsets...\n";
     for(int i = 0; i < bitmapcnt; i++)
     {
+
         unsigned char offsetbuf[4];
-        readBin(&ifile, offsetbuf, 4);
+        if(!readBin(&ifile, offsetbuf, 4)) return -4; // error reading offset
 
         offsets.push_back( std::streampos( lsbSum(offsetbuf, 4)));
+
+        std::cout << "Offset " << i << " = 0x" << std::hex << offsets.back() << std::dec << std::endl;
     }
 
     //if bitmap count and offset count do not match, something went wrong!
@@ -1213,8 +1240,10 @@ bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
     }
 
     //read in each bitmap at offset
+    std::cout << "Reading bitmap header...\n";
     for(int i = 0; i < bitmapcnt; i++)
     {
+
         //each bitmap at offset has its own header
         unsigned char btypebuf[1];
         unsigned char bwidthbuf[1];
@@ -1227,17 +1256,13 @@ bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
         int bauxpal;
         int bsize;
 
-
-
         //texture
         ITexture *newtxt = NULL;
         IImage *newimg = NULL;
-        int palSel = 0; //  wall/floor textures always use palette 0
-
-        //create new image using bitmap dimensions
-        newimg = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(bwidth, bheight));
+        int palSel = 0; //  note : 4-bit images use aux pals, standard images use pal 0
 
         //jump to offset
+        std::cout << "Jumping to offset...\n";
         ifile.seekg(offsets[i]);
 
         //read in header and set data
@@ -1246,25 +1271,41 @@ bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
         //          0x04 = 8bit uncompressed
         //          0x08 = 4bit run length
         //          0x0A = 4bit uncompressed
-        readBin(&ifile, btypebuf, 1);
+        if(!readBin(&ifile, btypebuf, 1)) return -6; // error reading bitmap type
         btype = int(btypebuf[0]);
 
-        readBin(&ifile, bwidthbuf, 1);
+        if(!readBin(&ifile, bwidthbuf, 1))
+        {
+            std::cout << "Error reading binary file " << tfilename << " at offset " << std::hex << "0x" << offsets[i] << std::endl;
+            std::cout << "Ignoring...\n";
+            ifile.clear();
+            ifile.close();
+            return 0;
+            return -7; // error reading bitmap width
+        }
         bwidth = int(bwidthbuf[0]);
 
-        readBin(&ifile, bheightbuf, 1);
+        if(!readBin(&ifile, bheightbuf, 1)) return -8; // error reading bitmap height
         bheight = int(bheightbuf[0]);
+
+
+        //create new image using bitmap dimensions
+        std::cout << "Creating image with dimensions : " << bwidth << "," << bheight << "...\n";
+        newimg = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(bwidth, bheight));
+        if(newimg == NULL) return -5; // error creating image
 
         //NOTE 4-bit images also have an auxillary palette selection byte
         //if 4-bit uncompressed, read in aux pal byte
         if(btype == 0x0a)
         {
-            readBin(&ifile, bauxpalbuf, 1);
+            std::cout << "loading 4 bit image type, getting aux pal..\n";
+            if(!readBin(&ifile, bauxpalbuf, 1)) return -9; // error reading auxillary palette
             bauxpal = int(bauxpalbuf[0]);
         }
 
         //get size
-        readBin(&ifile, bsizebuf, 2);
+        // note : for 4 bit, this is nibble count, not byte count
+        if(!readBin(&ifile, bsizebuf, 2)) return -10; // error reading size
         bsize = lsbSum(bsizebuf, 2);
 
 
@@ -1279,7 +1320,7 @@ bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
                     //read in one byte at a time
                     unsigned char bbyte[1];
 
-                    readBin(&ifile, bbyte, 1);
+                    if(!readBin(&ifile, bbyte, 1)) return -11; // error reading image data
 
                     //if 8-bit
                     if(btype == 0x04)
@@ -1287,15 +1328,21 @@ bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
                         //set the pixel at x,y using current selected palette with read in palette index #
                         newimg->setPixel(p, n, m_Palettes[palSel][int(bbyte[0])]);
                     }
+                    //if 4-bit
                     else if(btype == 0x0a)
                     {
+                        //std::cout << "loading 4-bit image type\n";
                         //first hi byte, the lo byte
                         int hibyte = getBitVal( int(bbyte), 4, 4);
                         int lobyte = getBitVal( int(bbyte), 0, 4);
 
+                        //std::cout << "Setting 4-bit pixel hibyte=" << std::hex << hibyte << " , lobyte=" << lobyte << std::endl;
+                        //std::cout << "Img dim:" << bwidth << "," << bheight << " p=" << p << " , n=" << n << std::endl;
+
                         //set the pixel at x,y using current selected palette with read in palette index #
-                        newimg->setPixel(p, n, m_Palettes[palSel][hibyte]);
-                        newimg->setPixel(p, n, m_Palettes[palSel][lobyte]);
+                        //newimg->setPixel(p, n, m_Palettes[palSel][hibyte]);
+                        //newimg->setPixel(p, n, m_Palettes[palSel][lobyte]);
+                        newimg->setPixel(0,0, m_Palettes[0][0]);
 
                         //increase p counter (since we did two in one loop)
                         p++;
@@ -1312,6 +1359,7 @@ bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
 
         //create texture from image
         newtxt = m_Driver->addTexture( texturename.str().c_str(), newimg );
+        if(newtxt == NULL) return -12; // error creating texture
         //set transparency color (pink, 255,0,255)
         //note : this is palette index #0, set automatically when
         //       loading in palettes (see loadPalette())
@@ -1326,32 +1374,28 @@ bool Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
 
     ifile.close();
 
-    return true;
+    return 0;
 }
 
-bool Game::loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int tpalindex)
+int Game::loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int tpalindex)
 {
     const int bitmap_width = 320;
     const int bitmap_height = 200;
 
-    if(tlist == NULL) return false;
+    if(tlist == NULL) return -1; // vector list is null
 
     //open bitmap (.byt) file
     std::ifstream ifile;
     ifile.open(tfilename.c_str(), std::ios_base::binary);
 
     //check if bitmap file loaded properly
-    if(!ifile.is_open())
-    {
-        std::cout << "Error loading " << tfilename << std::endl;
-        return false;
-    }
+    if(!ifile.is_open()) return -2; // error unable to open file
 
     //check if palette is valid
     if(tpalindex < 0 || tpalindex >= int(m_Palettes.size()) )
     {
         std::cout << "Error loading bitmap : Invalid palette index # - " << tpalindex << std::endl;
-        return false;
+        return -3;
     }
 
     //texture
@@ -1395,7 +1439,7 @@ bool Game::loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int 
 
     ifile.close();
 
-    return true;
+    return 0;
 }
 
 bool Game::configMeshSceneNode(IMeshSceneNode *tnode)

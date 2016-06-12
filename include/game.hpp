@@ -134,13 +134,13 @@ private:
     SMesh *getSquareMesh(int ul, int ur, int br, int bl);
 
     //init
-    bool initIrrlicht();
-    bool initCamera();
-    bool loadLevel();
-    bool loadPalette();
-    bool loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist);
-    bool loadTexture(std::string tfilename, std::vector<ITexture*> *tlist);
-    bool loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int tpalindex);
+    int initIrrlicht();
+    int initCamera();
+    int loadLevel();
+    int loadPalette();
+    int loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist);
+    int loadTexture(std::string tfilename, std::vector<ITexture*> *tlist);
+    int loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int tpalindex);
 
 
     //levels
@@ -156,6 +156,7 @@ private:
     std::vector<ITexture*> m_Floor32TXT;
     std::vector<ITexture*> m_CharHeadTXT;
     std::vector<ITexture*> m_Bitmaps;
+    std::vector<ITexture*> m_Cursors;
 
     //mainloop
     void mainLoop();
