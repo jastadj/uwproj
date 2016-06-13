@@ -1355,8 +1355,8 @@ int Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
 
 
         //read bitmap data
-        //if uncompressed format
-        if(btype == 0x04 || btype == 0x0a)
+        //if uncompressed format - 8 bit
+        if(btype == 0x04)
         {
             for(int n = 0; n < bheight; n++)
             {
@@ -1367,34 +1367,38 @@ int Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
 
                     if(!readBin(&ifile, bbyte, 1)) return -11; // error reading image data
 
-                    //if 8-bit
-                    if(btype == 0x04)
-                    {
                         //set the pixel at x,y using current selected palette with read in palette index #
                         newimg->setPixel(p, n, m_Palettes[palSel][int(bbyte[0])]);
-                    }
-                    //if 4-bit
-                    else if(btype == 0x0a)
-                    {
-                        //std::cout << "bbyte val = " << int(bbyte[0]) << std::endl;
-                        //std::cout << "loading 4-bit image type\n";
-                        //first hi byte, the lo byte
-                        int lobyte = getBitVal( int(bbyte[0]), 0, 4);
-                        int hibyte = getBitVal( int(bbyte[0]), 4, 4);
 
+                }
+            }
+        }
+        //else if uncompressed format - 4bit
+        else if(btype == 0x0a)
+        {
+            //read in 4-bit stream using size for nibble count
+            std::vector<int> nibbles;
+            nibbles.resize(bwidth*bheight);
 
-                        //std::cout << "Setting 4-bit pixel hibyte=" << std::hex << hibyte << " , lobyte=" << lobyte << std::endl;
-                        //std::cout << "Img dim:" << bwidth << "," << bheight << " p=" << p << " , n=" << n << std::endl;
+            //read in entire stream
+            unsigned char bstream[bsize];
+            readBin(&ifile, bstream, bsize);
 
-                        //set the pixel at x,y using current selected palette with read in palette index #
-                        newimg->setPixel(p, n, m_AuxPalettes[bauxpal][hibyte]);
-                        newimg->setPixel(p+1, n, m_AuxPalettes[bauxpal][lobyte]);
+            //parse each byte by nibble, high nibble first, then lo
+            for(int k = 0; k < bsize; k++)
+            {
+                int lobyte = getBitVal( int(bstream[k]), 0, 4);
+                int hibyte = getBitVal( int(bstream[k]), 4, 4);
+                nibbles[k*2] = hibyte;
+                nibbles[k*2+1] = lobyte;
+            }
 
-                        //increase p counter (since we did two in one loop)
-                        p++;
-                    }
-
-
+            //set image pixel using image height and width to pull from nibble index
+            for(int n = 0; n < bheight; n++)
+            {
+                for(int p = 0; p < bwidth; p++)
+                {
+                    newimg->setPixel(p, n, m_AuxPalettes[bauxpal][  nibbles[ (n*bwidth) + p]  ]);
                 }
             }
         }
