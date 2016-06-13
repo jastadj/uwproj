@@ -59,6 +59,29 @@ int getBitVal(int data, int startbit, int length)
     return (data >> startbit) & mask;
 }
 
+int getCount(std::vector<int> ndata, int *curindex, int nibsize)
+{
+    int ccount = ndata[*curindex];
+    //if count = 0, get next to nibbles and OR them
+    if(ccount == 0)
+    {
+        ccount = (ndata[*curindex+1] << nibsize) | ndata[*curindex+2];
+        *curindex += 2;
+
+        //if count still = 0, get next 3 nibbles and get count
+        if(ccount == 0)
+        {
+            ccount = (((ndata[*curindex+1] << nibsize*2) | ndata[*curindex+2]) << nibsize) | ndata[*curindex+3];
+            *curindex += 3;
+
+            //if count still = 0, there was a problem
+            if(ccount == 0) return -1;
+        }
+    }
+    return ccount;
+}
+
+
 irr::core::vector2df projectVectorAontoB(irr::core::vector2df va, irr::core::vector2df vb)
 {
 

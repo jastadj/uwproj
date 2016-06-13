@@ -1354,7 +1354,7 @@ int Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
 
         //NOTE 4-bit images also have an auxillary palette selection byte
         //if 4-bit uncompressed, read in aux pal byte
-        if(btype == 0x0a)
+        if(btype == 0x0a || btype == 0x08)
         {
             if(!readBin(&ifile, bauxpalbuf, 1)) return -9; // error reading auxillary palette
             bauxpal = int(bauxpalbuf[0]);
@@ -1362,9 +1362,9 @@ int Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
 
         //get size
         // note : for 4 bit, this is nibble count, not byte count
+        //if not uncompressed, read in size
         if(!readBin(&ifile, bsizebuf, 2)) return -10; // error reading size
         bsize = lsbSum(bsizebuf, 2);
-
 
         //read bitmap data
         //if uncompressed format - 8 bit
@@ -1414,6 +1414,107 @@ int Game::loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist)
                 }
             }
         }
+        // compressed bitmap
+        else if(btype == 0x08)
+        {
+            std::vector<int> nibbledata;
+            std::vector<int> pixeldata;
+
+            int nibindex = 0;
+            int nibsize = 4;
+
+
+            for(int n = 0; n < bsize; n++)
+            {
+                unsigned char nbuf[1];
+                if(!readBin(&ifile, nbuf, 1)) {ifile.close(); return -20;}
+
+                nibbledata.push_back( getBitVal(int(nbuf[0]), 4, 4 ) );
+                n++;
+                if(n < bsize) nibbledata.push_back( getBitVal(int(nbuf[0]), 0, 4 ) );
+            }
+
+
+            //debug
+            /*
+            for(int n = 0; n < int(nibbledata.size()); n++)
+            {
+                std::cout << n << " : " << nibbledata[n] << std::endl;
+            }
+            */
+
+            bool dorunrecord = false;
+
+            do
+            {
+                //get count
+                int rcount = getCount(nibbledata, &nibindex);
+                /*
+                if(!dorunrecord) std::cout << "repeat -- ";
+                else std::cout << "run    -- ";
+                std::cout << "index = " << nibindex << "   --   count = " << rcount << std::endl;
+                */
+
+                //if count is 2, do repeat
+                if(rcount == 2 && !dorunrecord)
+                {
+                    //get repeat count
+                    nibindex++;
+                    int repeatcount = getCount(nibbledata, &nibindex);
+
+                    //do repeat
+                    for(int n = 0; n < repeatcount; n++)
+                    {
+                        nibindex++;
+                        int altcount = getCount(nibbledata, &nibindex);
+
+                        nibindex++;
+                        for(int k = 0; k < altcount; k++) pixeldata.push_back(nibbledata[nibindex]);
+                    }
+                }
+                //process count
+                else if(rcount > 1 && !dorunrecord)
+                {
+                    nibindex++;
+                    //repeat nibble by count times
+                    for(int n = 0; n < rcount; n++) pixeldata.push_back(nibbledata[nibindex]);
+                }
+                else if(dorunrecord)
+                {
+                    //read in raw pixel data
+                    for(int n = 0; n < rcount; n++)
+                    {
+                        nibindex++;
+                        pixeldata.push_back( nibbledata[nibindex]);
+                    }
+                }
+                //else if count == 1, ignore this record
+
+                //change modes between run / repeat record
+                dorunrecord = !dorunrecord;
+
+                nibindex++;
+            }while(nibindex < bsize); // done parsing nibbles
+
+
+            //create image data
+            for(int n = 0; n < bheight; n++)
+            {
+                for(int k = 0; k < bwidth; k++)
+                {
+                    newimg->setPixel(k, n, m_AuxPalettes[bauxpal][  pixeldata[ (n*bwidth) + k]  ]);
+                }
+            }
+
+
+        }
+        else
+        {
+            std::cout << "Unrecognized graphic type : " << std::hex << "0x" << btype << std::dec << std::endl;
+            ifile.close();
+            return -14;
+        }
+
 
         //create texture name
         std::stringstream texturename;

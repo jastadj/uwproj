@@ -582,6 +582,11 @@ Table of Contents
 
 3.2.2  Compressed bitmaps (type 08)
 
+		my notes : type 8 still has auxpal byte and 16-bit size in header
+		           the count 1 or count 2 only affects the repeat record
+				   if option 2 for repeat record, get another count, then do
+				   multiple repeat records by that other count
+
    All pixels are run-length encoded. when a new byte has to be retrieved,
    first take the high nibble, then the low nibble of that byte.
 
