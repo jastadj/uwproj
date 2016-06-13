@@ -100,8 +100,8 @@ int Game::start()
 
     //generate level geometry
     std::cout << "Generating level geometry...\n";
-        //errorcode = mLevels[0].buildLevelGeometry();
-        //if(!errorcode) { std::cout << "Error generating level geometry!!  ERROR CODE " << errorcode << "\n"; return -1;}
+        errorcode = mLevels[0].buildLevelGeometry();
+        if(!errorcode) { std::cout << "Error generating level geometry!!  ERROR CODE " << errorcode << "\n"; return -1;}
         std::cout << mLevels[m_CurrentLevel].getMeshes().size() << " meshes generated for level " << m_CurrentLevel << std::endl;
         std::cout << std::endl;
 
@@ -427,6 +427,7 @@ void Game::mainLoop()
                         mymousecursor->setVisible(false);
                         mymousecursor = m_GUIEnv->addImage( (*texturestotest)[texturestotestindex], position2d<s32>(0,0), true);
                         mymousecursor->setImage( (*texturestotest)[texturestotestindex]);
+                        std::cout << "test texture index = " << texturestotestindex << std::endl;
                     }
                     else if(event->KeyInput.Key == KEY_KEY_X)
                     {
@@ -435,6 +436,7 @@ void Game::mainLoop()
                         mymousecursor->setVisible(false);
                         mymousecursor = m_GUIEnv->addImage( (*texturestotest)[texturestotestindex], position2d<s32>(0,0), true);
                         mymousecursor->setImage( (*texturestotest)[texturestotestindex]);
+                        std::cout << "test texture index = " << texturestotestindex << std::endl;
                     }
                     else if(m_Receiver.isKeyPressed(KEY_F1))
                     {
