@@ -39,10 +39,12 @@
 		</Linker>
 		<Unit filename="include/game.hpp" />
 		<Unit filename="include/level.hpp" />
+		<Unit filename="include/object.hpp" />
 		<Unit filename="include/tools.hpp" />
 		<Unit filename="src/game.cpp" />
 		<Unit filename="src/level.cpp" />
 		<Unit filename="src/main.cpp" />
+		<Unit filename="src/object.cpp" />
 		<Unit filename="src/tools.cpp" />
 		<Extensions>
 			<code_completion />

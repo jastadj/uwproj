@@ -53,6 +53,8 @@ enum
     IDFlag_IsHighlightable = 1 << 1
 };
 
+
+
 class MyEventReceiver : public IEventReceiver
 {
 
@@ -157,8 +159,9 @@ private:
     std::vector<ITexture*> m_Wall64TXT;
     std::vector<ITexture*> m_Floor32TXT;
     std::vector<ITexture*> m_CharHeadTXT;
-    std::vector<ITexture*> m_Bitmaps;
-    std::vector<ITexture*> m_Cursors;
+    std::vector<ITexture*> m_BitmapsTXT;
+    std::vector<ITexture*> m_CursorsTXT;
+    std::vector<ITexture*> m_ObjectsTXT;
 
     //mainloop
     void mainLoop();
