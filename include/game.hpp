@@ -53,6 +53,14 @@ enum
     IDFlag_IsHighlightable = 1 << 1
 };
 
+//struct used to store huffman tree string nodes
+struct hnode
+{
+    int chardata;
+    int parent;
+    int left;
+    int right;
+};
 
 
 class MyEventReceiver : public IEventReceiver
@@ -135,9 +143,10 @@ private:
     SMesh *getCubeMesh(f32 cubesize);
     SMesh *getSquareMesh(int ul, int ur, int br, int bl);
 
-    //init
+    //init / load
     int initIrrlicht();
     int initCamera();
+    int loadStrings();
     int loadLevel();
     int loadPalette();
     int loadAuxPalette();

@@ -51,6 +51,11 @@ int Game::start()
         std::cout << std::endl;
 
     //load UW data
+    std::cout << "Loading strings...";
+        errorcode = loadStrings();
+        if(errorcode) {std::cout << "Error loading string data!  ERROR CODE " << errorcode << "\n"; return -1;}
+        else std::cout << "done.\n";
+
     std::cout << "Loading level data...";
         errorcode = loadLevel();
         if(errorcode) {std::cout << "Error loading level data!  ERROR CODE " << errorcode << "\n"; return -1;}
@@ -59,31 +64,31 @@ int Game::start()
     std::cout << "Loading palette data...\n";
         errorcode = loadPalette();
         if(errorcode) { std::cout << "Error loading palette!  ERROR CODE " << errorcode << "\n"; return -1;}
-        else std::cout << m_Palettes.size() << " palettes loaded.\n";
+        else std::cout << "....." << m_Palettes.size() << " palettes loaded.\n";
         errorcode = loadAuxPalette();
         if(errorcode) { std::cout << "Error loading aux palette!  ERROR CODE " << errorcode << "\n"; return -1;}
-        else std::cout << m_AuxPalettes.size() << " aux palettes loaded.\n";
+        else std::cout << "....." << m_AuxPalettes.size() << " aux palettes loaded.\n";
 
     std::cout << "Loading textures...\n";
         errorcode = loadTexture("UWDATA\\w64.tr", &m_Wall64TXT);
         if(errorcode) { std::cout << "Error loading textures!  ERROR CODE " << errorcode << "\n"; return -1;}
-            else std::cout << m_Wall64TXT.size() << " wall64 textures loaded.\n";
+            else std::cout << "....." << m_Wall64TXT.size() << " wall64 textures loaded.\n";
         errorcode = loadTexture("UWDATA\\f32.tr", &m_Floor32TXT);
         if(errorcode) { std::cout << "Error loading textures!  ERROR CODE " << errorcode << "\n"; return -1;}
-            else std::cout << m_Floor32TXT.size() << " floor32 textures loaded.\n";
+            else std::cout << "....." << m_Floor32TXT.size() << " floor32 textures loaded.\n";
         std::cout << std::endl;
 
     std::cout << "Loading graphics...\n";
     //note : this needs to be fixed, throws bad alloc, need to investigate parsing for graphics load
         errorcode = loadGraphic("UWDATA\\charhead.gr", &m_CharHeadTXT);
         if(errorcode) {std::cout << "Error loading charhead graphic!  ERROR CODE " << errorcode << "\n"; return -1;}
-        else std::cout << m_CharHeadTXT.size() << " character portrait graphics loaded.\n";
+        else std::cout << "....." << m_CharHeadTXT.size() << " character portrait graphics loaded.\n";
         errorcode = loadGraphic("UWDATA\\cursors.gr", &m_CursorsTXT);
         if(errorcode) {std::cout << "Error loading cursors graphic!  ERROR CODE " << errorcode << "\n"; return -1;}
-        else std::cout << m_CursorsTXT.size() << " cursor graphics loaded.\n";
+        else std::cout << "....." << m_CursorsTXT.size() << " cursor graphics loaded.\n";
         errorcode = loadGraphic("UWDATA\\objects.gr", &m_ObjectsTXT);
         if(errorcode) {std::cout << "Error loading object graphics!  ERROR CODE " << errorcode << "\n"; return -1;}
-        else std::cout << m_ObjectsTXT.size() << " object graphics loaded.\n";
+        else std::cout << "....." << m_ObjectsTXT.size() << " object graphics loaded.\n";
         std::cout << std::endl;
 
 
@@ -104,16 +109,18 @@ int Game::start()
     //mLevels[0].printDebug();
 
     //generate level geometry
+    /*
     std::cout << "Generating level geometry...\n";
         errorcode = mLevels[0].buildLevelGeometry();
         if(!errorcode) { std::cout << "Error generating level geometry!!  ERROR CODE " << errorcode << "\n"; return -1;}
         std::cout << mLevels[m_CurrentLevel].getMeshes().size() << " meshes generated for level " << m_CurrentLevel << std::endl;
         std::cout << std::endl;
 
+
     //start main loop
     std::cout << "Starting main loop...\n";
     mainLoop();
-
+    */
 
     return 0;
 }
@@ -915,6 +922,64 @@ bool Game::processCollision(vector3df *pos, vector3df *vel)
     return true;
 }
 
+int Game::loadStrings()
+{
+    //  strings are stored in a huffman tree, using this struct to store branch and leaf ddata
+
+    std::vector<hnode> mytree;
+
+    std::ifstream ifile;
+    const std::string tfile("UWDATA\\strings.pak");
+
+    //  load string file
+    ifile.open(tfile.c_str());
+
+    //  was file able to be openend?
+    if(!ifile.is_open()) return -1; // error opening file
+
+    //get node count
+    unsigned char nodecntbuf[2];
+    int nodecount = 0;
+    readBin(&ifile, nodecntbuf, 2);
+    nodecount = lsbSum(nodecntbuf, 2);
+
+
+
+    //  read in all nodes
+    //  note : last node is head of tree
+    for(int i = 0; i < nodecount; i++)
+    {
+        unsigned char nodedatabuf[4];
+        readBin(&ifile, nodedatabuf, 4);
+
+        hnode newnode;
+        newnode.chardata = int(nodedatabuf[0]);
+        newnode.parent   = int(nodedatabuf[1]);
+        newnode.left     = int(nodedatabuf[2]);
+        newnode.right    = int(nodedatabuf[3]);
+
+        mytree.push_back(newnode);
+
+    }
+
+    std::cout << "Loaded " << mytree.size() << " string nodes.\n";
+
+    std::cout << std::hex;
+    for(int i = 0; i < 4; i++)
+    {
+        std::cout << "node " << i << std::endl;
+        std::cout << "chardata = " << mytree[i].chardata << std::endl;
+        std::cout << "parent   = " << mytree[i].parent << std::endl;
+        std::cout << "left     = " << mytree[i].left << std::endl;
+        std::cout << "right    = " << mytree[i].right << std::endl;
+        std::cout << std::endl;
+    }
+    std::cout << std::dec;
+
+    //  close and return success
+    ifile.close();
+    return 0;
+}
 
 int Game::loadLevel()
 {

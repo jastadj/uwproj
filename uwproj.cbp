@@ -13,6 +13,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
+					<Add option="-DDEBUG" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -34,7 +35,7 @@
 			<Add directory="include/irrlicht-1.8.3" />
 		</Compiler>
 		<Linker>
-			<Add library="lib/irrlicht-1.8.3/libIrrlicht.a" />
+			<Add library="lib\irrlicht-1.8.3\libIrrlicht.a" />
 			<Add directory="lib/irrlicht-1.8.3" />
 		</Linker>
 		<Unit filename="include/game.hpp" />
