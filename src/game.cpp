@@ -14,9 +14,14 @@ Game::Game()
 
     m_CurrentLevel = 0;
 
+    dbg_noclip = false;
+    dbg_nolighting = false;
+
     //debug
+#ifdef DEBUG
     dbg_noclip = true;
     dbg_nolighting = true;
+#endif
 }
 
 Game::~Game()
