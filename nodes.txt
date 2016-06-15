@@ -1,0 +1,1152 @@
+
+Node num    = 0
+node val    = 9  0 0 0 0 1 0 0 1 
+node parent = 8f  1 0 0 0 1 1 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 1
+node val    = a  0 0 0 0 1 0 1 0 
+node parent = a3  1 0 1 0 0 0 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 2
+node val    = d  0 0 0 0 1 1 0 1 
+node parent = a3  1 0 1 0 0 0 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 3
+node val    = 20  0 0 1 0 0 0 0 0 
+node parent = b1  1 0 1 1 0 0 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 4
+node val    = 21  0 0 1 0 0 0 0 1 
+node parent = 8a  1 0 0 0 1 0 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 5
+node val    = 22  0 0 1 0 0 0 1 0 
+node parent = 6a  0 1 1 0 1 0 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 6
+node val    = 23  0 0 1 0 0 0 1 1 
+node parent = 5b  0 1 0 1 1 0 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 7
+node val    = 26  0 0 1 0 0 1 1 0 
+node parent = 68  0 1 1 0 1 0 0 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 8
+node val    = 27  0 0 1 0 0 1 1 1 
+node parent = 8b  1 0 0 0 1 0 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 9
+node val    = 28  0 0 1 0 1 0 0 0 
+node parent = 61  0 1 1 0 0 0 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = a
+node val    = 29  0 0 1 0 1 0 0 1 
+node parent = 61  0 1 1 0 0 0 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = b
+node val    = 2a  0 0 1 0 1 0 1 0 
+node parent = 5d  0 1 0 1 1 1 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = c
+node val    = 2b  0 0 1 0 1 0 1 1 
+node parent = 5b  0 1 0 1 1 0 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = d
+node val    = 2c  0 0 1 0 1 1 0 0 
+node parent = 95  1 0 0 1 0 1 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = e
+node val    = 2d  0 0 1 0 1 1 0 1 
+node parent = 78  0 1 1 1 1 0 0 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = f
+node val    = 2e  0 0 1 0 1 1 1 0 
+node parent = 9d  1 0 0 1 1 1 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 10
+node val    = 2f  0 0 1 0 1 1 1 1 
+node parent = 5e  0 1 0 1 1 1 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 11
+node val    = 30  0 0 1 1 0 0 0 0 
+node parent = 6d  0 1 1 0 1 1 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 12
+node val    = 31  0 0 1 1 0 0 0 1 
+node parent = 7c  0 1 1 1 1 1 0 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 13
+node val    = 32  0 0 1 1 0 0 1 0 
+node parent = 77  0 1 1 1 0 1 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 14
+node val    = 33  0 0 1 1 0 0 1 1 
+node parent = 6e  0 1 1 0 1 1 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 15
+node val    = 34  0 0 1 1 0 1 0 0 
+node parent = 6e  0 1 1 0 1 1 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 16
+node val    = 35  0 0 1 1 0 1 0 1 
+node parent = 6c  0 1 1 0 1 1 0 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 17
+node val    = 36  0 0 1 1 0 1 1 0 
+node parent = 6d  0 1 1 0 1 1 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 18
+node val    = 37  0 0 1 1 0 1 1 1 
+node parent = 6b  0 1 1 0 1 0 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 19
+node val    = 38  0 0 1 1 1 0 0 0 
+node parent = 71  0 1 1 1 0 0 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 1a
+node val    = 39  0 0 1 1 1 0 0 1 
+node parent = 6b  0 1 1 0 1 0 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 1b
+node val    = 3a  0 0 1 1 1 0 1 0 
+node parent = 69  0 1 1 0 1 0 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 1c
+node val    = 3b  0 0 1 1 1 0 1 1 
+node parent = 5f  0 1 0 1 1 1 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 1d
+node val    = 3c  0 0 1 1 1 1 0 0 
+node parent = 5c  0 1 0 1 1 1 0 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 1e
+node val    = 3d  0 0 1 1 1 1 0 1 
+node parent = 65  0 1 1 0 0 1 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 1f
+node val    = 3e  0 0 1 1 1 1 1 0 
+node parent = 5f  0 1 0 1 1 1 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 20
+node val    = 3f  0 0 1 1 1 1 1 1 
+node parent = 8e  1 0 0 0 1 1 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 21
+node val    = 40  0 1 0 0 0 0 0 0 
+node parent = 70  0 1 1 1 0 0 0 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 22
+node val    = 41  0 1 0 0 0 0 0 1 
+node parent = 88  1 0 0 0 1 0 0 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 23
+node val    = 42  0 1 0 0 0 0 1 0 
+node parent = 78  0 1 1 1 1 0 0 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 24
+node val    = 43  0 1 0 0 0 0 1 1 
+node parent = 7d  0 1 1 1 1 1 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 25
+node val    = 44  0 1 0 0 0 1 0 0 
+node parent = 7b  0 1 1 1 1 0 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 26
+node val    = 45  0 1 0 0 0 1 0 1 
+node parent = 7c  0 1 1 1 1 1 0 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 27
+node val    = 46  0 1 0 0 0 1 1 0 
+node parent = 77  0 1 1 1 0 1 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 28
+node val    = 47  0 1 0 0 0 1 1 1 
+node parent = 82  1 0 0 0 0 0 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 29
+node val    = 48  0 1 0 0 1 0 0 0 
+node parent = 84  1 0 0 0 0 1 0 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 2a
+node val    = 49  0 1 0 0 1 0 0 1 
+node parent = 96  1 0 0 1 0 1 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 2b
+node val    = 4a  0 1 0 0 1 0 1 0 
+node parent = 67  0 1 1 0 0 1 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 2c
+node val    = 4b  0 1 0 0 1 0 1 1 
+node parent = 6f  0 1 1 0 1 1 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 2d
+node val    = 4c  0 1 0 0 1 1 0 0 
+node parent = 7a  0 1 1 1 1 0 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 2e
+node val    = 4d  0 1 0 0 1 1 0 1 
+node parent = 7d  0 1 1 1 1 1 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 2f
+node val    = 4e  0 1 0 0 1 1 1 0 
+node parent = 84  1 0 0 0 0 1 0 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 30
+node val    = 4f  0 1 0 0 1 1 1 1 
+node parent = 79  0 1 1 1 1 0 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 31
+node val    = 50  0 1 0 1 0 0 0 0 
+node parent = 75  0 1 1 1 0 1 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 32
+node val    = 51  0 1 0 1 0 0 0 1 
+node parent = 64  0 1 1 0 0 1 0 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 33
+node val    = 52  0 1 0 1 0 0 1 0 
+node parent = 74  0 1 1 1 0 1 0 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 34
+node val    = 53  0 1 0 1 0 0 1 1 
+node parent = 89  1 0 0 0 1 0 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 35
+node val    = 54  0 1 0 1 0 1 0 0 
+node parent = 8e  1 0 0 0 1 1 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 36
+node val    = 55  0 1 0 1 0 1 0 1 
+node parent = 6a  0 1 1 0 1 0 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 37
+node val    = 56  0 1 0 1 0 1 1 0 
+node parent = 73  0 1 1 1 0 0 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 38
+node val    = 57  0 1 0 1 0 1 1 1 
+node parent = 87  1 0 0 0 0 1 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 39
+node val    = 58  0 1 0 1 1 0 0 0 
+node parent = 5d  0 1 0 1 1 1 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 3a
+node val    = 59  0 1 0 1 1 0 0 1 
+node parent = 81  1 0 0 0 0 0 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 3b
+node val    = 5a  0 1 0 1 1 0 1 0 
+node parent = 65  0 1 1 0 0 1 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 3c
+node val    = 5c  0 1 0 1 1 1 0 0 
+node parent = 80  1 0 0 0 0 0 0 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 3d
+node val    = 5e  0 1 0 1 1 1 1 0 
+node parent = 5c  0 1 0 1 1 1 0 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 3e
+node val    = 5f  0 1 0 1 1 1 1 1 
+node parent = 85  1 0 0 0 0 1 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 3f
+node val    = 60  0 1 1 0 0 0 0 0 
+node parent = 72  0 1 1 1 0 0 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 40
+node val    = 61  0 1 1 0 0 0 0 1 
+node parent = a9  1 0 1 0 1 0 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 41
+node val    = 62  0 1 1 0 0 0 1 0 
+node parent = 97  1 0 0 1 0 1 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 42
+node val    = 63  0 1 1 0 0 0 1 1 
+node parent = 99  1 0 0 1 1 0 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 43
+node val    = 64  0 1 1 0 0 1 0 0 
+node parent = 9f  1 0 0 1 1 1 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 44
+node val    = 65  0 1 1 0 0 1 0 1 
+node parent = ad  1 0 1 0 1 1 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 45
+node val    = 66  0 1 1 0 0 1 1 0 
+node parent = 9a  1 0 0 1 1 0 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 46
+node val    = 67  0 1 1 0 0 1 1 1 
+node parent = 98  1 0 0 1 1 0 0 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 47
+node val    = 68  0 1 1 0 1 0 0 0 
+node parent = a7  1 0 1 0 0 1 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 48
+node val    = 69  0 1 1 0 1 0 0 1 
+node parent = a5  1 0 1 0 0 1 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 49
+node val    = 6a  0 1 1 0 1 0 1 0 
+node parent = 76  0 1 1 1 0 1 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 4a
+node val    = 6b  0 1 1 0 1 0 1 1 
+node parent = 94  1 0 0 1 0 1 0 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 4b
+node val    = 6c  0 1 1 0 1 1 0 0 
+node parent = a2  1 0 1 0 0 0 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 4c
+node val    = 6d  0 1 1 0 1 1 0 1 
+node parent = 9d  1 0 0 1 1 1 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 4d
+node val    = 6e  0 1 1 0 1 1 1 0 
+node parent = a7  1 0 1 0 0 1 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 4e
+node val    = 6f  0 1 1 0 1 1 1 1 
+node parent = aa  1 0 1 0 1 0 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 4f
+node val    = 70  0 1 1 1 0 0 0 0 
+node parent = 96  1 0 0 1 0 1 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 50
+node val    = 71  0 1 1 1 0 0 0 1 
+node parent = 72  0 1 1 1 0 0 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 51
+node val    = 72  0 1 1 1 0 0 1 0 
+node parent = a5  1 0 1 0 0 1 0 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 52
+node val    = 73  0 1 1 1 0 0 1 1 
+node parent = a6  1 0 1 0 0 1 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 53
+node val    = 74  0 1 1 1 0 1 0 0 
+node parent = ab  1 0 1 0 1 0 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 54
+node val    = 75  0 1 1 1 0 1 0 1 
+node parent = 9f  1 0 0 1 1 1 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 55
+node val    = 76  0 1 1 1 0 1 1 0 
+node parent = 92  1 0 0 1 0 0 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 56
+node val    = 77  0 1 1 1 0 1 1 1 
+node parent = 9a  1 0 0 1 1 0 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 57
+node val    = 78  0 1 1 1 1 0 0 0 
+node parent = 7a  0 1 1 1 1 0 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 58
+node val    = 79  0 1 1 1 1 0 0 1 
+node parent = 9b  1 0 0 1 1 0 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 59
+node val    = 7a  0 1 1 1 1 0 1 0 
+node parent = 73  0 1 1 1 0 0 1 1 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 5a
+node val    = 7c  0 1 1 1 1 1 0 0 
+node parent = a2  1 0 1 0 0 0 1 0 
+node left   = ff  1 1 1 1 1 1 1 1 
+node right  = ff  1 1 1 1 1 1 1 1 
+
+Node num    = 5b
+node val    = 7c  0 1 1 1 1 1 0 0 
+node parent = 5e  0 1 0 1 1 1 1 0 
+node left   = 6  0 0 0 0 0 1 1 0 
+node right  = c  0 0 0 0 1 1 0 0 
+
+Node num    = 5c
+node val    = 7c  0 1 1 1 1 1 0 0 
+node parent = 60  0 1 1 0 0 0 0 0 
+node left   = 3d  0 0 1 1 1 1 0 1 
+node right  = 1d  0 0 0 1 1 1 0 1 
+
+Node num    = 5d
+node val    = 7c  0 1 1 1 1 1 0 0 
+node parent = 60  0 1 1 0 0 0 0 0 
+node left   = b  0 0 0 0 1 0 1 1 
+node right  = 39  0 0 1 1 1 0 0 1 
+
+Node num    = 5e
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 62  0 1 1 0 0 0 1 0 
+node left   = 5b  0 1 0 1 1 0 1 1 
+node right  = 10  0 0 0 1 0 0 0 0 
+
+Node num    = 5f
+node val    = 7c  0 1 1 1 1 1 0 0 
+node parent = 62  0 1 1 0 0 0 1 0 
+node left   = 1c  0 0 0 1 1 1 0 0 
+node right  = 1f  0 0 0 1 1 1 1 1 
+
+Node num    = 60
+node val    = 6b  0 1 1 0 1 0 1 1 
+node parent = 63  0 1 1 0 0 0 1 1 
+node left   = 5c  0 1 0 1 1 1 0 0 
+node right  = 5d  0 1 0 1 1 1 0 1 
+
+Node num    = 61
+node val    = 6c  0 1 1 0 1 1 0 0 
+node parent = 63  0 1 1 0 0 0 1 1 
+node left   = 9  0 0 0 0 1 0 0 1 
+node right  = a  0 0 0 0 1 0 1 0 
+
+Node num    = 62
+node val    = 6d  0 1 1 0 1 1 0 1 
+node parent = 64  0 1 1 0 0 1 0 0 
+node left   = 5e  0 1 0 1 1 1 1 0 
+node right  = 5f  0 1 0 1 1 1 1 1 
+
+Node num    = 63
+node val    = 6e  0 1 1 0 1 1 1 0 
+node parent = 66  0 1 1 0 0 1 1 0 
+node left   = 60  0 1 1 0 0 0 0 0 
+node right  = 61  0 1 1 0 0 0 0 1 
+
+Node num    = 64
+node val    = 6f  0 1 1 0 1 1 1 1 
+node parent = 66  0 1 1 0 0 1 1 0 
+node left   = 32  0 0 1 1 0 0 1 0 
+node right  = 62  0 1 1 0 0 0 1 0 
+
+Node num    = 65
+node val    = 70  0 1 1 1 0 0 0 0 
+node parent = 67  0 1 1 0 0 1 1 1 
+node left   = 1e  0 0 0 1 1 1 1 0 
+node right  = 3b  0 0 1 1 1 0 1 1 
+
+Node num    = 66
+node val    = 71  0 1 1 1 0 0 0 1 
+node parent = 68  0 1 1 0 1 0 0 0 
+node left   = 63  0 1 1 0 0 0 1 1 
+node right  = 64  0 1 1 0 0 1 0 0 
+
+Node num    = 67
+node val    = 72  0 1 1 1 0 0 1 0 
+node parent = 69  0 1 1 0 1 0 0 1 
+node left   = 2b  0 0 1 0 1 0 1 1 
+node right  = 65  0 1 1 0 0 1 0 1 
+
+Node num    = 68
+node val    = 73  0 1 1 1 0 0 1 1 
+node parent = 6c  0 1 1 0 1 1 0 0 
+node left   = 66  0 1 1 0 0 1 1 0 
+node right  = 7  0 0 0 0 0 1 1 1 
+
+Node num    = 69
+node val    = 74  0 1 1 1 0 1 0 0 
+node parent = 6f  0 1 1 0 1 1 1 1 
+node left   = 1b  0 0 0 1 1 0 1 1 
+node right  = 67  0 1 1 0 0 1 1 1 
+
+Node num    = 6a
+node val    = 75  0 1 1 1 0 1 0 1 
+node parent = 70  0 1 1 1 0 0 0 0 
+node left   = 5  0 0 0 0 0 1 0 1 
+node right  = 36  0 0 1 1 0 1 1 0 
+
+Node num    = 6b
+node val    = 76  0 1 1 1 0 1 1 0 
+node parent = 71  0 1 1 1 0 0 0 1 
+node left   = 18  0 0 0 1 1 0 0 0 
+node right  = 1a  0 0 0 1 1 0 1 0 
+
+Node num    = 6c
+node val    = 77  0 1 1 1 0 1 1 1 
+node parent = 74  0 1 1 1 0 1 0 0 
+node left   = 16  0 0 0 1 0 1 1 0 
+node right  = 68  0 1 1 0 1 0 0 0 
+
+Node num    = 6d
+node val    = 78  0 1 1 1 1 0 0 0 
+node parent = 75  0 1 1 1 0 1 0 1 
+node left   = 11  0 0 0 1 0 0 0 1 
+node right  = 17  0 0 0 1 0 1 1 1 
+
+Node num    = 6e
+node val    = 79  0 1 1 1 1 0 0 1 
+node parent = 76  0 1 1 1 0 1 1 0 
+node left   = 15  0 0 0 1 0 1 0 1 
+node right  = 14  0 0 0 1 0 1 0 0 
+
+Node num    = 6f
+node val    = 7a  0 1 1 1 1 0 1 0 
+node parent = 79  0 1 1 1 1 0 0 1 
+node left   = 69  0 1 1 0 1 0 0 1 
+node right  = 2c  0 0 1 0 1 1 0 0 
+
+Node num    = 70
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 7b  0 1 1 1 1 0 1 1 
+node left   = 21  0 0 1 0 0 0 0 1 
+node right  = 6a  0 1 1 0 1 0 1 0 
+
+Node num    = 71
+node val    = 7c  0 1 1 1 1 1 0 0 
+node parent = 7e  0 1 1 1 1 1 1 0 
+node left   = 19  0 0 0 1 1 0 0 1 
+node right  = 6b  0 1 1 0 1 0 1 1 
+
+Node num    = 72
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 7e  0 1 1 1 1 1 1 0 
+node left   = 3f  0 0 1 1 1 1 1 1 
+node right  = 50  0 1 0 1 0 0 0 0 
+
+Node num    = 73
+node val    = 7c  0 1 1 1 1 1 0 0 
+node parent = 7f  0 1 1 1 1 1 1 1 
+node left   = 59  0 1 0 1 1 0 0 1 
+node right  = 37  0 0 1 1 0 1 1 1 
+
+Node num    = 74
+node val    = 74  0 1 1 1 0 1 0 0 
+node parent = 7f  0 1 1 1 1 1 1 1 
+node left   = 33  0 0 1 1 0 0 1 1 
+node right  = 6c  0 1 1 0 1 1 0 0 
+
+Node num    = 75
+node val    = 75  0 1 1 1 0 1 0 1 
+node parent = 80  1 0 0 0 0 0 0 0 
+node left   = 31  0 0 1 1 0 0 0 1 
+node right  = 6d  0 1 1 0 1 1 0 1 
+
+Node num    = 76
+node val    = 76  0 1 1 1 0 1 1 0 
+node parent = 81  1 0 0 0 0 0 0 1 
+node left   = 49  0 1 0 0 1 0 0 1 
+node right  = 6e  0 1 1 0 1 1 1 0 
+
+Node num    = 77
+node val    = 77  0 1 1 1 0 1 1 1 
+node parent = 82  1 0 0 0 0 0 1 0 
+node left   = 27  0 0 1 0 0 1 1 1 
+node right  = 13  0 0 0 1 0 0 1 1 
+
+Node num    = 78
+node val    = 78  0 1 1 1 1 0 0 0 
+node parent = 83  1 0 0 0 0 0 1 1 
+node left   = 23  0 0 1 0 0 0 1 1 
+node right  = e  0 0 0 0 1 1 1 0 
+
+Node num    = 79
+node val    = 79  0 1 1 1 1 0 0 1 
+node parent = 83  1 0 0 0 0 0 1 1 
+node left   = 6f  0 1 1 0 1 1 1 1 
+node right  = 30  0 0 1 1 0 0 0 0 
+
+Node num    = 7a
+node val    = 7a  0 1 1 1 1 0 1 0 
+node parent = 85  1 0 0 0 0 1 0 1 
+node left   = 57  0 1 0 1 0 1 1 1 
+node right  = 2d  0 0 1 0 1 1 0 1 
+
+Node num    = 7b
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 86  1 0 0 0 0 1 1 0 
+node left   = 25  0 0 1 0 0 1 0 1 
+node right  = 70  0 1 1 1 0 0 0 0 
+
+Node num    = 7c
+node val    = 7c  0 1 1 1 1 1 0 0 
+node parent = 86  1 0 0 0 0 1 1 0 
+node left   = 26  0 0 1 0 0 1 1 0 
+node right  = 12  0 0 0 1 0 0 1 0 
+
+Node num    = 7d
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 87  1 0 0 0 0 1 1 1 
+node left   = 2e  0 0 1 0 1 1 1 0 
+node right  = 24  0 0 1 0 0 1 0 0 
+
+Node num    = 7e
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 88  1 0 0 0 1 0 0 0 
+node left   = 71  0 1 1 1 0 0 0 1 
+node right  = 72  0 1 1 1 0 0 1 0 
+
+Node num    = 7f
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 89  1 0 0 0 1 0 0 1 
+node left   = 73  0 1 1 1 0 0 1 1 
+node right  = 74  0 1 1 1 0 1 0 0 
+
+Node num    = 80
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 8a  1 0 0 0 1 0 1 0 
+node left   = 75  0 1 1 1 0 1 0 1 
+node right  = 3c  0 0 1 1 1 1 0 0 
+
+Node num    = 81
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 8b  1 0 0 0 1 0 1 1 
+node left   = 3a  0 0 1 1 1 0 1 0 
+node right  = 76  0 1 1 1 0 1 1 0 
+
+Node num    = 82
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 8c  1 0 0 0 1 1 0 0 
+node left   = 77  0 1 1 1 0 1 1 1 
+node right  = 28  0 0 1 0 1 0 0 0 
+
+Node num    = 83
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 8c  1 0 0 0 1 1 0 0 
+node left   = 78  0 1 1 1 1 0 0 0 
+node right  = 79  0 1 1 1 1 0 0 1 
+
+Node num    = 84
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 8d  1 0 0 0 1 1 0 1 
+node left   = 2f  0 0 1 0 1 1 1 1 
+node right  = 29  0 0 1 0 1 0 0 1 
+
+Node num    = 85
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 8d  1 0 0 0 1 1 0 1 
+node left   = 7a  0 1 1 1 1 0 1 0 
+node right  = 3e  0 0 1 1 1 1 1 0 
+
+Node num    = 86
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 8f  1 0 0 0 1 1 1 1 
+node left   = 7b  0 1 1 1 1 0 1 1 
+node right  = 7c  0 1 1 1 1 1 0 0 
+
+Node num    = 87
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 90  1 0 0 1 0 0 0 0 
+node left   = 7d  0 1 1 1 1 1 0 1 
+node right  = 38  0 0 1 1 1 0 0 0 
+
+Node num    = 88
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 90  1 0 0 1 0 0 0 0 
+node left   = 22  0 0 1 0 0 0 1 0 
+node right  = 7e  0 1 1 1 1 1 1 0 
+
+Node num    = 89
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 91  1 0 0 1 0 0 0 1 
+node left   = 34  0 0 1 1 0 1 0 0 
+node right  = 7f  0 1 1 1 1 1 1 1 
+
+Node num    = 8a
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 91  1 0 0 1 0 0 0 1 
+node left   = 4  0 0 0 0 0 1 0 0 
+node right  = 80  1 0 0 0 0 0 0 0 
+
+Node num    = 8b
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 92  1 0 0 1 0 0 1 0 
+node left   = 81  1 0 0 0 0 0 0 1 
+node right  = 8  0 0 0 0 1 0 0 0 
+
+Node num    = 8c
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 93  1 0 0 1 0 0 1 1 
+node left   = 82  1 0 0 0 0 0 1 0 
+node right  = 83  1 0 0 0 0 0 1 1 
+
+Node num    = 8d
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 93  1 0 0 1 0 0 1 1 
+node left   = 84  1 0 0 0 0 1 0 0 
+node right  = 85  1 0 0 0 0 1 0 1 
+
+Node num    = 8e
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 94  1 0 0 1 0 1 0 0 
+node left   = 20  0 0 1 0 0 0 0 0 
+node right  = 35  0 0 1 1 0 1 0 1 
+
+Node num    = 8f
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 95  1 0 0 1 0 1 0 1 
+node left   = 86  1 0 0 0 0 1 1 0 
+node right  = 0  0 0 0 0 0 0 0 0 
+
+Node num    = 90
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 97  1 0 0 1 0 1 1 1 
+node left   = 87  1 0 0 0 0 1 1 1 
+node right  = 88  1 0 0 0 1 0 0 0 
+
+Node num    = 91
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 98  1 0 0 1 1 0 0 0 
+node left   = 89  1 0 0 0 1 0 0 1 
+node right  = 8a  1 0 0 0 1 0 1 0 
+
+Node num    = 92
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 99  1 0 0 1 1 0 0 1 
+node left   = 55  0 1 0 1 0 1 0 1 
+node right  = 8b  1 0 0 0 1 0 1 1 
+
+Node num    = 93
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 9b  1 0 0 1 1 0 1 1 
+node left   = 8c  1 0 0 0 1 1 0 0 
+node right  = 8d  1 0 0 0 1 1 0 1 
+
+Node num    = 94
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 9c  1 0 0 1 1 1 0 0 
+node left   = 4a  0 1 0 0 1 0 1 0 
+node right  = 8e  1 0 0 0 1 1 1 0 
+
+Node num    = 95
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 9c  1 0 0 1 1 1 0 0 
+node left   = d  0 0 0 0 1 1 0 1 
+node right  = 8f  1 0 0 0 1 1 1 1 
+
+Node num    = 96
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 9e  1 0 0 1 1 1 1 0 
+node left   = 4f  0 1 0 0 1 1 1 1 
+node right  = 2a  0 0 1 0 1 0 1 0 
+
+Node num    = 97
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = 9e  1 0 0 1 1 1 1 0 
+node left   = 90  1 0 0 1 0 0 0 0 
+node right  = 41  0 1 0 0 0 0 0 1 
+
+Node num    = 98
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = a0  1 0 1 0 0 0 0 0 
+node left   = 91  1 0 0 1 0 0 0 1 
+node right  = 46  0 1 0 0 0 1 1 0 
+
+Node num    = 99
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = a0  1 0 1 0 0 0 0 0 
+node left   = 42  0 1 0 0 0 0 1 0 
+node right  = 92  1 0 0 1 0 0 1 0 
+
+Node num    = 9a
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = a1  1 0 1 0 0 0 0 1 
+node left   = 56  0 1 0 1 0 1 1 0 
+node right  = 45  0 1 0 0 0 1 0 1 
+
+Node num    = 9b
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = a1  1 0 1 0 0 0 0 1 
+node left   = 93  1 0 0 1 0 0 1 1 
+node right  = 58  0 1 0 1 1 0 0 0 
+
+Node num    = 9c
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = a4  1 0 1 0 0 1 0 0 
+node left   = 94  1 0 0 1 0 1 0 0 
+node right  = 95  1 0 0 1 0 1 0 1 
+
+Node num    = 9d
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = a4  1 0 1 0 0 1 0 0 
+node left   = 4c  0 1 0 0 1 1 0 0 
+node right  = f  0 0 0 0 1 1 1 1 
+
+Node num    = 9e
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = a6  1 0 1 0 0 1 1 0 
+node left   = 96  1 0 0 1 0 1 1 0 
+node right  = 97  1 0 0 1 0 1 1 1 
+
+Node num    = 9f
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = a8  1 0 1 0 1 0 0 0 
+node left   = 43  0 1 0 0 0 0 1 1 
+node right  = 54  0 1 0 1 0 1 0 0 
+
+Node num    = a0
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = a8  1 0 1 0 1 0 0 0 
+node left   = 98  1 0 0 1 1 0 0 0 
+node right  = 99  1 0 0 1 1 0 0 1 
+
+Node num    = a1
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = a9  1 0 1 0 1 0 0 1 
+node left   = 9a  1 0 0 1 1 0 1 0 
+node right  = 9b  1 0 0 1 1 0 1 1 
+
+Node num    = a2
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = aa  1 0 1 0 1 0 1 0 
+node left   = 4b  0 1 0 0 1 0 1 1 
+node right  = 5a  0 1 0 1 1 0 1 0 
+
+Node num    = a3
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = ab  1 0 1 0 1 0 1 1 
+node left   = 1  0 0 0 0 0 0 0 1 
+node right  = 2  0 0 0 0 0 0 1 0 
+
+Node num    = a4
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = ac  1 0 1 0 1 1 0 0 
+node left   = 9c  1 0 0 1 1 1 0 0 
+node right  = 9d  1 0 0 1 1 1 0 1 
+
+Node num    = a5
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = ac  1 0 1 0 1 1 0 0 
+node left   = 48  0 1 0 0 1 0 0 0 
+node right  = 51  0 1 0 1 0 0 0 1 
+
+Node num    = a6
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = ad  1 0 1 0 1 1 0 1 
+node left   = 9e  1 0 0 1 1 1 1 0 
+node right  = 52  0 1 0 1 0 0 1 0 
+
+Node num    = a7
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = ae  1 0 1 0 1 1 1 0 
+node left   = 4d  0 1 0 0 1 1 0 1 
+node right  = 47  0 1 0 0 0 1 1 1 
+
+Node num    = a8
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = ae  1 0 1 0 1 1 1 0 
+node left   = 9f  1 0 0 1 1 1 1 1 
+node right  = a0  1 0 1 0 0 0 0 0 
+
+Node num    = a9
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = af  1 0 1 0 1 1 1 1 
+node left   = 40  0 1 0 0 0 0 0 0 
+node right  = a1  1 0 1 0 0 0 0 1 
+
+Node num    = aa
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = af  1 0 1 0 1 1 1 1 
+node left   = 4e  0 1 0 0 1 1 1 0 
+node right  = a2  1 0 1 0 0 0 1 0 
+
+Node num    = ab
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = b0  1 0 1 1 0 0 0 0 
+node left   = a3  1 0 1 0 0 0 1 1 
+node right  = 53  0 1 0 1 0 0 1 1 
+
+Node num    = ac
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = b1  1 0 1 1 0 0 0 1 
+node left   = a4  1 0 1 0 0 1 0 0 
+node right  = a5  1 0 1 0 0 1 0 1 
+
+Node num    = ad
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = b2  1 0 1 1 0 0 1 0 
+node left   = a6  1 0 1 0 0 1 1 0 
+node right  = 44  0 1 0 0 0 1 0 0 
+
+Node num    = ae
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = b4  1 0 1 1 0 1 0 0 
+node left   = a7  1 0 1 0 0 1 1 1 
+node right  = a8  1 0 1 0 1 0 0 0 
+
+Node num    = af
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = b0  1 0 1 1 0 0 0 0 
+node left   = a9  1 0 1 0 1 0 0 1 
+node right  = aa  1 0 1 0 1 0 1 0 
+
+Node num    = b0
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = b3  1 0 1 1 0 0 1 1 
+node left   = af  1 0 1 0 1 1 1 1 
+node right  = ab  1 0 1 0 1 0 1 1 
+
+Node num    = b1
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = b2  1 0 1 1 0 0 1 0 
+node left   = ac  1 0 1 0 1 1 0 0 
+node right  = 3  0 0 0 0 0 0 1 1 
+
+Node num    = b2
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = b3  1 0 1 1 0 0 1 1 
+node left   = b1  1 0 1 1 0 0 0 1 
+node right  = ad  1 0 1 0 1 1 0 1 
+
+Node num    = b3
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = b4  1 0 1 1 0 1 0 0 
+node left   = b2  1 0 1 1 0 0 1 0 
+node right  = b0  1 0 1 1 0 0 0 0 
+
+Node num    = b4
+node val    = 0  0 0 0 0 0 0 0 0 
+node parent = ff  1 1 1 1 1 1 1 1 
+node left   = b3  1 0 1 1 0 0 1 1 
+node right  = ae  1 0 1 0 1 1 1 0 
+
+
+Test string (block 0, string 0) @ 5ba
+1 1 0 0 0 1 1 0 
+1 0 0 0 0 0 0 0 
+1 1 1 0 0 0 0 1 
+1 1 1 0 0 0 0 0 
+1 0 0 1 0 1 0 1 
+0 1 0 0 0 0 0 0 
+1 0 0 0 1 1 0 0 
+0 1 0 0 1 0 0 1 
+1 0 0 1 1 1 0 0 
+0 0 1 1 0 1 0 0 
+1 0 1 0 0 0 0 1 
+0 1 1 1 1 0 0 0 
+0 0 1 0 0 1 0 0 
+0 0 1 0 1 1 0 0 
+0 0 1 0 0 0 0 1 
+0 1 0 0 0 1 0 0 
+1 0 1 0 1 0 1 0 
+0 0 0 0 1 1 0 0 
+0 0 0 1 0 0 1 0 
+0 0 0 1 1 1 0 0 
+0 0 1 0 0 1 0 1 
+0 1 0 0 0 0 0 0 
+0 1 1 0 1 0 1 1 
+1 0 0 0 0 0 0 0 
+0 0 1 0 0 0 1 0 
+0 0 1 0 1 0 0 1 
+0 0 0 0 0 0 1 0 
+0 1 0 1 1 0 0 1 
+0 1 1 0 0 0 0 1 
+0 0 1 0 1 1 0 1 
+0 1 0 1 0 0 0 0 
+0 1 1 0 1 1 1 0 
+1 0 1 1 0 0 1 0 
+0 1 1 1 0 0 0 0 
+0 1 1 0 1 0 1 1 
+1 0 0 0 0 0 0 0 
+0 0 1 0 0 0 1 1 
+0 0 1 1 0 0 0 0 
+1 1 0 0 1 1 1 1 
+0 0 1 1 1 0 0 1 
+0 0 0 0 1 0 0 0 
+1 0 0 0 0 0 0 0 
+1 1 1 0 1 0 1 0 
+0 0 0 1 1 1 0 0 
+0 1 0 1 0 0 1 0 
+0 0 0 0 0 1 0 0 
+1 0 1 1 0 0 1 0 
+1 1 0 0 0 0 1 0 
+0 1 0 0 1 1 0 0 
+1 1 0 0 0 1 0 1 
+0 0 0 1 0 0 0 0 
+0 1 0 0 0 0 1 0 
+1 0 0 0 1 1 1 0 
+0 1 1 0 0 0 0 1 
+1 0 0 1 1 0 0 1 
+0 1 0 1 1 1 0 0 
+0 0 1 0 1 0 0 1 
+1 1 0 1 0 0 0 1 
+0 0 1 0 1 0 0 0 
+0 1 0 1 1 1 0 1 
+1 0 1 0 1 1 1 0 
+0 0 0 0 1 1 0 1 
+0 1 1 1 0 0 0 0 
