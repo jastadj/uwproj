@@ -53,16 +53,6 @@ enum
     IDFlag_IsHighlightable = 1 << 1
 };
 
-//struct used to store huffman tree string nodes
-struct hnode
-{
-    int chardata;
-    int parent;
-    int left;
-    int right;
-};
-
-
 class MyEventReceiver : public IEventReceiver
 {
 

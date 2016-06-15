@@ -26,6 +26,7 @@ bool readBin(std::ifstream *fptr, unsigned char *data, int length, bool quiet)
         if(!quiet) std::cout << std::hex << data[i] << ":" << int(data[i]) << std::endl;
     }
 
+    delete buf;
     return true;
 }
 
@@ -57,6 +58,19 @@ int getBitVal(int data, int startbit, int length)
     }
 
     return (data >> startbit) & mask;
+}
+
+std::vector<bool> printByteToBin(int val, bool quiet)
+{
+    std::vector<bool> binlist;
+
+    for(int i = 7; i >= 0; i--)
+    {
+        if(!quiet) std::cout << ((val >> i) & 0x01) << " ";
+        binlist.push_back(((val >> i) & 0x01) );
+    }
+
+    return binlist;
 }
 
 int getCount(std::vector<int> ndata, int *curindex, int nibsize)

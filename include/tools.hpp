@@ -14,6 +14,7 @@ bool readBin(std::ifstream *fptr, unsigned char *data, int length, bool quiet = 
 bool readBinAt(std::ifstream *fptr, unsigned char *data, int length, std::streampos offset, bool quiet = true);
 int lsbSum(unsigned char *bytes, int length);
 int getBitVal(int data, int startbit, int length);
+std::vector<bool> printByteToBin(int val, bool quiet = false);
 
 int getCount(std::vector<int> ndata, int *curindex, int nibsize = 4);
 

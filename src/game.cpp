@@ -924,15 +924,36 @@ bool Game::processCollision(vector3df *pos, vector3df *vel)
 
 int Game::loadStrings()
 {
-    //  strings are stored in a huffman tree, using this struct to store branch and leaf ddata
+    //struct used to store huffman tree string nodes
+    struct hnode
+    {
+        //1 byte each
+        int chardata;
+        int parent;
+        int left;
+        int right;
+    };
 
-    std::vector<hnode> mytree;
+    struct block
+    {
+        //block header, total 6 bytes
+        int blocknum; // 2 bytes
+        std::streampos offset; // 4 bytes
+
+        //string offset is relative position after end of block header
+        int stringcount; // 2 bytes
+        std::vector<std::streampos> stringoffsets; // 2 bytes
+        std::vector<std::string> strings;
+    };
+
+    //  strings are stored in a huffman tree, using this struct to store branch and leaf ddata
+    hnode *head = NULL;
 
     std::ifstream ifile;
     const std::string tfile("UWDATA\\strings.pak");
 
     //  load string file
-    ifile.open(tfile.c_str());
+    ifile.open(tfile.c_str(), std::ios::binary);
 
     //  was file able to be openend?
     if(!ifile.is_open()) return -1; // error opening file
@@ -942,7 +963,8 @@ int Game::loadStrings()
     int nodecount = 0;
     readBin(&ifile, nodecntbuf, 2);
     nodecount = lsbSum(nodecntbuf, 2);
-
+    //init htree count
+    hnode htree[nodecount];
 
 
     //  read in all nodes
@@ -950,7 +972,7 @@ int Game::loadStrings()
     for(int i = 0; i < nodecount; i++)
     {
         unsigned char nodedatabuf[4];
-        readBin(&ifile, nodedatabuf, 4);
+        if(!readBin(&ifile, nodedatabuf, 4)) std::cout << "     error at " << i << std::endl;;
 
         hnode newnode;
         newnode.chardata = int(nodedatabuf[0]);
@@ -958,14 +980,154 @@ int Game::loadStrings()
         newnode.left     = int(nodedatabuf[2]);
         newnode.right    = int(nodedatabuf[3]);
 
-        mytree.push_back(newnode);
+       htree[i] = newnode;
 
     }
+    std::cout << "Loaded " << nodecount << " string nodes.\n";
 
-    std::cout << "Loaded " << mytree.size() << " string nodes.\n";
+    //set huffman tree head to last node in list
+    head = &htree[nodecount-1];
 
+
+    unsigned char blockcntbuf[2];
+    int blockcnt = 0;
+    readBin(&ifile, blockcntbuf, 2);
+    blockcnt = lsbSum(blockcntbuf,2);
+    std::streampos endoffile = 0;
+
+    //read in block offsets
+    block blocks[blockcnt];
+
+    for(int i = 0; i < blockcnt; i++)
+    {
+        block newblock;
+
+        unsigned char blocknumbuf[2];
+        unsigned char offsetbuf[4];
+
+        readBin(&ifile, blocknumbuf, 2);
+        readBin(&ifile, offsetbuf, 4);
+
+        newblock.blocknum = lsbSum(blocknumbuf, 2);
+        newblock.offset = std::streampos(lsbSum(offsetbuf, 4));
+
+        blocks[i] = newblock;
+    }
+    std::cout << "Read in " << blockcnt << " block offsets.\n";
+
+    //get end of file position
+    ifile.seekg(0, ifile.end);
+    endoffile = ifile.tellg();
+
+    //for debug purposes
+    std::vector<unsigned char> teststring;
+
+    //for each block, read in string count and string relative offsets
+    //read in strings
+    for(int i = 0; i < blockcnt; i++)
+    {
+        //jump to block offset
+        ifile.seekg( blocks[i].offset);
+
+        //get string count
+        unsigned char stringcntbuf[2];
+        readBin(&ifile, stringcntbuf, 2);
+        blocks[i].stringcount = lsbSum(stringcntbuf, 2);
+
+        //resize string offsets container
+        blocks[i].stringoffsets.resize(blocks[i].stringcount);
+
+        //get string relative offsets
+        for(int n = 0; n < blocks[i].stringcount; n++)
+        {
+            unsigned char stringoffbuf[2];
+            readBin(&ifile, stringoffbuf, 2);
+
+            blocks[i].stringoffsets[n] = std::streampos( lsbSum(stringoffbuf, 2));
+
+        }
+
+        //read in strings
+        for(int n = 0; n < blocks[i].stringcount; n++)
+        {
+            //jump to string offsets (block offset + 6 bytes + relative offset)
+            ifile.seekg( blocks[i].offset + std::streampos(6) + blocks[i].stringoffsets[n]);
+
+            //strings are terminated by a '|'
+            //string bits are pulled out big-endian
+            // bit 1 = right branch, 0 = left branch
+            // once a node is found where the children nodes are -1 (0xff), that is the char
+            std::vector<unsigned char> stringdata;
+
+            //read in string data until next offset, if is last string in block, read
+            //until reaching next block offset, if last block, read until EOF
+            std::streampos terminator = 0;
+            //if last string
+            if(n == blocks[i].stringcount -1)
+            {
+                //if last block
+                if(i == blockcnt - 1) terminator = endoffile;
+                //else get position of next block
+                else terminator = blocks[i+1].offset;
+            }
+            //else use next string offset as terminator
+            else terminator = blocks[i].offset + std::streampos(6) + blocks[i].stringoffsets[n+1];
+
+            //read in each byte until terminator found
+            while(ifile.tellg() != terminator)
+            {
+                unsigned char charbuf[1];
+                readBin(&ifile, charbuf, 1);
+                stringdata.push_back(charbuf[0]);
+            }
+            //for debug purposes
+            teststring = stringdata;
+        }
+    }
+
+    std::cout << "STRING DEBUG:\n";
+    std::cout << "block 0: 0x" << std::hex << blocks[0].offset << std::dec << std::endl;
+    std::cout << "string count = " << blocks[0].stringcount << std::endl;
+    std::cout << "string 0: 0x" << std::hex << blocks[0].stringoffsets[0] << std::dec << std::endl;
+    std::cout << "string 0 offset in file (block off + 6 bytes + string off):\n";
+    std::cout << "          0x" << std::hex << blocks[0].offset + std::streampos(6) + blocks[0].stringoffsets[0] << std::dec << std::endl;
+
+    std::cout << "\ntest string (block 0, string 0) = \n";
+    int testval = int(teststring[0]);
+    hnode *curnode = head;
+
+    std::cout << "print head data\n";
     std::cout << std::hex;
-    for(int i = 0; i < 4; i++)
+    std::cout << "head parent = " << curnode->parent << "  "; printByteToBin(curnode->parent); std::cout << std::endl;
+    std::cout << "head right  = " << curnode->right << "  "; printByteToBin(curnode->right); std::cout << std::endl;
+    std::cout << "head left   = " << curnode->left << "  "; printByteToBin(curnode->left); std::cout << std::endl;
+    std::cout << "head val    = " << curnode->chardata << "  "; printByteToBin(curnode->chardata); std::cout << std::endl;
+    std::cout << "\n";
+
+
+        for(int i = nodecount-1; i >= 0; i--)
+        {
+                std::cout << "Found some node\n";;//: (" << htree[i].left << " + " << htree[i].right << " = " << head->left << "\n";
+                curnode = &htree[i];
+                std::cout << "node parent = " << curnode->parent << "  "; printByteToBin(curnode->parent); std::cout << std::endl;
+                std::cout << "node right  = " << curnode->right << "  "; printByteToBin(curnode->right); std::cout << std::endl;
+                std::cout << "node left   = " << curnode->left << "  "; printByteToBin(curnode->left); std::cout << std::endl;
+                std::cout << "node val    = " << curnode->chardata << "  "; printByteToBin(curnode->chardata); std::cout << std::endl;
+                std::cout << "\n";
+
+                if(int(htree[i].chardata) != 0x00) break;
+        }
+
+        std::cout << std::dec;
+        std::cout << "\n";
+
+
+    std::cout << std::endl;
+
+    //
+/*
+    std::cout << std::hex;
+    for(int i = 107; i < 111; i++)
     {
         std::cout << "node " << i << std::endl;
         std::cout << "chardata = " << mytree[i].chardata << std::endl;
@@ -975,6 +1137,7 @@ int Game::loadStrings()
         std::cout << std::endl;
     }
     std::cout << std::dec;
+*/
 
     //  close and return success
     ifile.close();
