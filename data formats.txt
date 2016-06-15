@@ -1396,6 +1396,8 @@ Table of Contents
    0002   Int8   left child
    0003   Int8   right child
 
+				my notes : The children and parent values are the node index #
+   
    The last node stored in the file is the head of the tree. Following the
    nodes is a 16-bit word giving the number of string blocks in the
    file. Then follows the block directory, 6 bytes per block as follows:
