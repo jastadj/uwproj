@@ -169,6 +169,8 @@ private:
     std::vector<ITexture*> m_ObjectsTXT;
 
     //strings
+    int testblocknum; //= 7;
+    int teststringnum;// = 0;
     std::vector<stringBlock> m_StringBlocks;
 
     //mainloop

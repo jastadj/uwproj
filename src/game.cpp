@@ -52,6 +52,8 @@ int Game::start()
 
     //load UW data
     std::cout << "Loading strings...";
+        testblocknum = 7;
+        teststringnum = 0;
         errorcode = loadStrings();
         if(errorcode < 0) {std::cout << "Error loading string data!  ERROR CODE " << errorcode << "\n"; return -1;}
         else std::cout << "done.\n";
@@ -109,7 +111,7 @@ int Game::start()
     //mLevels[0].printDebug();
 
     //print test string
-    std::cout << m_StringBlocks[0].strings[0] << std::endl;
+    std::cout << m_StringBlocks[testblocknum].strings[teststringnum] << std::endl;
 
     //generate level geometry
     /*
@@ -1066,8 +1068,16 @@ int Game::loadStrings()
             //init current node to head
             hnode *curnode = head;
             bool stringdone = false;
-            int testblocknum = 3;
-            int teststringnum = 4;
+
+
+            if(i == testblocknum && n == teststringnum)
+            {
+                std::cout << "blocknum " << testblocknum << " at offset 0x" << std::hex << blocks[i].offset <<"\n";
+                std::cout << "stringnum " << teststringnum << " at offset " << blocks[i].offset << " + 6 + " << blocks[i].stringoffsets[n] <<
+                            " = " << blocks[i].offset + 6 + blocks[i].stringoffsets[n] << std::dec << std::endl;
+            }
+
+
             //decoding loop
             while(!stringdone)
             {
