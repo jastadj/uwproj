@@ -109,7 +109,7 @@ int Game::start()
     //mLevels[0].printDebug();
 
     //print test string
-    std::cout << m_StringBlocks[3].strings[0] << std::endl;
+    std::cout << m_StringBlocks[0].strings[0] << std::endl;
 
     //generate level geometry
     /*
@@ -1057,6 +1057,8 @@ int Game::loadStrings()
             //jump to string offsets (block offset + 6 bytes + relative offset)
             ifile.seekg( blocks[i].offset + std::streampos(6) + blocks[i].stringoffsets[n]);
 
+            //if(i == 0 && n == 0) std::cout << "TEST STRING OFFSET = " << std::hex << blocks[i].offset + std::streampos(6) + blocks[i].stringoffsets[n] << std::dec << std::endl;
+
             //read in byte one at a time, popping off bits big-endian to navigate huffman tree nodes
             //if reaching a '|' character (0x7c), end of string found.  All following bits of current
             //byte are unused.
@@ -1064,6 +1066,8 @@ int Game::loadStrings()
             //init current node to head
             hnode *curnode = head;
             bool stringdone = false;
+            int testblocknum = 3;
+            int teststringnum = 4;
             //decoding loop
             while(!stringdone)
             {
@@ -1073,10 +1077,25 @@ int Game::loadStrings()
 
                 int val = int(bbuf[0]);
 
+                if(i == testblocknum && n == teststringnum) std::cout << std::hex << "\ndecoding val=" << val << std::dec << "  ";
+
                 //check each bit, big endian
                 for(int k = 7; k >= 0; k--)
                 {
-                    //if current node right and left == 0xff, leaf found, get character
+                    //pop bit off, determine direction
+                    //if bin val == 1, take a right
+                    if( (val >> k) & 0x01)
+                    {
+                        if(i == testblocknum && n == teststringnum) std::cout << "1";
+                        curnode = &htree[curnode->right];
+                    }
+                    else
+                    {
+                        if(i == testblocknum && n == teststringnum) std::cout << "0";
+                        curnode = &htree[curnode->left];
+                    }
+
+                    //leaf found when when left and right children are 0xff
                     if(curnode->left == 0xff && curnode->right == 0xff)
                     {
                         //as long as string terminator is not found, add char
@@ -1087,9 +1106,6 @@ int Game::loadStrings()
                         //set current node back to the head
                         curnode = head;
                     }
-                    //if bin val == 1, take a right
-                    else if( (val >> k) & 0x01) curnode = &htree[curnode->right];
-                    else curnode = &htree[curnode->left];
                 }
             }
         }
