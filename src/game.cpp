@@ -108,6 +108,9 @@ int Game::start()
 
     //mLevels[0].printDebug();
 
+    //print test string
+    std::cout << m_StringBlocks[3].strings[0] << std::endl;
+
     //generate level geometry
     /*
     std::cout << "Generating level geometry...\n";
@@ -1022,9 +1025,6 @@ int Game::loadStrings()
     //for debug purposes
     std::vector<unsigned char> teststring;
 
-    //string counter for feedback info
-    int stringcounter = 0;
-
     //for each block, read in string count and string relative offsets
     //read in strings
     for(int i = 0; i < blockcnt; i++)
@@ -1036,8 +1036,6 @@ int Game::loadStrings()
         unsigned char stringcntbuf[2];
         readBin(&ifile, stringcntbuf, 2);
         blocks[i].stringcount = lsbSum(stringcntbuf, 2);
-        //increase string counter
-        stringcounter += blocks[i].stringcount;
         //resize block string list
         blocks[i].strings.resize(blocks[i].stringcount);
         //resize string offsets container
@@ -1059,70 +1057,54 @@ int Game::loadStrings()
             //jump to string offsets (block offset + 6 bytes + relative offset)
             ifile.seekg( blocks[i].offset + std::streampos(6) + blocks[i].stringoffsets[n]);
 
-            //strings are terminated by a '|'
-            //string bits are pulled out big-endian
-            // bit 1 = right branch, 0 = left branch
-            // once a node is found where the children nodes are -1 (0xff), that is the char
-            std::vector<bool> binstring;
+            //read in byte one at a time, popping off bits big-endian to navigate huffman tree nodes
+            //if reaching a '|' character (0x7c), end of string found.  All following bits of current
+            //byte are unused.
 
-            //read in string data until next offset, if is last string in block, read
-            //until reaching next block offset, if last block, read until EOF
-            std::streampos terminator = 0;
-            //if last string
-            if(n == blocks[i].stringcount -1)
-            {
-                //if last block
-                if(i == blockcnt - 1) terminator = endoffile;
-                //else get position of next block
-                else terminator = blocks[i+1].offset;
-            }
-            //else use next string offset as terminator
-            else terminator = blocks[i].offset + std::streampos(6) + blocks[i].stringoffsets[n+1];
-
-            //read in each byte until terminator found
-            //convert data to binary
-            while(ifile.tellg() != terminator)
-            {
-                unsigned char charbuf[1];
-                readBin(&ifile, charbuf, 1);
-
-                //convert to binary
-                std::vector<bool> bindata = printByteToBin(int(charbuf[0]), true);
-                for(int k = 0; k < int(bindata.size()); k++)
-                {
-                    binstring.push_back(bindata[k]);
-                }
-            }
-
-            //decode huffman tree data
+            //init current node to head
             hnode *curnode = head;
-            for(int b = 0; b < int(binstring.size()); b++)
+            bool stringdone = false;
+            //decoding loop
+            while(!stringdone)
             {
-                // note : char 0x7c is |, where is string terminator
+                //read in a byte
+                unsigned char bbuf[1];
+                readBin(&ifile, bbuf, 1);
 
-                //if current node left and right are 0xff, leaf is found, get char
-                if(curnode->left == 0xff && curnode->right == 0xff)
+                int val = int(bbuf[0]);
+
+                //check each bit, big endian
+                for(int k = 7; k >= 0; k--)
                 {
-                    //add char to current block, current string
-                    if(curnode->chardata != 0x7c) blocks[i].strings[n].push_back( curnode->chardata);
-                    //set current node back to head
-                    curnode = head;
+                    //if current node right and left == 0xff, leaf found, get character
+                    if(curnode->left == 0xff && curnode->right == 0xff)
+                    {
+                        //as long as string terminator is not found, add char
+                        if(curnode->chardata != 0x7c)
+                            blocks[i].strings[n].push_back( char( curnode->chardata));
+                        //else string is done
+                        else stringdone = true;
+                        //set current node back to the head
+                        curnode = head;
+                    }
+                    //if bin val == 1, take a right
+                    else if( (val >> k) & 0x01) curnode = &htree[curnode->right];
+                    else curnode = &htree[curnode->left];
                 }
-                //if binary = 1, take right
-                else if(binstring[b] == true && curnode->right != 0xff) curnode = &htree[curnode->right];
-                //else if binary = 0, take left
-                else if(curnode->left != 0xff) curnode = &htree[curnode->left];
-
             }
         }
+
     }
 
     //copy string block info into class member
+    //string counter for feedback info
+    int stringcounter = 0;
     m_StringBlocks.resize(blockcnt);
     for(int i = 0; i < blockcnt; i++)
     {
         m_StringBlocks[i].id = blocks[i].blocknum;
         m_StringBlocks[i].strings = blocks[i].strings;
+        stringcounter += int(m_StringBlocks[i].strings.size());
     }
 
     ifile.close();
