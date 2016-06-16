@@ -1033,6 +1033,8 @@ int Game::loadStrings()
         unsigned char stringcntbuf[2];
         readBin(&ifile, stringcntbuf, 2);
         blocks[i].stringcount = lsbSum(stringcntbuf, 2);
+        //resize block string list
+        blocks[i].strings.resize(blocks[i].stringcount);
 
         //resize string offsets container
         blocks[i].stringoffsets.resize(blocks[i].stringcount);
@@ -1100,15 +1102,12 @@ int Game::loadStrings()
                     //set current node back to head
                     curnode = head;
                 }
+                //if binary = 1, take right
+                else if(binstring[b] == true && curnode->right != 0xff) curnode = &htree[curnode->right];
+                //else if binary = 0, take left
+                else if(curnode->left != 0xff) curnode = &htree[curnode->left];
 
-                //if binary = 1, tke right
-                else if(binstring[b]) curnode = &htree[curnode->right];
-                else curnode = &htree[curnode->left];
             }
-
-            //debug, print string
-            std::cout << blocks[i].strings[n] << std::endl;
-
         }
     }
 
