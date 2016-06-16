@@ -1057,7 +1057,7 @@ int Game::loadStrings()
             //string bits are pulled out big-endian
             // bit 1 = right branch, 0 = left branch
             // once a node is found where the children nodes are -1 (0xff), that is the char
-            std::vector<unsigned char> stringdata;
+            std::vector<bool> binstring;
 
             //read in string data until next offset, if is last string in block, read
             //until reaching next block offset, if last block, read until EOF
@@ -1074,72 +1074,44 @@ int Game::loadStrings()
             else terminator = blocks[i].offset + std::streampos(6) + blocks[i].stringoffsets[n+1];
 
             //read in each byte until terminator found
+            //convert data to binary
             while(ifile.tellg() != terminator)
             {
                 unsigned char charbuf[1];
                 readBin(&ifile, charbuf, 1);
-                stringdata.push_back(charbuf[0]);
+
+                //convert to binary
+                std::vector<bool> bindata = printByteToBin(int(charbuf[0]), true);
+                for(int k = 0; k < int(bindata.size()); k++)
+                {
+                    binstring.push_back(bindata[k]);
+                }
             }
-            //for debug purposes
-            teststring = stringdata;
+
+            //decode huffman tree data
+            hnode *curnode = head;
+            for(int b = 0; b < int(binstring.size()); b++)
+            {
+                //if current node left and right are 0xff, leaf is found, get char
+                if(curnode->left == 0xff && curnode->right == 0xff)
+                {
+                    //add char to current block, current string
+                    blocks[i].strings[n].push_back( curnode->chardata);
+                    //set current node back to head
+                    curnode = head;
+                }
+
+                //if binary = 1, tke right
+                else if(binstring[b]) curnode = &htree[curnode->right];
+                else curnode = &htree[curnode->left];
+            }
+
+            //debug, print string
+            std::cout << blocks[i].strings[n] << std::endl;
+
         }
     }
 
-    std::cout << "STRING DEBUG:\n";
-    std::cout << "block 0: 0x" << std::hex << blocks[0].offset << std::dec << std::endl;
-    std::cout << "string count = " << blocks[0].stringcount << std::endl;
-    std::cout << "string 0: 0x" << std::hex << blocks[0].stringoffsets[0] << std::dec << std::endl;
-    std::cout << "string 0 offset in file (block off + 6 bytes + string off):\n";
-    std::cout << "          0x" << std::hex << blocks[0].offset + std::streampos(6) + blocks[0].stringoffsets[0] << std::dec << std::endl;
-
-    std::cout << "\ntest string (block 0, string 0) = \n";
-    int testval = int(teststring[0]);
-    hnode *curnode = head;
-
-    std::cout << "print head data\n";
-    std::cout << std::hex;
-    std::cout << "head parent = " << curnode->parent << "  "; printByteToBin(curnode->parent); std::cout << std::endl;
-    std::cout << "head right  = " << curnode->right << "  "; printByteToBin(curnode->right); std::cout << std::endl;
-    std::cout << "head left   = " << curnode->left << "  "; printByteToBin(curnode->left); std::cout << std::endl;
-    std::cout << "head val    = " << curnode->chardata << "  "; printByteToBin(curnode->chardata); std::cout << std::endl;
-    std::cout << "\n";
-
-
-        for(int i = nodecount-1; i >= 0; i--)
-        {
-                std::cout << "Found some node\n";;//: (" << htree[i].left << " + " << htree[i].right << " = " << head->left << "\n";
-                curnode = &htree[i];
-                std::cout << "node parent = " << curnode->parent << "  "; printByteToBin(curnode->parent); std::cout << std::endl;
-                std::cout << "node right  = " << curnode->right << "  "; printByteToBin(curnode->right); std::cout << std::endl;
-                std::cout << "node left   = " << curnode->left << "  "; printByteToBin(curnode->left); std::cout << std::endl;
-                std::cout << "node val    = " << curnode->chardata << "  "; printByteToBin(curnode->chardata); std::cout << std::endl;
-                std::cout << "\n";
-
-                if(int(htree[i].chardata) != 0x00) break;
-        }
-
-        std::cout << std::dec;
-        std::cout << "\n";
-
-
-    std::cout << std::endl;
-
-    //
-/*
-    std::cout << std::hex;
-    for(int i = 107; i < 111; i++)
-    {
-        std::cout << "node " << i << std::endl;
-        std::cout << "chardata = " << mytree[i].chardata << std::endl;
-        std::cout << "parent   = " << mytree[i].parent << std::endl;
-        std::cout << "left     = " << mytree[i].left << std::endl;
-        std::cout << "right    = " << mytree[i].right << std::endl;
-        std::cout << std::endl;
-    }
-    std::cout << std::dec;
-*/
-
-    //  close and return success
     ifile.close();
     return 0;
 }
