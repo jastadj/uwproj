@@ -53,6 +53,12 @@ enum
     IDFlag_IsHighlightable = 1 << 1
 };
 
+struct stringBlock
+{
+    int id;
+    std::vector<std::string> strings;
+};
+
 class MyEventReceiver : public IEventReceiver
 {
 
@@ -161,6 +167,9 @@ private:
     std::vector<ITexture*> m_BitmapsTXT;
     std::vector<ITexture*> m_CursorsTXT;
     std::vector<ITexture*> m_ObjectsTXT;
+
+    //strings
+    std::vector<stringBlock> m_StringBlocks;
 
     //mainloop
     void mainLoop();

@@ -53,8 +53,9 @@ int Game::start()
     //load UW data
     std::cout << "Loading strings...";
         errorcode = loadStrings();
-        if(errorcode) {std::cout << "Error loading string data!  ERROR CODE " << errorcode << "\n"; return -1;}
+        if(errorcode < 0) {std::cout << "Error loading string data!  ERROR CODE " << errorcode << "\n"; return -1;}
         else std::cout << "done.\n";
+        std::cout << "Loaded " << errorcode << " strings.\n";
 
     std::cout << "Loading level data...";
         errorcode = loadLevel();
@@ -104,7 +105,6 @@ int Game::start()
         if(errorcode) {std::cout << "Error loading bitmap!  ERROR CODE " << errorcode << "\n"; return -1;}
         std::cout << "done.\n";
         std::cout << std::endl;
-
 
     //mLevels[0].printDebug();
 
@@ -983,7 +983,7 @@ int Game::loadStrings()
        htree[i] = newnode;
 
     }
-    std::cout << "Loaded " << nodecount << " string nodes.\n";
+    //std::cout << "Loaded " << nodecount << " string nodes.\n";
 
     //set huffman tree head to last node in list
     head = &htree[nodecount-1];
@@ -1013,7 +1013,7 @@ int Game::loadStrings()
 
         blocks[i] = newblock;
     }
-    std::cout << "Read in " << blockcnt << " block offsets.\n";
+    //std::cout << "Read in " << blockcnt << " block offsets.\n";
 
     //get end of file position
     ifile.seekg(0, ifile.end);
@@ -1021,6 +1021,9 @@ int Game::loadStrings()
 
     //for debug purposes
     std::vector<unsigned char> teststring;
+
+    //string counter for feedback info
+    int stringcounter = 0;
 
     //for each block, read in string count and string relative offsets
     //read in strings
@@ -1033,13 +1036,14 @@ int Game::loadStrings()
         unsigned char stringcntbuf[2];
         readBin(&ifile, stringcntbuf, 2);
         blocks[i].stringcount = lsbSum(stringcntbuf, 2);
+        //increase string counter
+        stringcounter += blocks[i].stringcount;
         //resize block string list
         blocks[i].strings.resize(blocks[i].stringcount);
-
         //resize string offsets container
         blocks[i].stringoffsets.resize(blocks[i].stringcount);
 
-        //get string relative offsets
+        //get string relative offsets (relative to end of block header to start of string)
         for(int n = 0; n < blocks[i].stringcount; n++)
         {
             unsigned char stringoffbuf[2];
@@ -1094,11 +1098,13 @@ int Game::loadStrings()
             hnode *curnode = head;
             for(int b = 0; b < int(binstring.size()); b++)
             {
+                // note : char 0x7c is |, where is string terminator
+
                 //if current node left and right are 0xff, leaf is found, get char
                 if(curnode->left == 0xff && curnode->right == 0xff)
                 {
                     //add char to current block, current string
-                    blocks[i].strings[n].push_back( curnode->chardata);
+                    if(curnode->chardata != 0x7c) blocks[i].strings[n].push_back( curnode->chardata);
                     //set current node back to head
                     curnode = head;
                 }
@@ -1111,8 +1117,16 @@ int Game::loadStrings()
         }
     }
 
+    //copy string block info into class member
+    m_StringBlocks.resize(blockcnt);
+    for(int i = 0; i < blockcnt; i++)
+    {
+        m_StringBlocks[i].id = blocks[i].blocknum;
+        m_StringBlocks[i].strings = blocks[i].strings;
+    }
+
     ifile.close();
-    return 0;
+    return stringcounter;
 }
 
 int Game::loadLevel()
