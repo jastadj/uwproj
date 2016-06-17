@@ -26,3 +26,18 @@ Object::~Object()
 {
 
 }
+
+//////////////////////////////////////////////////////
+//  OBJECT INSTANCE
+ObjectInstance::ObjectInstance(Object *tobj)
+{
+    m_Ref = tobj;
+
+    m_Position = vector3df(0,0,0);
+    m_Angle = 0;
+}
+
+ObjectInstance::~ObjectInstance()
+{
+
+}

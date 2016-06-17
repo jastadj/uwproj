@@ -37,11 +37,12 @@ public:
 class ObjectInstance: public Object
 {
 private:
+    Object *m_Ref;
     vector3df m_Position;
     float m_Angle;
 
 public:
-    ObjectInstance();
+    ObjectInstance(Object *tobj);
     ~ObjectInstance();
 };
 
