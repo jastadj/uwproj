@@ -1324,7 +1324,27 @@ int Game::loadLevel()
             }
         }
 
+        //read in level objects
 
+        //jump to master list for mobile objects in block (offset 0x4000)
+        ifile.seekg( blockoffsets[i] + std::streampos(0x4000))
+
+        //mobile objects
+        for(int n = 0; n < 256; n++)
+        {
+            //each mobile object contains 27 bytes of information, first 8 of these bytes are
+            // same general object information like the static objects
+
+        }
+
+        //jump to master list for static objects
+        ifile.seekg( blockoffsets[i] + std::streampos(0x5b00))
+        for(int n = 0; n < 768; n++)
+        {
+            //each static object contains 8 bytes of information
+            unsigned char objinfo[2];
+            int obj
+        }
     }
 
 
