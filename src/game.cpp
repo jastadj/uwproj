@@ -92,6 +92,8 @@ int Game::start()
         errorcode = loadGraphic("UWDATA\\objects.gr", &m_ObjectsTXT);
         if(errorcode) {std::cout << "Error loading object graphics!  ERROR CODE " << errorcode << "\n"; return -1;}
         else std::cout << "....." << m_ObjectsTXT.size() << " object graphics loaded.\n";
+        errorcode = loadGraphic("UWDATA\\question.gr", &m_QuestionTXT);
+        if(errorcode) {std::cout << "Error loading question mark graphic!  ERROR CODE " << errorcode << "\n"; return -1;}
         std::cout << std::endl;
 
 
@@ -108,23 +110,30 @@ int Game::start()
         std::cout << "done.\n";
         std::cout << std::endl;
 
+    std::cout << "Initializing objects...";
+        errorcode = initObjects();
+        if(errorcode < 0) {std::cout << "Error initializing objects!  ERROR CODE " << errorcode << "\n"; return-1;}
+        else std::cout << errorcode << " objects initialized.\n";
+
     //mLevels[0].printDebug();
 
-
-
+    if(false)
+    {
     //generate level geometry
-    /*
     std::cout << "Generating level geometry...\n";
         errorcode = mLevels[0].buildLevelGeometry();
         if(!errorcode) { std::cout << "Error generating level geometry!!  ERROR CODE " << errorcode << "\n"; return -1;}
         std::cout << mLevels[m_CurrentLevel].getMeshes().size() << " meshes generated for level " << m_CurrentLevel << std::endl;
         std::cout << std::endl;
 
-
     //start main loop
     std::cout << "Starting main loop...\n";
     mainLoop();
-    */
+    }
+
+
+
+
 
     return 0;
 }
@@ -928,6 +937,32 @@ bool Game::processCollision(vector3df *pos, vector3df *vel)
 
 int Game::loadStrings()
 {
+    /* STRING BLOCKS
+   block   description
+   0001    general UI strings
+   0002    character creation strings, mantras (?)
+   0003    wall text/scroll/book/book title strings (*)
+   0004    object descriptions (*)
+   0005    object "look" descriptions, object quality states
+   0006    spell names
+   0007    conversation partner names, starting at string 17 for conv 1
+   0008    text on walls, signs
+   0009    text trap messages
+   000a    wall/floor description text
+   0018    debugging strings (not used ingame)
+   0c00    intro cutscene text
+   0c01    ending cutscene text
+   0c02    tyball cutscene text
+   0c03    arial cuscene text (?)
+   0c18    dream cutscene 1 text "arrived"
+   0c19    dream cutscene 2 text "talismans"
+   ...17
+   0c1a-0c21  garamon cutscene texts
+   +7
+   0e01-0f3a  conversation strings
+   313
+   */
+
     //struct used to store huffman tree string nodes
     struct hnode
     {
@@ -1830,6 +1865,50 @@ int Game::loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int t
     ifile.close();
 
     return 0;
+}
+
+int Game::initObjects()
+{
+    //std::cout << "object graphics count : " << m_ObjectsTXT.size() << std::endl;
+    //std::cout << "object strings        : " << m_StringBlocks[3].strings.size() << std::endl;
+
+    //supports up to 512 objects
+    /*
+   0000-001f  Weapons and missiles
+   0020-003f  Armour and clothing
+   0040-007f  Monsters
+   0080-008f  Containers
+   0090-0097  Light sources
+   0098-009f  Wands
+   00a0-00af  Treasure
+   00b0-00bf  Comestibles
+   00c0-00df  Scenery and junk
+   00e0-00ff  Runes and bits of the Key of Infinity
+   0100-010f  Keys, lockpick, lock
+   0110-011f  Quest items
+   0120-012f  Inventory items, misc stuff
+   0130-013f  Books and scrolls
+   0140-014f  Doors
+   0150-015f  Furniture
+   0160-016f  Pillar, some decals, force field, special tmap obj
+   0170-017f  Switches
+   0180-019f  Traps
+   01a0-01bf  Triggers
+   01c0-01cf  Explosions/splats, fountain, silver tree, moving things
+   */
+
+   for(int i = 0; i < 512; i++)
+   {
+       Object *newobject = new Object;
+       if(i < int(m_ObjectsTXT.size()) ) newobject->setTexture( m_ObjectsTXT[i]);
+
+       if(i < int(m_StringBlocks[3].strings.size())) newobject->setDescription( m_StringBlocks[3].strings[i]);
+
+       m_Objects.push_back(newobject);
+   }
+
+
+    return int(m_Objects.size());
 }
 
 bool Game::configMeshSceneNode(IMeshSceneNode *tnode)

@@ -10,6 +10,7 @@
 #include <irrlicht.h>
 
 #include "level.hpp"
+#include "object.hpp"
 
 #define TRANSPARENCY_COLOR 0,255,0,255
 #define FULLSCREEN 0
@@ -149,6 +150,7 @@ private:
     int loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist);
     int loadTexture(std::string tfilename, std::vector<ITexture*> *tlist);
     int loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int tpalindex);
+    int initObjects();
 
 
     //levels
@@ -167,9 +169,13 @@ private:
     std::vector<ITexture*> m_BitmapsTXT;
     std::vector<ITexture*> m_CursorsTXT;
     std::vector<ITexture*> m_ObjectsTXT;
+    std::vector<ITexture*> m_QuestionTXT;
 
     //strings
     std::vector<stringBlock> m_StringBlocks;
+
+    //objects
+    std::vector<Object*> m_Objects;
 
     //mainloop
     void mainLoop();
@@ -200,6 +206,10 @@ public:
     //textures
     const std::vector<ITexture*> *getWall64Textures() const { return &m_Wall64TXT;}
     const std::vector<ITexture*> *getFloor32Textures() const { return &m_Floor32TXT;}
+    ITexture *getDefaultTexture() { return m_QuestionTXT[0];}
+
+    //strings
+    std::string getDefaultString() { return "no string";}
 
     //get irrlicht components
     ISceneManager *getSceneManager() { return m_SMgr;}
