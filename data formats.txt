@@ -1412,6 +1412,8 @@ Table of Contents
    0004   Int16   relative offset to second string
    ...
 
+				my notes : 1st block, 1st string should = "Hey, its all the game strings"
+   
    Strings are compressed using the Huffman tree in the usual way. Bits are
    extracted big-endian i.e. rotated out of the top of each byte in turn.
    Starting with the root node (last node), if a 1 bit is encountered the right
@@ -1441,8 +1443,11 @@ Table of Contents
    0c03    arial cuscene text (?)
    0c18    dream cutscene 1 text "arrived"
    0c19    dream cutscene 2 text "talismans"
+   ...17
    0c1a-0c21  garamon cutscene texts
+   +7
    0e01-0f3a  conversation strings
+   313
 
    Block 0003 contains text/scroll etc. strings. The exact string to use for
    books, scrolls or other text object is in the quantity field. It is

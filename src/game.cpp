@@ -52,12 +52,12 @@ int Game::start()
 
     //load UW data
     std::cout << "Loading strings...";
-        testblocknum = 7;
-        teststringnum = 0;
         errorcode = loadStrings();
         if(errorcode < 0) {std::cout << "Error loading string data!  ERROR CODE " << errorcode << "\n"; return -1;}
         else std::cout << "done.\n";
         std::cout << "Loaded " << errorcode << " strings.\n";
+        //print test string, should = "Hey, its all the game strings"
+        std::cout << m_StringBlocks[0].strings[0] << std::endl;
 
     std::cout << "Loading level data...";
         errorcode = loadLevel();
@@ -110,8 +110,7 @@ int Game::start()
 
     //mLevels[0].printDebug();
 
-    //print test string
-    std::cout << m_StringBlocks[testblocknum].strings[teststringnum] << std::endl;
+
 
     //generate level geometry
     /*
@@ -988,7 +987,6 @@ int Game::loadStrings()
        htree[i] = newnode;
 
     }
-    //std::cout << "Loaded " << nodecount << " string nodes.\n";
 
     //set huffman tree head to last node in list
     head = &htree[nodecount-1];
@@ -1017,8 +1015,8 @@ int Game::loadStrings()
         newblock.offset = std::streampos(lsbSum(offsetbuf, 4));
 
         blocks[i] = newblock;
+
     }
-    //std::cout << "Read in " << blockcnt << " block offsets.\n";
 
     //get end of file position
     ifile.seekg(0, ifile.end);
@@ -1057,7 +1055,7 @@ int Game::loadStrings()
         for(int n = 0; n < blocks[i].stringcount; n++)
         {
             //jump to string offsets (block offset + 6 bytes + relative offset)
-            ifile.seekg( blocks[i].offset + std::streampos(6) + blocks[i].stringoffsets[n]);
+            ifile.seekg( blocks[i].offset + std::streampos(2) + blocks[i].stringcount*2+ blocks[i].stringoffsets[n]);
 
             //if(i == 0 && n == 0) std::cout << "TEST STRING OFFSET = " << std::hex << blocks[i].offset + std::streampos(6) + blocks[i].stringoffsets[n] << std::dec << std::endl;
 
@@ -1069,15 +1067,6 @@ int Game::loadStrings()
             hnode *curnode = head;
             bool stringdone = false;
 
-
-            if(i == testblocknum && n == teststringnum)
-            {
-                std::cout << "blocknum " << testblocknum << " at offset 0x" << std::hex << blocks[i].offset <<"\n";
-                std::cout << "stringnum " << teststringnum << " at offset " << blocks[i].offset << " + 6 + " << blocks[i].stringoffsets[n] <<
-                            " = " << blocks[i].offset + 6 + blocks[i].stringoffsets[n] << std::dec << std::endl;
-            }
-
-
             //decoding loop
             while(!stringdone)
             {
@@ -1087,8 +1076,6 @@ int Game::loadStrings()
 
                 int val = int(bbuf[0]);
 
-                if(i == testblocknum && n == teststringnum) std::cout << std::hex << "\ndecoding val=" << val << std::dec << "  ";
-
                 //check each bit, big endian
                 for(int k = 7; k >= 0; k--)
                 {
@@ -1096,12 +1083,12 @@ int Game::loadStrings()
                     //if bin val == 1, take a right
                     if( (val >> k) & 0x01)
                     {
-                        if(i == testblocknum && n == teststringnum) std::cout << "1";
+                        //if(i == testblocknum && n == teststringnum) std::cout << "1";
                         curnode = &htree[curnode->right];
                     }
                     else
                     {
-                        if(i == testblocknum && n == teststringnum) std::cout << "0";
+                        //if(i == testblocknum && n == teststringnum) std::cout << "0";
                         curnode = &htree[curnode->left];
                     }
 
@@ -1113,11 +1100,16 @@ int Game::loadStrings()
                             blocks[i].strings[n].push_back( char( curnode->chardata));
                         //else string is done
                         else stringdone = true;
+
+                        //testing
+                        //if(i == testblocknum && n == teststringnum) std::cout << "\n         = " << std::hex << curnode->chardata << std::dec << "(" << char(curnode->chardata) << ")\n";
+
                         //set current node back to the head
                         curnode = head;
                     }
                 }
             }
+
         }
 
     }
