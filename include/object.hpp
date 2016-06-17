@@ -34,4 +34,15 @@ public:
     void setDescription(std::string ndesc) { m_Description = ndesc;}
 };
 
+class ObjectInstance: public Object
+{
+private:
+    vector3df m_Position;
+    float m_Angle;
+
+public:
+    ObjectInstance();
+    ~ObjectInstance();
+};
+
 #endif // CLASS_OBJECT
