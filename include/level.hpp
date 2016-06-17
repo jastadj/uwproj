@@ -8,6 +8,8 @@
 #include <cstdlib>
 #include <vector>
 
+#include "object.hpp"
+
 #include <irrlicht.h>
 
 using namespace irr;
@@ -32,6 +34,7 @@ class Level
 {
 private:
     std::vector< std::vector<Tile> > mTiles;
+    std::vector<ObjectInstance*> m_Objects;
 
     int m_CeilingTextureIndex;
 
@@ -61,6 +64,8 @@ public:
     void setCeilingTextureIndex(int nindex) { m_CeilingTextureIndex = nindex;}
 
     std::vector<IMeshSceneNode*> getMeshes();
+
+    bool addObject(ObjectInstance *tobj);
 
     void printDebug();
 };

@@ -36,6 +36,13 @@ std::vector<Tile*> Level::getAdjacentTilesAt(int x, int y)
     return adjacents;
 }
 
+bool Level::addObject(ObjectInstance *tobj)
+{
+    if(tobj == NULL) return false;
+
+    m_Objects.push_back(tobj);
+}
+
 // high level level generation, call each tile to build its geometry
 bool Level::buildLevelGeometry()
 {
