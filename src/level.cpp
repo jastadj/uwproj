@@ -36,11 +36,13 @@ std::vector<Tile*> Level::getAdjacentTilesAt(int x, int y)
     return adjacents;
 }
 
-bool Level::addObject(ObjectInstance *tobj)
+bool Level::addObject(ObjectInstance *nobj)
 {
-    if(tobj == NULL) return false;
+    if(nobj == NULL) return false;
 
-    m_Objects.push_back(tobj);
+    m_ObjectsMaster.push_back(nobj);
+
+    return true;
 }
 
 // high level level generation, call each tile to build its geometry
@@ -958,7 +960,7 @@ void Tile::printDebug()
     std::cout << "MAGIC ILLEGAL : " << isMagicIllegal() << std::endl;
     std::cout << "UNK1 = " << getUnk1() << std::endl;
     std::cout << "UNK2 = " << getUnk2() << std::endl;
-    std::cout << "FIRST OBJ INDEX : " << getFirstObjectIndex() << std::endl;
     std::cout << "\nMESHES : " << mMeshes.size() << std::endl;
+    std::cout << "FIRST OBJ INDEX : " << getFirstObjectIndex() << std::endl;
 
 }

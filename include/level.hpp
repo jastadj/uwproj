@@ -34,7 +34,8 @@ class Level
 {
 private:
     std::vector< std::vector<Tile> > mTiles;
-    std::vector<ObjectInstance*> m_Objects;
+
+    std::vector<ObjectInstance*> m_ObjectsMaster;
 
     int m_CeilingTextureIndex;
 
@@ -65,7 +66,9 @@ public:
 
     std::vector<IMeshSceneNode*> getMeshes();
 
-    bool addObject(ObjectInstance *tobj);
+    std::vector<ObjectInstance*> *getObjectsMaster() { return &m_ObjectsMaster;}
+    bool addObject(ObjectInstance *nobj);
+
 
     void printDebug();
 };
@@ -94,6 +97,7 @@ private:
 
     //objects
     int mFirstObjectIndex;
+    std::vector<ObjectInstance*> m_Objects;
 
 public:
     Tile();
@@ -125,6 +129,11 @@ public:
     int clearGeometry();
     bool addMesh(IMeshSceneNode *tnode);
     std::vector<IMeshSceneNode*> getMeshes();
+
+    //objects
+    bool addObject(ObjectInstance *tobj);
+    //this is not safe, for temporary implementation
+    std::vector<ObjectInstance*> *getObjects() { return &m_Objects;}
 
     //debug
     void printDebug();

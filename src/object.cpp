@@ -33,11 +33,41 @@ ObjectInstance::ObjectInstance(Object *tobj)
 {
     m_Ref = tobj;
 
-    m_Position = vector3df(0,0,0);
+    m_Position = vector3di(0,0,0);
     m_Angle = 0;
+    m_Flags = 0;
+    m_Enchanted = false;
+    m_DoorDir = false;
+    m_Invisible = false;
+    m_IsQuantity = false;
+    m_Quality = 0;
+    m_Next = 0;
+    m_Owner = 0;
+    m_Quantity = 0;
+
 }
 
 ObjectInstance::~ObjectInstance()
 {
+
+}
+
+void ObjectInstance::printDebug()
+{
+    std::cout << "\nObject Instance:\n";
+    std::cout << "----------------\n";
+    std::cout << "Desc : " << getDescription() << std::endl;
+    std::cout << "ID   : 0x" << std::hex << getID() << std::dec << std::endl;
+    std::cout << "Flags : " << m_Flags << std::endl;
+    std::cout << "Enchanted : " << m_Enchanted << std::endl;
+    std::cout << "Door Dir  : " << m_DoorDir << std::endl;
+    std::cout << "Invisible : " << m_Invisible << std::endl;
+    std::cout << "IsQuantity: " << m_IsQuantity << std::endl;
+    std::cout << "\nPosition  : " << m_Position.X << "," << m_Position.Y << "," << m_Position.Z << std::endl;
+    std::cout << "Angle     : " << m_Angle << " - *45=" << m_Angle*45 << std::endl;
+    std::cout << "\nQuality   : " << m_Quality << std::endl;
+    std::cout << "Next      : 0x" << std::hex << m_Next << std::dec << std::endl;
+    std::cout << "\nOwner   : 0x" << std::hex << m_Owner << " (" << std::dec << m_Owner << ")\n";
+    std::cout << "Quant/Special : " << m_Quantity << " (0x" << std::hex << m_Quantity << ")\n" << std::dec;
 
 }

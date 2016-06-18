@@ -59,11 +59,6 @@ int Game::start()
         //print test string, should = "Hey, its all the game strings"
         std::cout << m_StringBlocks[0].strings[0] << std::endl;
 
-    std::cout << "Loading level data...";
-        errorcode = loadLevel();
-        if(errorcode) {std::cout << "Error loading level data!  ERROR CODE " << errorcode << "\n"; return -1;}
-        else std::cout << mLevels.size() << " levels loaded.\n";
-
     std::cout << "Loading palette data...\n";
         errorcode = loadPalette();
         if(errorcode) { std::cout << "Error loading palette!  ERROR CODE " << errorcode << "\n"; return -1;}
@@ -96,8 +91,6 @@ int Game::start()
         if(errorcode) {std::cout << "Error loading question mark graphic!  ERROR CODE " << errorcode << "\n"; return -1;}
         std::cout << std::endl;
 
-
-
     std::cout << "Loading bitmaps...";
         errorcode = loadBitmap("UWDATA\\pres1.byt", &m_BitmapsTXT, 5);
         if(errorcode) {std::cout << "Error loading bitmap!  ERROR CODE " << errorcode << "\n"; return -1;}
@@ -115,9 +108,14 @@ int Game::start()
         if(errorcode < 0) {std::cout << "Error initializing objects!  ERROR CODE " << errorcode << "\n"; return-1;}
         else std::cout << errorcode << " objects initialized.\n";
 
+    std::cout << "Loading level data...";
+        errorcode = loadLevel();
+        if(errorcode) {std::cout << "Error loading level data!  ERROR CODE " << errorcode << "\n"; return -1;}
+        else std::cout << mLevels.size() << " levels loaded.\n";
+
     //mLevels[0].printDebug();
 
-    if(false)
+    if(true)
     {
     //generate level geometry
     std::cout << "Generating level geometry...\n";
@@ -470,6 +468,8 @@ void Game::mainLoop()
                         if(ttile != NULL)
                         {
                             ttile->printDebug();
+
+                            std::cout << "First object index desc:" << (*mLevels[m_CurrentLevel].getObjectsMaster())[ttile->getFirstObjectIndex()]->getDescription() << std::endl;
                         }
                         else std::cout << "Current tile = NULL!\n";
                     }
@@ -1327,24 +1327,71 @@ int Game::loadLevel()
         //read in level objects
 
         //jump to master list for mobile objects in block (offset 0x4000)
-        ifile.seekg( blockoffsets[i] + std::streampos(0x4000))
+        //total of 1024 objects (256 mobile(npc), and 768 static objects)
+        //build master list index starting with mobile objects
+        ifile.seekg( blockoffsets[i] + std::streampos(0x4000));
 
-        //mobile objects
-        for(int n = 0; n < 256; n++)
+        //master object list
+        for(int n = 0; n < 1024; n++)
         {
-            //each mobile object contains 27 bytes of information, first 8 of these bytes are
-            // same general object information like the static objects
+            //both mobile and static objects have general object information header
 
+            //each object has general object header, contains 8 bytes of information
+            //object info
+            unsigned char objinfobuf[2];
+            int objinfo;
+            readBin(&ifile, objinfobuf, 2);
+            objinfo = lsbSum(objinfobuf, 2);
+            int objid = getBitVal(objinfo, 0, 8);
+
+            //create new object instance of object id
+            ObjectInstance *newobj = new ObjectInstance(m_Objects[objid]);
+            //add new object to master object list
+            mLevels.back().addObject(newobj);
+
+            //populate the rest of object flags/info
+            newobj->setFlags( getBitVal(objinfo, 8, 4));
+            newobj->setEnchanted( getBitVal(objinfo, 12, 1));
+            newobj->setDoorDir( getBitVal(objinfo, 13, 1));
+            newobj->setInvisible( getBitVal(objinfo, 14, 1));
+            newobj->setIsQuantity( getBitVal(objinfo, 15, 1));
+
+            //object position
+            unsigned char objposbuf[2];
+            readBin(&ifile, objposbuf, 2);
+            int objpos = lsbSum(objposbuf, 2);
+            newobj->setAngle( getBitVal(objpos, 7, 3));
+            vector3di opos;
+            opos.Z = getBitVal(objpos, 0, 7);
+            opos.Y = getBitVal(objpos, 10, 3);
+            opos.X = getBitVal(objpos, 13, 3);
+            newobj->setPosition(opos);
+
+
+            //object quality / chain
+            unsigned char objqualbuf[2];
+            readBin(&ifile, objqualbuf, 2);
+            int objqualdat = lsbSum(objqualbuf, 2);
+            newobj->setQuality( getBitVal(objqualdat, 0, 6) );
+            newobj->setNext( getBitVal(objqualdat, 6, 10) );
+
+            //object link / special
+            unsigned char objlinkbuf[2];
+            readBin(&ifile, objlinkbuf, 2);
+            int objectlinkdat = lsbSum(objlinkbuf, 2);
+            newobj->setOwner( getBitVal(objectlinkdat, 0, 6));
+            newobj->setQuantity( getBitVal(objectlinkdat, 6, 10));
+
+            //mobile (npc) objects have an additional 19 bytes of data
+            //mobile objects are the first 256 object in master list
+            if( n < 256)
+            {
+                //temp mob dat
+                unsigned char mobdata[19];
+                readBin(&ifile, mobdata, 19);
+            }
         }
 
-        //jump to master list for static objects
-        ifile.seekg( blockoffsets[i] + std::streampos(0x5b00))
-        for(int n = 0; n < 768; n++)
-        {
-            //each static object contains 8 bytes of information
-            unsigned char objinfo[2];
-            int obj
-        }
     }
 
 
