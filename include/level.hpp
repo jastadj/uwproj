@@ -80,6 +80,7 @@ class Tile
 private:
     //properties
     int mType; // _TILETYPE
+    vector2di mPosition;
 
     int mHeight;
     bool mMagicIllegal;
@@ -100,7 +101,7 @@ private:
     std::vector<ObjectInstance*> m_Objects;
 
 public:
-    Tile();
+    Tile(int xpos, int ypos);
     ~Tile();
 
     //set tile data
@@ -116,6 +117,7 @@ public:
 
     //get tile data
     int getType() { return mType;}
+    vector2di getPosition() { return mPosition;}
     int getHeight() { if(mType == 0) return CEIL_HEIGHT+1; else return mHeight;}
     int getFloorTXT() { return mFloorTXTIndex;}
     int getWallTXT() { return mWallTXTIndex;}

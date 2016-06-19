@@ -7,7 +7,8 @@
 Level::Level()
 {
     mTiles.resize(TILE_ROWS);
-    for(int i = 0; i < TILE_COLS; i++) mTiles[i].resize(TILE_COLS);
+    for(int i = 0; i < TILE_COLS; i++)
+        for(int n = 0; n < TILE_COLS; n++) mTiles[i].push_back(Tile(n, i));
 }
 
 Level::~Level()
@@ -863,8 +864,11 @@ void Level::printDebug()
 }
 /////////////////////////////////////////////////////////////////////
 //  TILE
-Tile::Tile()
+Tile::Tile(int xpos, int ypos)
 {
+
+    mPosition.X = xpos;
+    mPosition.Y = ypos;
 
     mType = TILETYPE_SOLID;
     mHeight = 0;
@@ -884,7 +888,6 @@ Tile::~Tile()
 {
     clearGeometry();
 }
-
 
 int Tile::clearGeometry()
 {
