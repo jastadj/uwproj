@@ -350,6 +350,19 @@ void Game::mainLoop()
     */
 
 
+
+    //billboard test
+    /*
+    IBillboardSceneNode *mybillboard = m_SMgr->addBillboardSceneNode();
+    mybillboard->setPosition( vector3df(244.48,15,133.649));
+    mybillboard->setMaterialTexture(0, m_ObjectsTXT[0]);
+    mybillboard->setSize( dimension2d<f32>(2,2));
+    configBillboardSceneNode(mybillboard);
+    //mybillboard->setMaterialFlag(EMF_COLOR_MASK, true);
+    //mybillboard->setMaterialType(EMT_TRANSPARENT_ALPHA_CHANNEL);
+    */
+
+
     //dimension2du d = core::dimension2du(320, 200);
     //m_Driver->OnResize(d);
     // now irrlicht internally ajusted device's resolution, but active camera will not update its aspect ratio automatically (which is OK, because you may no need it), so if you want the camera to be OK after this resize, you need to write also something like:
@@ -465,6 +478,7 @@ void Game::mainLoop()
                     {
                         m_CameraPos = m_Camera->getPosition();
                         Tile *ttile = mLevels[m_CurrentLevel].getTile(int(m_CameraPos.Z)/UNIT_SCALE, int(m_CameraPos.X)/UNIT_SCALE);
+                        std::cout << "Camera Position : " << m_CameraPos.X << "," << m_CameraPos.Y << "," << m_CameraPos.Z << std::endl;
                         if(ttile != NULL)
                         {
                             ttile->printDebug();
@@ -1995,6 +2009,35 @@ bool Game::configMeshSceneNode(IMeshSceneNode *tnode)
 
     //automatic culling
     tnode->setAutomaticCulling(EAC_FRUSTUM_SPHERE ) ;
+
+    //texture repeating
+    tnode->getMaterial(0).getTextureMatrix(0).setScale(1);
+    tnode->getMaterial(0).TextureLayer->TextureWrapU = video::ETC_REPEAT;
+    tnode->getMaterial(0).TextureLayer->TextureWrapV = video::ETC_REPEAT;
+
+    //update
+    tnode->updateAbsolutePosition();
+
+    return true;
+}
+
+bool Game::configBillboardSceneNode(IBillboardSceneNode *tnode)
+{
+    if(tnode == NULL) return false;
+
+    //tnode->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
+    if(dbg_nolighting) tnode->setMaterialFlag(video::EMF_LIGHTING, false);
+    else tnode->setMaterialFlag(video::EMF_LIGHTING, true);
+    tnode->setMaterialFlag(video::EMF_BILINEAR_FILTER, false );
+    tnode->setMaterialFlag(video::EMF_TRILINEAR_FILTER, false );
+    tnode->setMaterialFlag(video::EMF_ANISOTROPIC_FILTER, false );
+
+    //automatic culling
+    tnode->setAutomaticCulling(EAC_FRUSTUM_SPHERE ) ;
+
+    //alpha
+    tnode->setMaterialFlag(EMF_COLOR_MASK, true);
+    tnode->setMaterialType(EMT_TRANSPARENT_ALPHA_CHANNEL);
 
     //texture repeating
     tnode->getMaterial(0).getTextureMatrix(0).setScale(1);

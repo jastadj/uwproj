@@ -198,6 +198,7 @@ public:
 
     //mesh stuff
     bool configMeshSceneNode(IMeshSceneNode *tnode);
+    bool configBillboardSceneNode(IBillboardSceneNode *tnode);
     bool registerForCollision(IMeshSceneNode *tnode);
 
     //world funcitons
