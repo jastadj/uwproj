@@ -98,7 +98,7 @@ private:
 
     //objects
     int mFirstObjectIndex;
-    std::vector<ObjectInstance*> m_Objects;
+    std::vector<ObjectInstance*> mObjects;
 
 public:
     Tile(int xpos, int ypos);
@@ -135,7 +135,7 @@ public:
     //objects
     bool addObject(ObjectInstance *tobj);
     //this is not safe, for temporary implementation
-    std::vector<ObjectInstance*> *getObjects() { return &m_Objects;}
+    std::vector<ObjectInstance*> *getObjects() { return &mObjects;}
 
     //debug
     void printDebug();

@@ -889,6 +889,14 @@ Tile::~Tile()
     clearGeometry();
 }
 
+bool Tile::addObject(ObjectInstance *tobj)
+{
+    if(tobj == NULL) return false;
+
+    mObjects.push_back(tobj);
+    return true;
+}
+
 int Tile::clearGeometry()
 {
     int meshcount = int(mMeshes.size());
@@ -964,6 +972,11 @@ void Tile::printDebug()
     std::cout << "UNK1 = " << getUnk1() << std::endl;
     std::cout << "UNK2 = " << getUnk2() << std::endl;
     std::cout << "\nMESHES : " << mMeshes.size() << std::endl;
-    std::cout << "FIRST OBJ INDEX : " << getFirstObjectIndex() << std::endl;
+    std::cout << "FIRST OBJ INDEX : " << std::hex << getFirstObjectIndex() << std::dec << std::endl;
+    std::cout << "OBJECTS : " << mObjects.size() << std::endl;
+    for(int i = 0; i < int(mObjects.size()); i++)
+    {
+        std::cout << "     " << i << ":" << mObjects[i]->getDescription() << std::endl;
+    }
 
 }

@@ -286,7 +286,7 @@ void Game::mainLoop()
 
     IGUIImage *myguiimage = m_GUIEnv->addImage(m_BitmapsTXT[2], position2d<s32>(0,0), true);
 
-    std::vector<ITexture*> *texturestotest = &m_ObjectsTXT;
+    std::vector<ITexture*> *texturestotest = &m_CursorsTXT;
     int texturestotestsize = int(texturestotest->size());
     int texturestotestindex = 0;
     IGUIImage *mymousecursor = m_GUIEnv->addImage( (*texturestotest)[texturestotestindex], position2d<s32>(0,0), true);
@@ -482,8 +482,6 @@ void Game::mainLoop()
                         if(ttile != NULL)
                         {
                             ttile->printDebug();
-
-                            std::cout << "First object index desc:" << (*mLevels[m_CurrentLevel].getObjectsMaster())[ttile->getFirstObjectIndex()]->getDescription() << std::endl;
                         }
                         else std::cout << "Current tile = NULL!\n";
                     }
@@ -1403,6 +1401,35 @@ int Game::loadLevel()
                 //temp mob dat
                 unsigned char mobdata[19];
                 readBin(&ifile, mobdata, 19);
+            }
+        }
+
+        //get master objects list
+        std::vector<ObjectInstance*> *objlist = mLevels.back().getObjectsMaster();
+
+        //add objects to tiles
+        for(int n = 0; n < TILE_ROWS; n++)
+        {
+            for(int p = 0; p < TILE_COLS; p++)
+            {
+                //get tile
+                Tile *ttile = mLevels.back().getTile(p, n);
+
+
+
+                //get first object index from tile
+                int objindex = ttile->getFirstObjectIndex();
+
+                //note : object 0 means empty, no objects on tile
+                //add each linked object to tile object list
+                while(objindex != 0)
+                {
+                    //retrieve object from master list
+                    ObjectInstance *tobj = (*objlist)[objindex];
+
+                    ttile->addObject(tobj);
+                    objindex = tobj->getNext();
+                }
             }
         }
 
