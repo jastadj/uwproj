@@ -34,10 +34,12 @@ public:
     void setDescription(std::string ndesc) { m_Description = ndesc;}
 };
 
-class ObjectInstance: public Object
+class ObjectInstance
 {
 private:
     Object *m_Ref;
+    IBillboardSceneNode *m_Billboard;
+
 
     //object flags
     int m_Flags;
@@ -62,8 +64,16 @@ public:
     ObjectInstance(Object *tobj);
     ~ObjectInstance();
 
+    //reference
     Object *getRef() { return m_Ref;}
+    int getID() { return m_Ref->getID();}
+    ITexture *getTexture() { return m_Ref->getTexture();}
     std::string getDescription() { return m_Ref->getDescription();}
+
+    //billboard
+    IBillboardSceneNode *getBillboard() { return m_Billboard;}
+    bool setBillboard(IBillboardSceneNode *tbb);
+
 
     //object flags
     int getFlags() { return m_Flags;}

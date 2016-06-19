@@ -926,6 +926,7 @@ void Tile::printDebug()
 {
 
     std::cout << "\nTILE INFO:\n";
+    std::cout << "POSITION : " << mPosition.X << "," << mPosition.Y << std::endl;
     std::cout << "TYPE : ";
     switch(getType())
     {
@@ -977,6 +978,8 @@ void Tile::printDebug()
     for(int i = 0; i < int(mObjects.size()); i++)
     {
         std::cout << "     " << i << ":" << mObjects[i]->getDescription() << std::endl;
+        //debug
+        mObjects[i]->printDebug();
     }
 
 }

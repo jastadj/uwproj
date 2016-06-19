@@ -135,7 +135,7 @@ public:
     //objects
     bool addObject(ObjectInstance *tobj);
     //this is not safe, for temporary implementation
-    std::vector<ObjectInstance*> *getObjects() { return &mObjects;}
+    std::vector<ObjectInstance*> getObjects() { return mObjects;}
 
     //debug
     void printDebug();

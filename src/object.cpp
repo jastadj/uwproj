@@ -32,6 +32,7 @@ Object::~Object()
 ObjectInstance::ObjectInstance(Object *tobj)
 {
     m_Ref = tobj;
+    m_Billboard = NULL;
 
     m_Position = vector3di(0,0,0);
     m_Angle = 0;
@@ -52,6 +53,14 @@ ObjectInstance::~ObjectInstance()
 
 }
 
+bool ObjectInstance::setBillboard(IBillboardSceneNode *tbb)
+{
+    if(tbb == NULL) return false;
+
+    m_Billboard = tbb;
+    return true;
+}
+
 void ObjectInstance::printDebug()
 {
     std::cout << "\nObject Instance:\n";
@@ -69,5 +78,11 @@ void ObjectInstance::printDebug()
     std::cout << "Next      : 0x" << std::hex << m_Next << std::dec << std::endl;
     std::cout << "\nOwner   : 0x" << std::hex << m_Owner << " (" << std::dec << m_Owner << ")\n";
     std::cout << "Quant/Special : " << m_Quantity << " (0x" << std::hex << m_Quantity << ")\n" << std::dec;
-
+    std::cout << "Billboard     : ";
+    if(m_Billboard == NULL) std::cout << "NULL\n";
+    else
+    {
+        vector3df bpos = m_Billboard->getPosition();
+        std::cout << bpos.X << "," << bpos.Y << "," << bpos.Z << std::endl;
+    }
 }

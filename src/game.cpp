@@ -495,6 +495,7 @@ void Game::mainLoop()
                         dbg_nolighting = !dbg_nolighting;
                         std::cout << "debug no lighting = " << dbg_nolighting << std::endl;
                         reconfigureAllLevelMeshes();
+                        reconfigureAllLevelObjects();
                     }
                     else if(m_Receiver.isKeyPressed(KEY_F5))
                     {
@@ -1412,23 +1413,31 @@ int Game::loadLevel()
         {
             for(int p = 0; p < TILE_COLS; p++)
             {
+
+                //for debug purposes, only process one tile
+
                 //get tile
                 Tile *ttile = mLevels.back().getTile(p, n);
-
-
 
                 //get first object index from tile
                 int objindex = ttile->getFirstObjectIndex();
 
                 //note : object 0 means empty, no objects on tile
                 //add each linked object to tile object list
-                while(objindex != 0)
+                while(objindex != 0 && i == m_CurrentLevel) // for now, only process current level
                 {
-                    //retrieve object from master list
-                    ObjectInstance *tobj = (*objlist)[objindex];
 
-                    ttile->addObject(tobj);
-                    objindex = tobj->getNext();
+                        //retrieve object from master list
+                        ObjectInstance *tobj = (*objlist)[objindex];
+
+                        //add object to tile objects list
+                        ttile->addObject(tobj);
+
+                        //update tile's object
+                        updateObject(tobj, ttile);
+
+                        //get next linked object
+                        objindex = tobj->getNext();
                 }
             }
         }
@@ -2052,7 +2061,7 @@ bool Game::configBillboardSceneNode(IBillboardSceneNode *tnode)
 {
     if(tnode == NULL) return false;
 
-    //tnode->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
+     //tnode->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
     if(dbg_nolighting) tnode->setMaterialFlag(video::EMF_LIGHTING, false);
     else tnode->setMaterialFlag(video::EMF_LIGHTING, true);
     tnode->setMaterialFlag(video::EMF_BILINEAR_FILTER, false );
@@ -2073,6 +2082,59 @@ bool Game::configBillboardSceneNode(IBillboardSceneNode *tnode)
 
     //update
     tnode->updateAbsolutePosition();
+
+    return true;
+}
+
+bool Game::updateObject(ObjectInstance *tobj, Tile *ttile)
+{
+    if(tobj == NULL) return false;
+
+    //get billboard object
+    IBillboardSceneNode *tbb = tobj->getBillboard();
+
+    //if tile is null, object is not on a tile, so if billboard is not null, drop it
+    if(ttile == NULL && tbb != NULL)
+    {
+        tbb->drop();
+        tbb = NULL;
+    }
+
+    //if billboard has not been created, but needs to be
+    if(tbb == NULL && ttile != NULL)
+    {
+        //create billboard node
+        //std::cout << "Creating billboard scene node...\n";
+        tbb = m_SMgr->addBillboardSceneNode();
+
+        //link billboard node to object
+        //std::cout << "Setting billboard scene node to object...\n";
+        tobj->setBillboard(tbb);
+
+        //set billboard texture to object id
+        //std::cout << "Setting billboards texture from object id...\n";
+        tbb->setMaterialTexture(0, tobj->getTexture());
+    }
+
+    //if billboard is not null
+    if(tbb != NULL)
+    {
+        vector2di tilepos = ttile->getPosition();
+        vector3di objpos = tobj->getPosition();
+
+        tbb->setSize(dimension2d<f32>(OBJECT_SCALE,OBJECT_SCALE) );
+
+        //configure billboard common settings
+        std::cout << "Configuring billboard node...\n";
+        configBillboardSceneNode(tbb);
+
+        const float conversion = float(UNIT_SCALE)/float(TILE_UNIT);
+
+        vector3df debugpos( (tilepos.Y*UNIT_SCALE) + conversion*float(TILE_UNIT-objpos.Y),
+                            ( float(objpos.Z) / TILE_UNIT)+(float(OBJECT_SCALE)/2),
+                            (tilepos.X*UNIT_SCALE) + conversion*float(objpos.X) );
+        tbb->setPosition( debugpos);
+    }
 
     return true;
 }
@@ -2247,3 +2309,21 @@ void Game::reconfigureAllLevelMeshes()
     std::cout << "done.\n";
 }
 
+void Game::reconfigureAllLevelObjects()
+{
+    std::cout << "Reconfiguring all level objects...\n";
+    for(int i = 0; i < TILE_ROWS; i++)
+    {
+        for(int n = 0; n < TILE_COLS; n++)
+        {
+            Tile *ttile = mLevels[m_CurrentLevel].getTile(n,i);
+
+            std::vector<ObjectInstance*> objs = ttile->getObjects();
+
+            for(int k = 0; k < int(objs.size()); k++)
+            {
+                updateObject(objs[k], ttile);
+            }
+        }
+    }
+}

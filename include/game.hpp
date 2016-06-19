@@ -15,6 +15,7 @@
 #define TRANSPARENCY_COLOR 0,255,0,255
 #define FULLSCREEN 0
 #define SCREEN_SCALE 4
+#define OBJECT_SCALE 1
 #define SCREEN_WIDTH 320*SCREEN_SCALE
 #define SCREEN_HEIGHT 200*SCREEN_SCALE
 #define SCREEN_WORLD_POS_X 50*SCREEN_SCALE
@@ -184,6 +185,7 @@ private:
     bool dbg_noclip;
     bool dbg_nolighting;
     void reconfigureAllLevelMeshes();
+    void reconfigureAllLevelObjects();
 
 public:
     static Game *getInstance()
@@ -208,6 +210,9 @@ public:
     const std::vector<ITexture*> *getWall64Textures() const { return &m_Wall64TXT;}
     const std::vector<ITexture*> *getFloor32Textures() const { return &m_Floor32TXT;}
     ITexture *getDefaultTexture() { return m_QuestionTXT[0];}
+
+    //objects
+    bool updateObject(ObjectInstance *tobj, Tile *ttile);
 
     //strings
     std::string getDefaultString() { return "no string";}
