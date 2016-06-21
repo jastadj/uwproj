@@ -136,6 +136,7 @@ private:
 
     //mouse
     vector2di m_MousePos;
+    line3d<f32> m_CameraMouseRay;
 
     //mesh stuff
     SMesh *getCubeMesh(f32 cubesize);

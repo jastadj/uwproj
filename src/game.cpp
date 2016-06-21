@@ -529,6 +529,10 @@ void Game::mainLoop()
                     mouseLeftClicked = true;
 
                     std::cout << "mouse clicked @" << m_MousePos.X << "," << m_MousePos.Y << std::endl;
+
+                    m_CameraMouseRay = m_SMgr->getSceneCollisionManager()->getRayFromScreenCoordinates(m_MousePos, m_Camera);
+                    std::cout << "clickray:" << m_CameraMouseRay.start.X << "," << m_CameraMouseRay.start.Y << "," << m_CameraMouseRay.start.Z << "  -  " <<
+                                                m_CameraMouseRay.end.X << "," << m_CameraMouseRay.end.Y << "," << m_CameraMouseRay.end.Z << std::endl;
                 }
                 //else right mouse button pressed
                 else if(event->MouseInput.Event == EMIE_RMOUSE_PRESSED_DOWN)
@@ -611,6 +615,8 @@ void Game::mainLoop()
         //draw scene
         m_SMgr->drawAll();
 
+
+
         //draw axis
         if(drawaxis)
         {
@@ -621,6 +627,9 @@ void Game::mainLoop()
             m_Driver->draw3DLine(vector3df(0,0,0), vector3df(0,0,100), SColor(255,0,0,255)); // z-axis blue
             m_Driver->draw3DLine(vector3df(0,0,0), vector3df(100,0,0), SColor(255,255,0,0)); // x-axis red
             m_Driver->draw3DLine(vector3df(0,0,0), vector3df(0,100,0), SColor(255,000,255,0)); // y-axis green
+
+            //draw 3d line from camera to mouse click
+            m_Driver->draw3DLine(m_CameraMouseRay.start, m_CameraMouseRay.end, SColor(255,255,0,0));
         }
 
 
