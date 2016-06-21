@@ -530,9 +530,15 @@ void Game::mainLoop()
 
                     std::cout << "mouse clicked @" << m_MousePos.X << "," << m_MousePos.Y << std::endl;
 
-                    m_CameraMouseRay = m_SMgr->getSceneCollisionManager()->getRayFromScreenCoordinates(m_MousePos, m_Camera);
-                    std::cout << "clickray:" << m_CameraMouseRay.start.X << "," << m_CameraMouseRay.start.Y << "," << m_CameraMouseRay.start.Z << "  -  " <<
-                                                m_CameraMouseRay.end.X << "," << m_CameraMouseRay.end.Y << "," << m_CameraMouseRay.end.Z << std::endl;
+                    //if mouse was clicked within world view
+                    if(m_MousePos.X > SCREEN_WORLD_POS_X && m_MousePos.X < (SCREEN_WORLD_POS_X + SCREEN_WORLD_WIDTH) &&
+                       m_MousePos.Y > SCREEN_WORLD_POS_Y && m_MousePos.Y < (SCREEN_WORLD_POS_Y + SCREEN_WORLD_HEIGHT))
+                    {
+                        m_CameraMouseRay = m_SMgr->getSceneCollisionManager()->getRayFromScreenCoordinates(m_MousePos, m_Camera);
+                        std::cout << "clickray:" << m_CameraMouseRay.start.X << "," << m_CameraMouseRay.start.Y << "," << m_CameraMouseRay.start.Z << "  -  " <<
+                                                    m_CameraMouseRay.end.X << "," << m_CameraMouseRay.end.Y << "," << m_CameraMouseRay.end.Z << std::endl;
+                    }
+
                 }
                 //else right mouse button pressed
                 else if(event->MouseInput.Event == EMIE_RMOUSE_PRESSED_DOWN)
