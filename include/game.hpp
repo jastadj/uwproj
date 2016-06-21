@@ -184,6 +184,7 @@ private:
     //debug
     bool dbg_noclip;
     bool dbg_nolighting;
+    bool dbg_showboundingbox;
     void reconfigureAllLevelMeshes();
     void reconfigureAllLevelObjects();
 

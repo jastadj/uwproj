@@ -649,7 +649,7 @@ SMesh *Level::generateFloorMesh(int ul, int ur, int br, int bl)
     for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
     //mesh->setBoundingBox( aabbox3df(0,ul*scale-CEIL_HEIGHT,0,1*UNIT_SCALE,br*scale,1*UNIT_SCALE));
     //mesh->setBoundingBox( aabbox3df(0,0,0,1*UNIT_SCALE,1*UNIT_SCALE,1*UNIT_SCALE));
-    mesh->setBoundingBox( aabbox3df(0,-1,0,1*UNIT_SCALE,1,1*UNIT_SCALE));
+    mesh->setBoundingBox( aabbox3df(0,0,0,1*UNIT_SCALE,0,1*UNIT_SCALE));
     buf->recalculateBoundingBox();
 
     return mesh;

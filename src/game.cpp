@@ -16,6 +16,7 @@ Game::Game()
 
     dbg_noclip = false;
     dbg_nolighting = false;
+    dbg_showboundingbox = false;
 
     //debug
 #ifdef DEBUG
@@ -494,6 +495,13 @@ void Game::mainLoop()
                     {
                         dbg_nolighting = !dbg_nolighting;
                         std::cout << "debug no lighting = " << dbg_nolighting << std::endl;
+                        reconfigureAllLevelMeshes();
+                        reconfigureAllLevelObjects();
+                    }
+                    else if(m_Receiver.isKeyPressed(KEY_F4))
+                    {
+                        dbg_showboundingbox = !dbg_showboundingbox;
+                        std::cout << "debug show bounding box = " << dbg_showboundingbox << std::endl;
                         reconfigureAllLevelMeshes();
                         reconfigureAllLevelObjects();
                     }
@@ -2046,6 +2054,10 @@ bool Game::configMeshSceneNode(IMeshSceneNode *tnode)
     //automatic culling
     tnode->setAutomaticCulling(EAC_FRUSTUM_SPHERE ) ;
 
+    //show bounding box debug data
+    if(dbg_showboundingbox) tnode->setDebugDataVisible(EDS_BBOX);
+    else tnode->setDebugDataVisible(EDS_OFF);
+
     //texture repeating
     tnode->getMaterial(0).getTextureMatrix(0).setScale(1);
     tnode->getMaterial(0).TextureLayer->TextureWrapU = video::ETC_REPEAT;
@@ -2074,6 +2086,10 @@ bool Game::configBillboardSceneNode(IBillboardSceneNode *tnode)
     //alpha
     tnode->setMaterialFlag(EMF_COLOR_MASK, true);
     tnode->setMaterialType(EMT_TRANSPARENT_ALPHA_CHANNEL);
+
+    //show bounding box debug data
+    if(dbg_showboundingbox) tnode->setDebugDataVisible(EDS_BBOX);
+    else tnode->setDebugDataVisible(EDS_OFF);
 
     //texture repeating
     tnode->getMaterial(0).getTextureMatrix(0).setScale(1);
