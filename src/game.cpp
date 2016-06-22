@@ -544,8 +544,8 @@ void Game::mainLoop()
                            m_MousePos.Y >= SCREEN_WORLD_POS_Y && m_MousePos.Y <= (SCREEN_WORLD_POS_Y + SCREEN_WORLD_HEIGHT))
                         {
                             vector2di mousePosConverted = m_MousePos;
-                            mousePosConverted.X = (m_MousePos.X-SCREEN_WORLD_POS_X)*(SCREEN_WIDTH / SCREEN_WORLD_WIDTH);
-                            mousePosConverted.Y = (m_MousePos.Y-SCREEN_WORLD_POS_Y)*(SCREEN_HEIGHT / SCREEN_WORLD_HEIGHT);
+                            mousePosConverted.X = float(m_MousePos.X-SCREEN_WORLD_POS_X) / (float(SCREEN_WORLD_WIDTH) / float(SCREEN_WIDTH));
+                            mousePosConverted.Y = float(m_MousePos.Y-SCREEN_WORLD_POS_Y) / (float(SCREEN_WORLD_HEIGHT) / float(SCREEN_HEIGHT));
 
                             std::cout << "screen width = " << SCREEN_WIDTH << std::endl;
                             std::cout << "screen height = " << SCREEN_HEIGHT << std::endl;
