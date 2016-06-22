@@ -22,7 +22,6 @@
 #define SCREEN_WORLD_POS_Y 18*SCREEN_SCALE
 #define SCREEN_WORLD_WIDTH 175*SCREEN_SCALE
 #define SCREEN_WORLD_HEIGHT 114*SCREEN_SCALE
-#define SHOW_MAIN_UI 1
 #define UNIT_SCALE 4
 #define TILE_UNIT 8
 #define GRAVITY_ACCEL 0.001
@@ -186,6 +185,7 @@ private:
     bool dbg_noclip;
     bool dbg_nolighting;
     bool dbg_showboundingbox;
+    bool dbg_showmainui;
     void reconfigureAllLevelMeshes();
     void reconfigureAllLevelObjects();
 

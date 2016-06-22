@@ -17,6 +17,7 @@ Game::Game()
     dbg_noclip = false;
     dbg_nolighting = false;
     dbg_showboundingbox = false;
+    dbg_showmainui = true;
 
     //debug
 #ifdef DEBUG
@@ -510,6 +511,11 @@ void Game::mainLoop()
                         m_CameraPos = m_Camera->getPosition();
                         std::cout << "CAMERA_POS:" << m_CameraPos.X << "," << m_CameraPos.Y << "," << m_CameraPos.Z << std::endl;
                     }
+                    else if(m_Receiver.isKeyPressed(KEY_F6))
+                    {
+                        dbg_showmainui = !dbg_showmainui;
+                        std::cout << "show main ui = " << dbg_showmainui << std::endl;
+                    }
 
                 }
                 //key released
@@ -531,7 +537,8 @@ void Game::mainLoop()
                     std::cout << "mouse clicked @" << m_MousePos.X << "," << m_MousePos.Y << std::endl;
 
                     //if mouse was clicked within world view
-                    if(SHOW_MAIN_UI)
+                    //if main ui is displayed
+                    if(dbg_showmainui)
                     {
                         if(m_MousePos.X >= SCREEN_WORLD_POS_X && m_MousePos.X <= (SCREEN_WORLD_POS_X + SCREEN_WORLD_WIDTH) &&
                            m_MousePos.Y >= SCREEN_WORLD_POS_Y && m_MousePos.Y <= (SCREEN_WORLD_POS_Y + SCREEN_WORLD_HEIGHT))
@@ -553,6 +560,7 @@ void Game::mainLoop()
                                                         m_CameraMouseRay.end.X << "," << m_CameraMouseRay.end.Y << "," << m_CameraMouseRay.end.Z << std::endl;
                         }
                     }
+                    //no main ui, world view is full screen
                     else
                     {
 
@@ -608,7 +616,7 @@ void Game::mainLoop()
         //clear scene
         m_Driver->beginScene(true, true, SColor(255,0,0,0));
         //set 3d view position and size
-        if(SHOW_MAIN_UI) m_Driver->setViewPort(rect<s32>(SCREEN_WORLD_POS_X, SCREEN_WORLD_POS_Y, SCREEN_WORLD_POS_X + SCREEN_WORLD_WIDTH, SCREEN_WORLD_POS_Y + SCREEN_WORLD_HEIGHT));
+        if(dbg_showmainui) m_Driver->setViewPort(rect<s32>(SCREEN_WORLD_POS_X, SCREEN_WORLD_POS_Y, SCREEN_WORLD_POS_X + SCREEN_WORLD_WIDTH, SCREEN_WORLD_POS_Y + SCREEN_WORLD_HEIGHT));
 
         /*
         //current floor plane
@@ -671,7 +679,7 @@ void Game::mainLoop()
 
 
         //draw gui
-        if(SHOW_MAIN_UI)
+        if(dbg_showmainui)
         {
             m_Driver->setViewPort(rect<s32>(0,0,SCREEN_WIDTH, SCREEN_HEIGHT));
 
