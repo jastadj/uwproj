@@ -2140,7 +2140,27 @@ bool Game::configMeshSceneNode(IMeshSceneNode *tnode)
     //update
     tnode->updateAbsolutePosition();
 
-    //registerForCollision(tnode);
+    //register collision stuff
+    if(CONFIG_FOR_COLLISION)
+    {
+        if(tnode->getTriangleSelector() != NULL)
+        {
+            std::cout << "node already has triangle selector.\n";
+        }
+
+        if(USE_OCTREE)
+        {
+            m_TriangleSelector = m_SMgr->createOctreeTriangleSelector(tnode->getMesh(), tnode,128);
+            tnode->setTriangleSelector(m_TriangleSelector);
+            m_TriangleSelector->drop();
+        }
+        else
+        {
+            m_TriangleSelector = m_SMgr->createTriangleSelector(tnode->getMesh(), tnode);
+            tnode->setTriangleSelector(m_TriangleSelector);
+            m_TriangleSelector->drop();
+        }
+    }
 
     return true;
 }
@@ -2174,6 +2194,9 @@ bool Game::configBillboardSceneNode(IBillboardSceneNode *tnode)
 
     //update
     tnode->updateAbsolutePosition();
+
+    //register collision stuff
+    //if(CONFIG_FOR_COLLISION) configureForCollision(tnode);
 
     return true;
 }
@@ -2231,24 +2254,6 @@ bool Game::updateObject(ObjectInstance *tobj, Tile *ttile)
     return true;
 }
 
-bool Game::registerForCollision(IMeshSceneNode *tnode)
-{
-    if(tnode == NULL) return false;
-
-    if(tnode->getTriangleSelector() != NULL)
-    {
-        std::cout << "node already has triangle selector. returning false\n";
-        return false;
-    }
-
-    m_TriangleSelector = m_SMgr->createTriangleSelector(tnode->getMesh(), tnode);
-    tnode->setTriangleSelector(m_TriangleSelector);
-    m_TriangleSelector->drop();
-
-    tnode->setTriangleSelector(NULL);
-
-    return true;
-}
 
 SMesh *Game::getCubeMesh(f32 cubesize)
 {

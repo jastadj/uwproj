@@ -14,7 +14,8 @@
 
 #define TRANSPARENCY_COLOR 0,255,0,255
 #define FULLSCREEN 0
-#define USE_OCTREE 0
+#define USE_OCTREE 1
+#define CONFIG_FOR_COLLISION 1
 #define SCREEN_SCALE 4
 #define OBJECT_SCALE 1
 #define SCREEN_WIDTH 320*SCREEN_SCALE
@@ -205,7 +206,6 @@ public:
     //mesh stuff
     bool configMeshSceneNode(IMeshSceneNode *tnode);
     bool configBillboardSceneNode(IBillboardSceneNode *tnode);
-    bool registerForCollision(IMeshSceneNode *tnode);
 
     //world funcitons
     bool processCollision(vector3df *pos, vector3df *vel);
