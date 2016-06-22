@@ -159,13 +159,14 @@ int Game::initIrrlicht()
     //get gui environment
     m_GUIEnv = m_Device->getGUIEnvironment();
     //get collision manager
-    m_IMgr = m_SMgr->getSceneCollisionManager();
+    m_ColMgr = m_SMgr->getSceneCollisionManager();
 
     //draw screen
     m_Driver->endScene();
 
     //create meta triangle selector
     m_MetaTriangleSelector = m_SMgr->createMetaTriangleSelector();
+    m_TriangleSelector = NULL;
 
     //init frame delta time
     frameDeltaTime = 1.f;
@@ -577,6 +578,25 @@ void Game::mainLoop()
 
                     }
 
+
+                    //check ray collision
+                    vector3df intersection;
+                    triangle3df triangle;
+                    ISceneNode *selectedSceneNode = m_SMgr->getSceneCollisionManager()->getSceneNodeAndCollisionPointFromRay(m_CameraMouseRay, intersection, triangle, 0);
+                    /*
+                                        ray,
+                                        intersection, // This will be the position of the collision
+                                        hitTriangle, // This will be the triangle hit in the collision
+                                        IDFlag_IsPickable, // This ensures that only nodes that we have
+                                                // set up to be pickable are considered
+                                        0); // Check the entire scene (this is actually the implicit default)
+                    */
+                    if(selectedSceneNode != NULL)
+                    {
+                        std::cout << "mouse ray hit something\n";
+                        selectedSceneNode->setVisible(false);
+                    }
+                    else std::cout << "mouse ray did not hit anything\n";
 
                 }
                 //else right mouse button pressed
@@ -2120,6 +2140,8 @@ bool Game::configMeshSceneNode(IMeshSceneNode *tnode)
     //update
     tnode->updateAbsolutePosition();
 
+    //registerForCollision(tnode);
+
     return true;
 }
 
@@ -2211,28 +2233,19 @@ bool Game::updateObject(ObjectInstance *tobj, Tile *ttile)
 
 bool Game::registerForCollision(IMeshSceneNode *tnode)
 {
-    //register collision stuff
-    ITriangleSelector *selector = m_SMgr->createOctreeTriangleSelector(tnode->getMesh(), tnode);
-    tnode->setTriangleSelector(selector);
+    if(tnode == NULL) return false;
 
-    //calculate collision response elipsoid
-    //const aabbox3d<f32>& mybbox = tnode->getBoundingBox();
-    //vector3df mybboxradius = mybbox.MaxEdge - mybbox.getCenter();
+    if(tnode->getTriangleSelector() != NULL)
+    {
+        std::cout << "node already has triangle selector. returning false\n";
+        return false;
+    }
 
-    //add triangle to meta selector
-    m_MetaTriangleSelector->addTriangleSelector(selector);
+    m_TriangleSelector = m_SMgr->createTriangleSelector(tnode->getMesh(), tnode);
+    tnode->setTriangleSelector(m_TriangleSelector);
+    m_TriangleSelector->drop();
 
-    //drop selector no longer needed and add animator to camera
-    selector->drop();
-
-/*
-    //create collision response between meta selector and camera
-    ISceneNodeAnimator* anim = m_SMgr->createCollisionResponseAnimator(m_MetaTriangleSelector, m_Camera, mybboxradius,vector3df(0,GRAVITY,0));
-
-    m_Camera->addAnimator(anim);
-    //animator no longer needed, drop it
-    anim->drop();
-*/
+    tnode->setTriangleSelector(NULL);
 
     return true;
 }

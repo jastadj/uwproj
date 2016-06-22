@@ -14,6 +14,7 @@
 
 #define TRANSPARENCY_COLOR 0,255,0,255
 #define FULLSCREEN 0
+#define USE_OCTREE 0
 #define SCREEN_SCALE 4
 #define OBJECT_SCALE 1
 #define SCREEN_WIDTH 320*SCREEN_SCALE
@@ -118,10 +119,11 @@ private:
     IrrlichtDevice *m_Device;
     IVideoDriver *m_Driver;
     ISceneManager *m_SMgr;
-    ISceneCollisionManager *m_IMgr;
+    ISceneCollisionManager *m_ColMgr;
     IGUIEnvironment *m_GUIEnv;
     MyEventReceiver m_Receiver;
     IMetaTriangleSelector *m_MetaTriangleSelector;
+    ITriangleSelector *m_TriangleSelector;
     f32 frameDeltaTime;
 
     //camera

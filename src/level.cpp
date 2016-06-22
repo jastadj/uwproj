@@ -381,7 +381,9 @@ bool Level::buildTileGeometry(int x, int y)
     if(floormesh != NULL)
     {
         //create mesh in scene
-        IMeshSceneNode *tnode = m_SMgr->addOctreeSceneNode(floormesh);
+        IMeshSceneNode *tnode = NULL;
+        if(USE_OCTREE) tnode = m_SMgr->addOctreeSceneNode(floormesh);
+        else tnode = m_SMgr->addMeshSceneNode(floormesh);
 
         //orient mesh depending on type
         switch(ttype)
@@ -424,8 +426,12 @@ bool Level::buildTileGeometry(int x, int y)
     SMesh *ceilmesh = NULL;
         //generate mesh
         ceilmesh = generateFloorMesh(0,0,0,0);
-        //create scene node
-        IMeshSceneNode *cnode = m_SMgr->addOctreeSceneNode(ceilmesh);
+
+        //create mesh in scene
+        IMeshSceneNode *cnode = NULL;
+        if(USE_OCTREE) cnode = m_SMgr->addOctreeSceneNode(ceilmesh);
+        else cnode = m_SMgr->addMeshSceneNode(ceilmesh);
+
         //rotate ceiling to face down and position ceiling to top of level height
         cnode->setRotation(vector3df(0,0,180));
         cnode->setPosition(vector3df(y*UNIT_SCALE+UNIT_SCALE, CEIL_HEIGHT+1, x*UNIT_SCALE));
@@ -449,8 +455,10 @@ bool Level::buildTileGeometry(int x, int y)
 
         if(dwallmesh != NULL)
         {
-            //create scene node
-            IMeshSceneNode *tnode = m_SMgr->addOctreeSceneNode(dwallmesh);
+            //create mesh in scene
+            IMeshSceneNode *tnode = NULL;
+            if(USE_OCTREE) tnode = m_SMgr->addOctreeSceneNode(dwallmesh);
+            else tnode = m_SMgr->addMeshSceneNode(dwallmesh);
 
             //orient scene node
             switch(ttype)
@@ -495,8 +503,10 @@ bool Level::buildTileGeometry(int x, int y)
             //if a valid wall mesh was generated
             if(wallmesh != NULL)
             {
-                //create scene node
-                IMeshSceneNode *tnode = m_SMgr->addOctreeSceneNode(wallmesh);
+                //create mesh in scene
+                IMeshSceneNode *tnode = NULL;
+                if(USE_OCTREE) tnode = m_SMgr->addOctreeSceneNode(wallmesh);
+                else tnode = m_SMgr->addMeshSceneNode(wallmesh);
 
                 //orient scene node
                 tnode->setPosition( vector3df( y*UNIT_SCALE,0, x*UNIT_SCALE ) );
@@ -521,8 +531,10 @@ bool Level::buildTileGeometry(int x, int y)
             //if a valid wall mesh was generated
             if(wallmesh != NULL)
             {
-                //create scene node
-                IMeshSceneNode *tnode = m_SMgr->addOctreeSceneNode(wallmesh);
+                //create mesh in scene
+                IMeshSceneNode *tnode = NULL;
+                if(USE_OCTREE) tnode = m_SMgr->addOctreeSceneNode(wallmesh);
+                else tnode = m_SMgr->addMeshSceneNode(wallmesh);
 
                 //orient scene node
                 tnode->setPosition( vector3df( y*UNIT_SCALE+UNIT_SCALE,0, x*UNIT_SCALE+UNIT_SCALE ) );
@@ -547,8 +559,10 @@ bool Level::buildTileGeometry(int x, int y)
             //if a valid wall mesh was generated
             if(wallmesh != NULL)
             {
-                //create scene node
-                IMeshSceneNode *tnode = m_SMgr->addOctreeSceneNode(wallmesh);
+                //create mesh in scene
+                IMeshSceneNode *tnode = NULL;
+                if(USE_OCTREE) tnode = m_SMgr->addOctreeSceneNode(wallmesh);
+                else tnode = m_SMgr->addMeshSceneNode(wallmesh);
 
                 //orient scene node
                 tnode->setPosition( vector3df( y*UNIT_SCALE+UNIT_SCALE,0, x*UNIT_SCALE ) );
@@ -573,8 +587,10 @@ bool Level::buildTileGeometry(int x, int y)
             //if a valid wall mesh was generated
             if(wallmesh != NULL)
             {
-                //create scene node
-                IMeshSceneNode *tnode = m_SMgr->addOctreeSceneNode(wallmesh);
+                //create mesh in scene
+                IMeshSceneNode *tnode = NULL;
+                if(USE_OCTREE) tnode = m_SMgr->addOctreeSceneNode(wallmesh);
+                else tnode = m_SMgr->addMeshSceneNode(wallmesh);
 
                 //orient scene node
                 tnode->setPosition( vector3df( y*UNIT_SCALE,0, x*UNIT_SCALE+UNIT_SCALE ) );
@@ -602,7 +618,7 @@ bool Level::buildTileGeometry(int x, int y)
         gptr->configMeshSceneNode(tnode);
 
         //register collision stuff
-        //gptr->registerForCollision(tnode);
+        gptr->registerForCollision(tnode);
 
         //add scene node reference to tile
         ttile->addMesh(tnode);
