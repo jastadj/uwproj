@@ -531,12 +531,30 @@ void Game::mainLoop()
                     std::cout << "mouse clicked @" << m_MousePos.X << "," << m_MousePos.Y << std::endl;
 
                     //if mouse was clicked within world view
-                    if(m_MousePos.X >= SCREEN_WORLD_POS_X && m_MousePos.X <= (SCREEN_WORLD_POS_X + SCREEN_WORLD_WIDTH) &&
-                       m_MousePos.Y >= SCREEN_WORLD_POS_Y && m_MousePos.Y <= (SCREEN_WORLD_POS_Y + SCREEN_WORLD_HEIGHT))
+                    if(SHOW_MAIN_UI)
                     {
-                        vector2di mousePosConverted = m_MousePos;
-                        mousePosConverted.X = (m_MousePos.X-SCREEN_WORLD_POS_X)*(SCREEN_WIDTH / SCREEN_WORLD_WIDTH);
-                        mousePosConverted.Y = (m_MousePos.Y-SCREEN_WORLD_POS_Y)*(SCREEN_HEIGHT / SCREEN_WORLD_HEIGHT);
+                        if(m_MousePos.X >= SCREEN_WORLD_POS_X && m_MousePos.X <= (SCREEN_WORLD_POS_X + SCREEN_WORLD_WIDTH) &&
+                           m_MousePos.Y >= SCREEN_WORLD_POS_Y && m_MousePos.Y <= (SCREEN_WORLD_POS_Y + SCREEN_WORLD_HEIGHT))
+                        {
+                            vector2di mousePosConverted = m_MousePos;
+                            mousePosConverted.X = (m_MousePos.X-SCREEN_WORLD_POS_X)*(SCREEN_WIDTH / SCREEN_WORLD_WIDTH);
+                            mousePosConverted.Y = (m_MousePos.Y-SCREEN_WORLD_POS_Y)*(SCREEN_HEIGHT / SCREEN_WORLD_HEIGHT);
+
+                            std::cout << "screen width = " << SCREEN_WIDTH << std::endl;
+                            std::cout << "screen height = " << SCREEN_HEIGHT << std::endl;
+                            std::cout << "world pos x = " << SCREEN_WORLD_POS_X << std::endl;
+                            std::cout << "world pos y = " << SCREEN_WORLD_POS_Y << std::endl;
+                            std::cout << "world width = " << SCREEN_WORLD_WIDTH << std::endl;
+                            std::cout << "world height = " << SCREEN_WORLD_HEIGHT << std::endl;
+                            std::cout << "mouse clicked converted @" << mousePosConverted.X << "," << mousePosConverted.Y << std::endl;
+
+                            m_CameraMouseRay = m_SMgr->getSceneCollisionManager()->getRayFromScreenCoordinates(mousePosConverted, m_Camera);
+                            std::cout << "clickray:" << m_CameraMouseRay.start.X << "," << m_CameraMouseRay.start.Y << "," << m_CameraMouseRay.start.Z << "  -  " <<
+                                                        m_CameraMouseRay.end.X << "," << m_CameraMouseRay.end.Y << "," << m_CameraMouseRay.end.Z << std::endl;
+                        }
+                    }
+                    else
+                    {
 
                         std::cout << "screen width = " << SCREEN_WIDTH << std::endl;
                         std::cout << "screen height = " << SCREEN_HEIGHT << std::endl;
@@ -544,12 +562,13 @@ void Game::mainLoop()
                         std::cout << "world pos y = " << SCREEN_WORLD_POS_Y << std::endl;
                         std::cout << "world width = " << SCREEN_WORLD_WIDTH << std::endl;
                         std::cout << "world height = " << SCREEN_WORLD_HEIGHT << std::endl;
-                        std::cout << "mouse clicked converted @" << mousePosConverted.X << "," << mousePosConverted.Y << std::endl;
 
-                        m_CameraMouseRay = m_SMgr->getSceneCollisionManager()->getRayFromScreenCoordinates(mousePosConverted, m_Camera);
+                        m_CameraMouseRay = m_SMgr->getSceneCollisionManager()->getRayFromScreenCoordinates(m_MousePos, m_Camera);
                         std::cout << "clickray:" << m_CameraMouseRay.start.X << "," << m_CameraMouseRay.start.Y << "," << m_CameraMouseRay.start.Z << "  -  " <<
                                                     m_CameraMouseRay.end.X << "," << m_CameraMouseRay.end.Y << "," << m_CameraMouseRay.end.Z << std::endl;
+
                     }
+
 
                 }
                 //else right mouse button pressed
