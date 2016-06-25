@@ -11,6 +11,7 @@
 
 #include "level.hpp"
 #include "object.hpp"
+#include "font.hpp"
 
 #define DEBUG_NO_START 0
 #define TRANSPARENCY_COLOR 0,255,0,255
@@ -156,7 +157,7 @@ private:
     int loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist);
     int loadTexture(std::string tfilename, std::vector<ITexture*> *tlist);
     int loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int tpalindex);
-    int loadFont(std::string tfilename, std::vector<ITexture*> *tlist);
+    int loadFont(std::string tfilename, UWFont *font);
     int initObjects();
 
 
@@ -179,7 +180,7 @@ private:
     std::vector<ITexture*> m_QuestionTXT;
 
     //fonts
-    std::vector<ITexture*> m_FontNormalTXT;
+    UWFont m_FontNormal;
 
     //strings
     std::vector<stringBlock> m_StringBlocks;
