@@ -48,12 +48,12 @@ enum
 
     // I use this flag in ISceneNode IDs to indicate that the
     // scene node can be picked by ray selection.
-    ID_IsPickable = 1 << 0,
+    ID_IsMap = 1 << 0,
 
     // I use this flag in ISceneNode IDs to indicate that the
     // scene node can be highlighted.  In this example, the
     // homonids can be highlighted, but the level mesh can't.
-    ID_IsHighlightable = 1 << 1
+    ID_IsObject = 1 << 1
 };
 
 struct stringBlock

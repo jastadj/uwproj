@@ -1,6 +1,7 @@
 #include "level.hpp"
 
 #include <iostream>
+#include <sstream>
 
 #include "game.hpp"
 
@@ -80,6 +81,15 @@ bool Level::buildTileGeometry(int x, int y)
 
     //container for nodes
     std::vector<IMeshSceneNode*> scenenodelist;
+
+    //create strings to identify nodes for walls, ceil, floor
+    std::stringstream tilenamess;
+    tilenamess << "TILE_" << y*TILE_ROWS + x;
+    std::string wallname = tilenamess.str() + "_W";
+    std::string ceilname = tilenamess.str() + "_C";
+    std::string floorname = tilenamess.str() + "_F";
+
+
 
     //adjacent tiles
     Tile *tilenorth = NULL;
@@ -412,7 +422,7 @@ bool Level::buildTileGeometry(int x, int y)
         //set floor texture and abs position
         tnode->setMaterialTexture(0, (*f32txt)[ttile->getFloorTXT()]);
 
-        //gptr->registerForCollision(tnode);
+        tnode->setName(floorname.c_str());
 
         //add mesh and node to list
         scenenodelist.push_back(tnode);
@@ -432,10 +442,13 @@ bool Level::buildTileGeometry(int x, int y)
         if(USE_OCTREE) cnode = m_SMgr->addOctreeSceneNode(ceilmesh);
         else cnode = m_SMgr->addMeshSceneNode(ceilmesh);
 
+        cnode->setName(ceilname.c_str());
+
         //rotate ceiling to face down and position ceiling to top of level height
         cnode->setRotation(vector3df(0,0,180));
         cnode->setPosition(vector3df(y*UNIT_SCALE+UNIT_SCALE, CEIL_HEIGHT+1, x*UNIT_SCALE));
         cnode->setMaterialTexture(0, (*f32txt)[m_CeilingTextureIndex]); // note, ceiling is always 10th floor texture?
+
         //add node to tile node list
         scenenodelist.push_back(cnode);
     //drop ceiling mesh
@@ -485,6 +498,8 @@ bool Level::buildTileGeometry(int x, int y)
             //set wall texture (common for all walls of tile)
             tnode->setMaterialTexture(0, (*w64txt)[ttile->getWallTXT()]);
 
+            tnode->setName(wallname.c_str());
+
             //add mesh and node to list
             scenenodelist.push_back(tnode);
 
@@ -507,6 +522,8 @@ bool Level::buildTileGeometry(int x, int y)
                 IMeshSceneNode *tnode = NULL;
                 if(USE_OCTREE) tnode = m_SMgr->addOctreeSceneNode(wallmesh);
                 else tnode = m_SMgr->addMeshSceneNode(wallmesh);
+
+                tnode->setName(wallname.c_str());
 
                 //orient scene node
                 tnode->setPosition( vector3df( y*UNIT_SCALE,0, x*UNIT_SCALE ) );
@@ -536,6 +553,8 @@ bool Level::buildTileGeometry(int x, int y)
                 if(USE_OCTREE) tnode = m_SMgr->addOctreeSceneNode(wallmesh);
                 else tnode = m_SMgr->addMeshSceneNode(wallmesh);
 
+                tnode->setName(wallname.c_str());
+
                 //orient scene node
                 tnode->setPosition( vector3df( y*UNIT_SCALE+UNIT_SCALE,0, x*UNIT_SCALE+UNIT_SCALE ) );
                 tnode->setRotation( vector3df(0,180,0) );
@@ -564,6 +583,8 @@ bool Level::buildTileGeometry(int x, int y)
                 if(USE_OCTREE) tnode = m_SMgr->addOctreeSceneNode(wallmesh);
                 else tnode = m_SMgr->addMeshSceneNode(wallmesh);
 
+                tnode->setName(wallname.c_str());
+
                 //orient scene node
                 tnode->setPosition( vector3df( y*UNIT_SCALE+UNIT_SCALE,0, x*UNIT_SCALE ) );
                 tnode->setRotation( vector3df(0,-90,0) );
@@ -591,6 +612,8 @@ bool Level::buildTileGeometry(int x, int y)
                 IMeshSceneNode *tnode = NULL;
                 if(USE_OCTREE) tnode = m_SMgr->addOctreeSceneNode(wallmesh);
                 else tnode = m_SMgr->addMeshSceneNode(wallmesh);
+
+                tnode->setName(wallname.c_str());
 
                 //orient scene node
                 tnode->setPosition( vector3df( y*UNIT_SCALE,0, x*UNIT_SCALE+UNIT_SCALE ) );

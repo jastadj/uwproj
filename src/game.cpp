@@ -595,14 +595,22 @@ void Game::mainLoop()
                     else std::cout << "mouse ray did not hit anything\n";
                     */
 
-                    ISceneNode *selectedSceneNode = m_ColMgr->getSceneNodeFromRayBB(m_CameraMouseRay, ID_IsPickable);
+                    //first try to get an object
+                    ISceneNode *selectedSceneNode = m_ColMgr->getSceneNodeFromRayBB(m_CameraMouseRay, ID_IsObject);
                     if(selectedSceneNode != NULL)
                     {
-                        std::cout << "HIT!\n";
-                        std::cout << "ID of hit node = " << selectedSceneNode->getID() << std::endl;
-                        selectedSceneNode->setVisible(false);
+                        std::cout << "OBJ HIT!\n";
                     }
-                    else std::cout << "...miss\n";
+                    else
+                    {
+                        selectedSceneNode = m_ColMgr->getSceneNodeFromRayBB(m_CameraMouseRay, ID_IsMap);
+                        if(selectedSceneNode != NULL)
+                        {
+                            std::cout << "MAP HIT!\n";
+                        }
+                    }
+                    if(selectedSceneNode != NULL) std::cout << "Name of hit node = " << selectedSceneNode->getName() << std::endl;
+
                 }
                 //else right mouse button pressed
                 else if(event->MouseInput.Event == EMIE_RMOUSE_PRESSED_DOWN)
@@ -2145,7 +2153,7 @@ bool Game::configMeshSceneNode(IMeshSceneNode *tnode)
 
     //update
     tnode->updateAbsolutePosition();
-    tnode->setID(ID_IsPickable);
+    tnode->setID(ID_IsMap);
 
     //register collision stuff
     if(CONFIG_FOR_COLLISION)
@@ -2230,8 +2238,10 @@ bool Game::updateObject(ObjectInstance *tobj, Tile *ttile)
         tbb = m_SMgr->addBillboardSceneNode();
 
         //set id to pickable id
-        tbb->setID(ID_IsPickable);
-        tbb->setName("OBJ");
+        tbb->setID(ID_IsObject);
+        std::stringstream objnamess;
+        objnamess << "OBJ_" << tobj->getInstanceID();
+        tbb->setName(objnamess.str().c_str());
 
         //link billboard node to object
         //std::cout << "Setting billboard scene node to object...\n";
