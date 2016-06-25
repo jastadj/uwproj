@@ -48,12 +48,12 @@ enum
 
     // I use this flag in ISceneNode IDs to indicate that the
     // scene node can be picked by ray selection.
-    IDFlag_IsPickable = 1 << 0,
+    ID_IsPickable = 1 << 0,
 
     // I use this flag in ISceneNode IDs to indicate that the
     // scene node can be highlighted.  In this example, the
     // homonids can be highlighted, but the level mesh can't.
-    IDFlag_IsHighlightable = 1 << 1
+    ID_IsHighlightable = 1 << 1
 };
 
 struct stringBlock
@@ -135,6 +135,7 @@ private:
     vector3df m_CameraVel;
     ISceneNode *m_CameraTarget;
     f32 m_CameraDefaultFOV;
+    ILightSceneNode *m_CameraLight;
 
     //mouse
     vector2di m_MousePos;

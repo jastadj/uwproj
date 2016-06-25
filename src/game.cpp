@@ -188,9 +188,11 @@ int Game::initCamera()
 
     //add camera to scene
     m_Camera = m_SMgr->addCameraSceneNode(0, m_CameraPos);
+    m_Camera->setID(ID_IsNotPickable);
 
     //create an empty scene node in front of the camera as "target"
     m_CameraTarget = m_SMgr->addEmptySceneNode();
+    m_CameraTarget->setID(ID_IsNotPickable);
 
     //capture default FOV
     m_CameraDefaultFOV = m_Camera->getFOV();
@@ -204,7 +206,14 @@ int Game::initCamera()
     //m_Camera->addChild(m_CameraTarget);
     //m_CameraTarget->addChild(m_Camera);
 
-
+    //camera light
+    m_CameraLight = m_SMgr->addLightSceneNode(0, vector3df(0,0,0), SColorf(1.0f, 1.0f, 1.0f, 1.f), 4.0f);
+    m_CameraLight->setID(ID_IsNotPickable);
+    m_CameraLight->setLightType(video::ELT_POINT);
+    //light1->setRotation(vector3df(0,180,0));
+    //light1->getLightData().Falloff = 5;
+    m_CameraLight->enableCastShadow(false);
+    m_CameraLight->setRadius(2);
 
     //level camera (avoid camera rotation when pointing at target)
 
@@ -243,13 +252,7 @@ void Game::mainLoop()
 {
     bool drawaxis = true;
 
-    //add light test
-    scene::ILightSceneNode* light1 = m_SMgr->addLightSceneNode(0, vector3df(0,0,0), SColorf(1.0f, 1.0f, 1.0f, 1.f), 4.0f);
-    light1->setLightType(video::ELT_POINT);
-    //light1->setRotation(vector3df(0,180,0));
-    //light1->getLightData().Falloff = 5;
-    light1->enableCastShadow(false);
-    light1->setRadius(2);
+
 
     //light1->getLightData().DiffuseColor = SColor(100,100,100,100);
     //light1->getLightData().SpecularColor = SColor(0,0,0,0);
@@ -482,6 +485,7 @@ void Game::mainLoop()
                         m_CameraPos = m_Camera->getPosition();
                         Tile *ttile = mLevels[m_CurrentLevel].getTile(int(m_CameraPos.Z)/UNIT_SCALE, int(m_CameraPos.X)/UNIT_SCALE);
                         std::cout << "Camera Position : " << m_CameraPos.X << "," << m_CameraPos.Y << "," << m_CameraPos.Z << std::endl;
+                        std::cout << "Camera ID = " << m_Camera->getID() << ", Camera Target ID = " << m_CameraTarget->getID() << std::endl;
                         if(ttile != NULL)
                         {
                             ttile->printDebug();
@@ -556,7 +560,7 @@ void Game::mainLoop()
                             std::cout << "world height = " << SCREEN_WORLD_HEIGHT << std::endl;
                             std::cout << "mouse clicked converted @" << mousePosConverted.X << "," << mousePosConverted.Y << std::endl;
 
-                            m_CameraMouseRay = m_SMgr->getSceneCollisionManager()->getRayFromScreenCoordinates(mousePosConverted, m_Camera);
+                            m_CameraMouseRay = m_ColMgr->getRayFromScreenCoordinates(mousePosConverted, m_Camera);
                             std::cout << "clickray:" << m_CameraMouseRay.start.X << "," << m_CameraMouseRay.start.Y << "," << m_CameraMouseRay.start.Z << "  -  " <<
                                                         m_CameraMouseRay.end.X << "," << m_CameraMouseRay.end.Y << "," << m_CameraMouseRay.end.Z << std::endl;
                         }
@@ -572,32 +576,33 @@ void Game::mainLoop()
                         std::cout << "world width = " << SCREEN_WORLD_WIDTH << std::endl;
                         std::cout << "world height = " << SCREEN_WORLD_HEIGHT << std::endl;
 
-                        m_CameraMouseRay = m_SMgr->getSceneCollisionManager()->getRayFromScreenCoordinates(m_MousePos, m_Camera);
+                        m_CameraMouseRay = m_ColMgr->getRayFromScreenCoordinates(m_MousePos, m_Camera);
                         std::cout << "clickray:" << m_CameraMouseRay.start.X << "," << m_CameraMouseRay.start.Y << "," << m_CameraMouseRay.start.Z << "  -  " <<
                                                     m_CameraMouseRay.end.X << "," << m_CameraMouseRay.end.Y << "," << m_CameraMouseRay.end.Z << std::endl;
 
                     }
 
-
+                    /*
                     //check ray collision
                     vector3df intersection;
                     triangle3df triangle;
-                    ISceneNode *selectedSceneNode = m_SMgr->getSceneCollisionManager()->getSceneNodeAndCollisionPointFromRay(m_CameraMouseRay, intersection, triangle, 0);
-                    /*
-                                        ray,
-                                        intersection, // This will be the position of the collision
-                                        hitTriangle, // This will be the triangle hit in the collision
-                                        IDFlag_IsPickable, // This ensures that only nodes that we have
-                                                // set up to be pickable are considered
-                                        0); // Check the entire scene (this is actually the implicit default)
-                    */
+                    ISceneNode *selectedSceneNode = m_ColMgr->getSceneNodeAndCollisionPointFromRay(m_CameraMouseRay, intersection, triangle, 0);
                     if(selectedSceneNode != NULL)
                     {
                         std::cout << "mouse ray hit something\n";
                         selectedSceneNode->setVisible(false);
                     }
                     else std::cout << "mouse ray did not hit anything\n";
+                    */
 
+                    ISceneNode *selectedSceneNode = m_ColMgr->getSceneNodeFromRayBB(m_CameraMouseRay, ID_IsPickable);
+                    if(selectedSceneNode != NULL)
+                    {
+                        std::cout << "HIT!\n";
+                        std::cout << "ID of hit node = " << selectedSceneNode->getID() << std::endl;
+                        selectedSceneNode->setVisible(false);
+                    }
+                    else std::cout << "...miss\n";
                 }
                 //else right mouse button pressed
                 else if(event->MouseInput.Event == EMIE_RMOUSE_PRESSED_DOWN)
@@ -625,7 +630,7 @@ void Game::mainLoop()
         //apply gravity to camera
 
         updateCamera();
-        light1->setPosition(m_CameraPos);
+
         //m_CameraPos = m_Camera->getPosition();
         //m_Camera->setPosition( vector3df(m_CameraPos.X, m_CameraPos.Y-0.1*frameDeltaTime, m_CameraPos.Z));
 
@@ -794,7 +799,8 @@ void Game::updateCamera()
         m_CameraTarget->setPosition(current_camtgt);
     }
 
-
+    //update camera light
+    m_CameraLight->setPosition(m_CameraPos);
 
 
     //m_Camera->setTarget(m_CameraTarget);
@@ -2139,6 +2145,7 @@ bool Game::configMeshSceneNode(IMeshSceneNode *tnode)
 
     //update
     tnode->updateAbsolutePosition();
+    tnode->setID(ID_IsPickable);
 
     //register collision stuff
     if(CONFIG_FOR_COLLISION)
@@ -2222,6 +2229,9 @@ bool Game::updateObject(ObjectInstance *tobj, Tile *ttile)
         //std::cout << "Creating billboard scene node...\n";
         tbb = m_SMgr->addBillboardSceneNode();
 
+        //set id to pickable id
+        tbb->setID(ID_IsPickable);
+
         //link billboard node to object
         //std::cout << "Setting billboard scene node to object...\n";
         tobj->setBillboard(tbb);
@@ -2240,7 +2250,7 @@ bool Game::updateObject(ObjectInstance *tobj, Tile *ttile)
         tbb->setSize(dimension2d<f32>(OBJECT_SCALE,OBJECT_SCALE) );
 
         //configure billboard common settings
-        std::cout << "Configuring billboard node...\n";
+        //std::cout << "Configuring billboard node...\n";
         configBillboardSceneNode(tbb);
 
         const float conversion = float(UNIT_SCALE)/float(TILE_UNIT);

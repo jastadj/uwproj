@@ -655,14 +655,29 @@ SMesh *Level::generateFloorMesh(int ul, int ur, int br, int bl)
     buf->Vertices[4] = S3DVertex(1*UNIT_SCALE,br*scale,1*UNIT_SCALE, 0,1,0,    video::SColor(255,255,255,255), 1, 1); //BR
     buf->Vertices[5] = S3DVertex(1*UNIT_SCALE,bl*scale,0*UNIT_SCALE, 0,1,0,    video::SColor(255,255,255,255), 0, 1); // BL
 
-
     //finalize vertices
     buf->Indices.reallocate(vcount);
     buf->Indices.set_used(vcount);
+
     for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
-    //mesh->setBoundingBox( aabbox3df(0,ul*scale-CEIL_HEIGHT,0,1*UNIT_SCALE,br*scale,1*UNIT_SCALE));
-    //mesh->setBoundingBox( aabbox3df(0,0,0,1*UNIT_SCALE,1*UNIT_SCALE,1*UNIT_SCALE));
-    mesh->setBoundingBox( aabbox3df(0,0,0,1*UNIT_SCALE,0,1*UNIT_SCALE));
+
+    //determine highest and lowest point
+    std::vector<int> points;
+    int highestpoint = 0;
+    int lowestpoint = 0;
+    points.push_back(ur);
+    points.push_back(br);
+    points.push_back(ul);
+    points.push_back(bl);
+
+    for(int i = 0; i < int(points.size()); i++)
+    {
+        if(points[i] < lowestpoint) lowestpoint = points[i];
+        if(points[i] > highestpoint) highestpoint = points[i];
+    }
+
+    mesh->setBoundingBox( aabbox3df(0,lowestpoint*scale,0,1*UNIT_SCALE,highestpoint*scale,1*UNIT_SCALE));
+
     //buf->recalculateBoundingBox();
 
     return mesh;
@@ -700,8 +715,22 @@ SMesh *Level::generateFloorMesh(int p1, int p2, int p3)
     buf->Indices.reallocate(vcount);
     buf->Indices.set_used(vcount);
     for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
-    mesh->setBoundingBox( aabbox3df(0,0,0,1*UNIT_SCALE,0,1*UNIT_SCALE));
-    //buf->recalculateBoundingBox();
+
+    //determine highest and lowest point
+    std::vector<int> points;
+    int highestpoint = 0;
+    int lowestpoint = 0;
+    points.push_back(p1);
+    points.push_back(p2);
+    points.push_back(p3);
+
+    for(int i = 0; i < int(points.size()); i++)
+    {
+        if(points[i] < lowestpoint) lowestpoint = points[i];
+        if(points[i] > highestpoint) highestpoint = points[i];
+    }
+
+    mesh->setBoundingBox( aabbox3df(0,lowestpoint*scale,0,1*UNIT_SCALE,highestpoint*scale,1*UNIT_SCALE));
 
     return mesh;
 
@@ -746,12 +775,17 @@ SMesh *Level::generateWallMesh(int tl, int tr, int br, int bl)
     buf->Vertices[4] = S3DVertex(0*UNIT_SCALE,br*scale,1*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 1, txtscaley ); //BR
     buf->Vertices[5] = S3DVertex(0*UNIT_SCALE,bl*scale,0*UNIT_SCALE, 1,0,0,    video::SColor(255,255,255,255), 0, txtscaley ); // BL
 
+    int lowestpoint = bl;
+    int highestpoint = tl;
+    if(br < lowestpoint) lowestpoint = br;
+    if(tr > highestpoint) highestpoint = tr;
+
     //finalize vertices
     buf->Indices.reallocate(vcount);
     buf->Indices.set_used(vcount);
     for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
-    mesh->setBoundingBox( aabbox3df(-0.1,tl*scale,0,0.1,br*scale,1*scale));
-    buf->recalculateBoundingBox();
+    mesh->setBoundingBox( aabbox3df(0,lowestpoint*scale,0,0,highestpoint*scale,1*UNIT_SCALE));
+    //buf->recalculateBoundingBox();
 
     return mesh;
 }
@@ -799,8 +833,8 @@ SMesh *Level::generateDiagonalWallMesh(int tl, int tr, int br, int bl)
     buf->Indices.reallocate(vcount);
     buf->Indices.set_used(vcount);
     for(int i = 0; i < vcount; i++) buf->Indices[i] = i;
-    mesh->setBoundingBox( aabbox3df(-0.1,tl*scale,0,0.1,br*scale,1*scale));
-    buf->recalculateBoundingBox();
+    mesh->setBoundingBox( aabbox3df(0,bl*scale,0,1*UNIT_SCALE,tr*scale,1*UNIT_SCALE));
+    //buf->recalculateBoundingBox();
 
     return mesh;
 }
