@@ -12,6 +12,7 @@
 #include "level.hpp"
 #include "object.hpp"
 #include "font.hpp"
+#include "mouse.hpp"
 
 #define DEBUG_NO_START 0
 #define TRANSPARENCY_COLOR 0,255,0,255
@@ -34,6 +35,12 @@
 #define MOVE_SPEED 15
 #define STANDING_HEIGHT 3
 
+#define SCROLL_POS_X 16*SCREEN_SCALE
+#define SCROLL_POS_Y 169*SCREEN_SCALE
+#define SCROLL_WIDTH 289*SCREEN_SCALE
+#define SCROLL_HEIGHT 30*SCREEN_SCALE
+#define SCROLL_PAL_INDEX 43
+
 //irrlicht namespaces
 using namespace irr;
 using namespace core;
@@ -41,6 +48,8 @@ using namespace scene;
 using namespace video;
 using namespace io;
 using namespace gui;
+
+
 
 enum
 {
@@ -63,6 +72,11 @@ struct stringBlock
     int id;
     std::vector<std::string> strings;
 };
+
+
+//forward declaration
+class Mouse;
+
 
 class MyEventReceiver : public IEventReceiver
 {
@@ -140,8 +154,7 @@ private:
     ILightSceneNode *m_CameraLight;
 
     //mouse
-    vector2di m_MousePos;
-    line3d<f32> m_CameraMouseRay;
+    Mouse *m_Mouse;
 
     //mesh stuff
     SMesh *getCubeMesh(f32 cubesize);
@@ -157,8 +170,9 @@ private:
     int loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist);
     int loadTexture(std::string tfilename, std::vector<ITexture*> *tlist);
     int loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int tpalindex);
-    int loadFont(std::string tfilename, UWFont *font);
+    int initMouse();
     int initObjects();
+    int initMainUI();
 
 
     //levels
@@ -178,10 +192,10 @@ private:
     std::vector<ITexture*> m_CursorsTXT;
     std::vector<ITexture*> m_ObjectsTXT;
     std::vector<ITexture*> m_QuestionTXT;
+    std::vector<ITexture*> m_InventoryTXT;
+    std::vector<ITexture*> m_ScrollEdgeTXT;
 
     //fonts
-    bool drawFontChar(UWFont *tfont, int charnum, position2d<s32> tpos, SColor tcolor = SColor(255,255,255,255));
-    bool drawFontString(UWFont *tfont, std::string tstring, position2d<s32> tpos, SColor tcolor = SColor(255,255,255,255));
     UWFont m_FontNormal;
 
     //strings
@@ -193,11 +207,18 @@ private:
     //mainloop
     void mainLoop();
 
+    //main UI
+    void drawMainUI();
+    core::rect<s32> m_ScrollRect;
+    SColor *m_ScrollFillColor;
+
     //debug
     bool dbg_noclip;
     bool dbg_nolighting;
     bool dbg_showboundingbox;
     bool dbg_showmainui;
+    bool dbg_dodrawpal;
+    void dbg_drawpal(std::vector<SColor> *tpal);
     void reconfigureAllLevelMeshes();
     void reconfigureAllLevelObjects();
 

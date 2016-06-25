@@ -11,6 +11,7 @@ Game::Game()
     m_Device = NULL;
     m_Camera = NULL;
     m_MetaTriangleSelector = NULL;
+    m_Mouse = NULL;
 
     m_CurrentLevel = 0;
 
@@ -18,6 +19,7 @@ Game::Game()
     dbg_nolighting = false;
     dbg_showboundingbox = false;
     dbg_showmainui = true;
+    dbg_dodrawpal = false;
 
     //debug
 #ifdef DEBUG
@@ -91,6 +93,10 @@ int Game::start()
         else std::cout << "....." << m_ObjectsTXT.size() << " object graphics loaded.\n";
         errorcode = loadGraphic("UWDATA\\question.gr", &m_QuestionTXT);
         if(errorcode) {std::cout << "Error loading question mark graphic!  ERROR CODE " << errorcode << "\n"; return -1;}
+        errorcode = loadGraphic("UWDATA\\inv.gr", &m_InventoryTXT);
+        if(errorcode) {std::cout << "Error loading inventory graphics!  ERROR CODE " << errorcode << "\n"; return -1;}
+        errorcode = loadGraphic("UWDATA\\scrledge.gr", &m_ScrollEdgeTXT);
+        if(errorcode) {std::cout << "Error loading scroll graphics!  ERROR CODE " << errorcode << "\n"; return -1;}
         std::cout << std::endl;
 
     std::cout << "Loading bitmaps...";
@@ -115,6 +121,17 @@ int Game::start()
         errorcode = initObjects();
         if(errorcode < 0) {std::cout << "Error initializing objects!  ERROR CODE " << errorcode << "\n"; return-1;}
         else std::cout << errorcode << " objects initialized.\n";
+
+
+    std::cout << "Initializing mouse...";
+        errorcode = initMouse();
+        if(errorcode) {std::cout << "Error initializing mouse!  ERROR CODE " << errorcode << "\n"; return -1;}
+        else std::cout << "done.\n";
+
+    std::cout << "Initializing main UI...";
+        errorcode = initMainUI();
+        if(errorcode) {std::cout << "Error initializing main UI!  ERROR CODE " << errorcode << "\n"; return -1;}
+        else std::cout << "done.\n";
 
     std::cout << "Loading level data...";
         errorcode = loadLevel();
@@ -297,9 +314,9 @@ void Game::mainLoop()
     */
 
 
-    IGUIImage *myguiimage = m_GUIEnv->addImage(m_BitmapsTXT[2], position2d<s32>(0,0), true);
+    //IGUIImage *myguiimage = m_GUIEnv->addImage(m_BitmapsTXT[2], position2d<s32>(0,0), true);
 
-    std::vector<ITexture*> *texturestotest = &m_CursorsTXT;
+    std::vector<ITexture*> *texturestotest = &m_ScrollEdgeTXT;
     int texturestotestsize = int(texturestotest->size());
     int texturestotestindex = 0;
     IGUIImage *mymousecursor = m_GUIEnv->addImage( (*texturestotest)[texturestotestindex], position2d<s32>(0,0), true);
@@ -398,7 +415,9 @@ void Game::mainLoop()
         const SEvent *event = NULL;
         mouseLeftClicked = false;
 
-        m_MousePos = m_Device->getCursorControl()->getPosition();
+        //update mouse position
+        m_Mouse->updatePosition();
+
         //std::cout << "Mouse:" << m_MousePos.X << "," << m_MousePos.Y << std::endl;
 
         // Work out a frame delta time.
@@ -529,6 +548,11 @@ void Game::mainLoop()
                         dbg_showmainui = !dbg_showmainui;
                         std::cout << "show main ui = " << dbg_showmainui << std::endl;
                     }
+                    else if(m_Receiver.isKeyPressed(KEY_F12))
+                    {
+                        dbg_dodrawpal = !dbg_dodrawpal;
+                        std::cout << "draw pal = " << dbg_dodrawpal << std::endl;
+                    }
 
                 }
                 //key released
@@ -547,18 +571,18 @@ void Game::mainLoop()
                 {
                     mouseLeftClicked = true;
 
-                    std::cout << "mouse clicked @" << m_MousePos.X << "," << m_MousePos.Y << std::endl;
+                    std::cout << "mouse clicked @" << m_Mouse->getMousePositionX() << "," << m_Mouse->getMousePositionY() << std::endl;
 
                     //if mouse was clicked within world view
                     //if main ui is displayed
                     if(dbg_showmainui)
                     {
-                        if(m_MousePos.X >= SCREEN_WORLD_POS_X && m_MousePos.X <= (SCREEN_WORLD_POS_X + SCREEN_WORLD_WIDTH) &&
-                           m_MousePos.Y >= SCREEN_WORLD_POS_Y && m_MousePos.Y <= (SCREEN_WORLD_POS_Y + SCREEN_WORLD_HEIGHT))
+                        if(m_Mouse->getMousePositionX() >= SCREEN_WORLD_POS_X && m_Mouse->getMousePositionX() <= (SCREEN_WORLD_POS_X + SCREEN_WORLD_WIDTH) &&
+                           m_Mouse->getMousePositionY() >= SCREEN_WORLD_POS_Y && m_Mouse->getMousePositionY() <= (SCREEN_WORLD_POS_Y + SCREEN_WORLD_HEIGHT))
                         {
-                            vector2di mousePosConverted = m_MousePos;
-                            mousePosConverted.X = float(m_MousePos.X-SCREEN_WORLD_POS_X) / (float(SCREEN_WORLD_WIDTH) / float(SCREEN_WIDTH));
-                            mousePosConverted.Y = float(m_MousePos.Y-SCREEN_WORLD_POS_Y) / (float(SCREEN_WORLD_HEIGHT) / float(SCREEN_HEIGHT));
+                            vector2di mousePosConverted = *m_Mouse->getMousePosition();
+                            mousePosConverted.X = float(m_Mouse->getMousePositionX()-SCREEN_WORLD_POS_X) / (float(SCREEN_WORLD_WIDTH) / float(SCREEN_WIDTH));
+                            mousePosConverted.Y = float(m_Mouse->getMousePositionY()-SCREEN_WORLD_POS_Y) / (float(SCREEN_WORLD_HEIGHT) / float(SCREEN_HEIGHT));
 
                             std::cout << "screen width = " << SCREEN_WIDTH << std::endl;
                             std::cout << "screen height = " << SCREEN_HEIGHT << std::endl;
@@ -568,9 +592,7 @@ void Game::mainLoop()
                             std::cout << "world height = " << SCREEN_WORLD_HEIGHT << std::endl;
                             std::cout << "mouse clicked converted @" << mousePosConverted.X << "," << mousePosConverted.Y << std::endl;
 
-                            m_CameraMouseRay = m_ColMgr->getRayFromScreenCoordinates(mousePosConverted, m_Camera);
-                            std::cout << "clickray:" << m_CameraMouseRay.start.X << "," << m_CameraMouseRay.start.Y << "," << m_CameraMouseRay.start.Z << "  -  " <<
-                                                        m_CameraMouseRay.end.X << "," << m_CameraMouseRay.end.Y << "," << m_CameraMouseRay.end.Z << std::endl;
+                            m_Mouse->m_CameraMouseRay = m_ColMgr->getRayFromScreenCoordinates(mousePosConverted, m_Camera);
                         }
                     }
                     //no main ui, world view is full screen
@@ -584,9 +606,7 @@ void Game::mainLoop()
                         std::cout << "world width = " << SCREEN_WORLD_WIDTH << std::endl;
                         std::cout << "world height = " << SCREEN_WORLD_HEIGHT << std::endl;
 
-                        m_CameraMouseRay = m_ColMgr->getRayFromScreenCoordinates(m_MousePos, m_Camera);
-                        std::cout << "clickray:" << m_CameraMouseRay.start.X << "," << m_CameraMouseRay.start.Y << "," << m_CameraMouseRay.start.Z << "  -  " <<
-                                                    m_CameraMouseRay.end.X << "," << m_CameraMouseRay.end.Y << "," << m_CameraMouseRay.end.Z << std::endl;
+                        m_Mouse->m_CameraMouseRay = m_ColMgr->getRayFromScreenCoordinates(*m_Mouse->getMousePosition(), m_Camera);
 
                     }
 
@@ -604,14 +624,14 @@ void Game::mainLoop()
                     */
 
                     //first try to get an object
-                    ISceneNode *selectedSceneNode = m_ColMgr->getSceneNodeFromRayBB(m_CameraMouseRay, ID_IsObject);
+                    ISceneNode *selectedSceneNode = m_ColMgr->getSceneNodeFromRayBB(m_Mouse->m_CameraMouseRay, ID_IsObject);
                     if(selectedSceneNode != NULL)
                     {
                         std::cout << "OBJ HIT!\n";
                     }
                     else
                     {
-                        selectedSceneNode = m_ColMgr->getSceneNodeFromRayBB(m_CameraMouseRay, ID_IsMap);
+                        selectedSceneNode = m_ColMgr->getSceneNodeFromRayBB(m_Mouse->m_CameraMouseRay, ID_IsMap);
                         if(selectedSceneNode != NULL)
                         {
                             std::cout << "MAP HIT!\n";
@@ -642,16 +662,8 @@ void Game::mainLoop()
             }
         }
 
-        //update actor and camera
-        //apply gravity to camera
-
+        //update camera / collision
         updateCamera();
-
-        //m_CameraPos = m_Camera->getPosition();
-        //m_Camera->setPosition( vector3df(m_CameraPos.X, m_CameraPos.Y-0.1*frameDeltaTime, m_CameraPos.Z));
-
-        //update mouse cursor graphic
-        mymousecursor->setRelativePosition( position2d<s32>(m_MousePos.X, m_MousePos.Y));
 
 
         //clear scene
@@ -715,7 +727,7 @@ void Game::mainLoop()
             m_Driver->draw3DLine(vector3df(0,0,0), vector3df(0,100,0), SColor(255,000,255,0)); // y-axis green
 
             //draw 3d line from camera to mouse click
-            m_Driver->draw3DLine(m_CameraMouseRay.start, m_CameraMouseRay.end, SColor(255,255,0,0));
+            m_Driver->draw3DLine(m_Mouse->m_CameraMouseRay.start, m_Mouse->m_CameraMouseRay.end, SColor(255,255,0,0));
         }
 
 
@@ -724,8 +736,14 @@ void Game::mainLoop()
         {
             m_Driver->setViewPort(rect<s32>(0,0,SCREEN_WIDTH, SCREEN_HEIGHT));
 
-            m_GUIEnv->drawAll();
+            //m_GUIEnv->drawAll();
+
+            drawMainUI();
+
+            if(dbg_dodrawpal) dbg_drawpal(&m_Palettes[0]);
         }
+
+
 
 
         /*
@@ -733,6 +751,9 @@ void Game::mainLoop()
         m_Driver->setTransform(video::ETS_WORLD, IdentityMatrix);
         m_Driver->draw3DLine( vector3df(0,0,0), vector3df(100,0,0), SColor(0,255,0,0));
         */
+
+        //draw mouse
+        m_Mouse->draw();
 
         //done and display
         m_Driver->endScene();
@@ -755,7 +776,14 @@ void Game::mainLoop()
     return;
 }
 
+void Game::drawMainUI()
+{
+    const core::rect<s32> screen_rect( position2d<s32>(0,0), dimension2d<u32>(SCREEN_WIDTH, SCREEN_HEIGHT));
+    m_Driver->draw2DImage( m_BitmapsTXT[2], position2d<s32>(0,0), screen_rect, NULL, SColor(255,255,255,255), true);
 
+    m_Driver->draw2DRectangle(*m_ScrollFillColor, m_ScrollRect);
+
+}
 
 void Game::updateCamera()
 {
@@ -2089,201 +2117,6 @@ int Game::loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int t
     return 0;
 }
 
-int Game::loadFont(std::string tfilename, UWFont *font)
-{
-    //note : this assume a 64x64 font image
-
-    //height and width of texture sheet
-    const int sheetdim = 12;
-
-    if(font == NULL) return -1; // font is null
-
-    //open font (.sys) file
-    std::ifstream ifile;
-    ifile.open(tfilename.c_str(), std::ios_base::binary);
-
-    //check if file loaded properly
-    if(!ifile.is_open()) return -2; // error unable to open file
-
-    //determine file size
-    std::streampos fsize = 0;
-    ifile.seekg(0, std::ios::end);
-    fsize = ifile.tellg();
-    ifile.seekg(0);
-
-    //store binary font data
-    std::vector< std::vector<bool> > fontbin;
-
-    //read in header
-    //unknown byte
-    unsigned char unkbuf[2];
-    int unkbyte = 0;
-    readBin(&ifile, unkbuf, 2);
-    unkbyte = lsbSum(unkbuf, 2);
-
-    //character size (in bytes)
-    unsigned char charsizebuf[2];
-    int charbytes = 0;
-    readBin(&ifile, charsizebuf, 2);
-    charbytes = lsbSum(charsizebuf, 2);
-
-    //width of blank space character
-    unsigned char wblankspacebuf[2];
-    int blankwidthpx = 0;
-    readBin(&ifile, wblankspacebuf, 2);
-    blankwidthpx = lsbSum(wblankspacebuf, 2);
-
-    //font height
-    unsigned char fontheightbuf[2];
-    int heightpx = 0;
-    readBin(&ifile, fontheightbuf, 2);
-    heightpx = lsbSum(fontheightbuf, 2);
-
-    //width of character row in bytes
-    unsigned char wcharrowsizebuf[2];
-    int widthbytes = 0;
-    readBin(&ifile, wcharrowsizebuf, 2);
-    widthbytes = lsbSum(wcharrowsizebuf, 2);
-
-    //max width of character in pixels
-    unsigned char maxpixelwidthbuf[2];
-    int maxwidthpx = 0;
-    readBin(&ifile, maxpixelwidthbuf, 2);
-    maxwidthpx = lsbSum(maxpixelwidthbuf, 2);
-
-    //characters to read
-    int charstoread = (fsize - 12) / (charbytes + 1); // header is 12 bytes, charsize + 1 currentcharwidth byte
-
-    //debug info
-    std::cout << std::hex;
-    std::cout << "unk val           = 0x" << unkbyte << std::endl;
-    std::cout << "char bytes        = 0x" << charbytes << std::endl;
-    std::cout << "width bytes       = 0x" << widthbytes << std::endl;
-    std::cout << "blank width px    = 0x" << blankwidthpx << std::endl;
-    std::cout << "height px         = 0x" << heightpx << std::endl;
-    std::cout << "max width px      = 0x" << maxwidthpx << std::endl;
-    std::cout << std::dec;
-
-    int widestcharacter = maxwidthpx; // when creating texture, assume each character as widest font
-                             // the UWFont rect will determine clip size
-    std::vector<int> charwidths;
-
-    //STORE FONT IN MONO TEXTURE
-    // note : texture is stored in uwfont object
-    IImage *newimg = NULL;
-
-    //read in each character data (charbytes + 1 byte)
-    for(int j = 0; j < charstoread; j++)
-    {
-        bool isblankspace = true;
-
-        //read in binary font data
-        unsigned char fontdatabuf[charbytes];
-        readBin(&ifile, fontdatabuf, charbytes);
-        fontbin.push_back( printByteToBin(fontdatabuf, charbytes));
-
-        //read in current character width in pixels
-        unsigned char currentwidthpxbuf[1];
-        int currentwidthpx = 0;
-        readBin(&ifile, currentwidthpxbuf, 1);
-        currentwidthpx = int(currentwidthpxbuf[0]);
-        if(currentwidthpx > widestcharacter) widestcharacter = currentwidthpx; // find widest character
-
-        //if current width is 0, assume maximum pixel width value
-        if(currentwidthpx == 0) currentwidthpx = maxwidthpx;
-
-        //determine if character is blank character (no data)
-        for(int i = 0; i < int(fontbin[j].size()); i++)
-        {
-            //search for any data found, then it's not a blank space
-            if(fontbin[j][i] && isblankspace) isblankspace = false;
-
-            //if font is determined not to be a blank space, stop looking
-            if(!isblankspace) break;
-        }
-
-        //if is a blank space, set current pixel width to blank space width
-        if(isblankspace) currentwidthpx = blankwidthpx;
-
-        //store character width
-        charwidths.push_back(currentwidthpx);
-
-
-    }
-
-    //create clip rects
-    for(int j = 0; j < charstoread; j++)
-    {
-        //create font clipping rect
-        core::rect<s32> fontrect(position2d<s32>( int(j%sheetdim) * widestcharacter * SCREEN_SCALE, int(j/sheetdim) * heightpx * SCREEN_SCALE),
-                                 dimension2d<u32>(charwidths[j]*SCREEN_SCALE, heightpx*SCREEN_SCALE));
-        font->m_Clips.push_back(fontrect);
-    }
-
-    //create new image and copy binary font data to image
-    newimg = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(widestcharacter * sheetdim * SCREEN_SCALE, heightpx * sheetdim * SCREEN_SCALE));
-    newimg->fill(SColor(TRANSPARENCY_COLOR) );
-    if(newimg == NULL) return -5; // error creating image
-
-    for(int i = 0; i < int(fontbin.size()); i++)
-    {
-        int binpos = 0;
-
-        for(int n = 0; n < heightpx; n++)
-        {
-            for(int k = binpos; k < binpos + widthbytes*8; k++)
-            {
-                //if reading beyond current font width, ignore
-                if(k - binpos >= font->m_Clips[i].getWidth()) continue;
-
-                if(fontbin[i][k])
-                {
-                    for(int q = 0; q < SCREEN_SCALE; q++)
-                    {
-                        for(int w = 0; w < SCREEN_SCALE; w++)
-                        {
-                            newimg->setPixel( font->m_Clips[i].UpperLeftCorner.X + ((k - binpos)*SCREEN_SCALE)+w,
-                                              font->m_Clips[i].UpperLeftCorner.Y + (int(k/(widthbytes*8))*SCREEN_SCALE)+q,
-                                              SColor(255,255,255,255));
-                        }
-                    }
-
-                }
-            }
-
-            //advance binary position
-            binpos += widthbytes*8;
-        }
-    }
-
-    //create scaled image
-    //IImage *scaledimage = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(widestcharacter * sheetdim * SCREEN_SCALE, heightpx * sheetdim * SCREEN_SCALE));
-    //newimg->copyToScaling(scaledimage);
-
-
-    //create texture name
-    std::stringstream texturename;
-    texturename << "font";
-
-    //create texture from image
-    //font->m_Texture = m_Driver->addTexture( texturename.str().c_str(), scaledimage );
-    font->m_Texture = m_Driver->addTexture( texturename.str().c_str(), newimg );
-
-    //set transparency color (pink, 255,0,255)
-    //note : this is palette index #0, set automatically when
-    //       loading in palettes (see loadPalette())
-    m_Driver->makeColorKeyTexture(font->m_Texture,  SColor(TRANSPARENCY_COLOR));
-
-    if(font->m_Texture == NULL) return -12; // error creating texture
-
-    //drop image, no longer needed
-    newimg->drop();
-    //scaledimage->drop();
-
-    ifile.close();
-
-    return 0;
-}
 
 
 int Game::initObjects()
@@ -2328,6 +2161,28 @@ int Game::initObjects()
 
 
     return int(m_Objects.size());
+}
+
+int Game::initMouse()
+{
+    //create mouse and link to game
+    m_Mouse = new Mouse(this);
+
+    //set mouse texture to cursor
+    m_Mouse->setTexture(m_CursorsTXT[0]);
+
+    return 0;
+}
+
+int Game::initMainUI()
+{
+    //config message scroll
+    m_ScrollRect = rect<s32>( position2d<s32>(SCROLL_POS_X, SCROLL_POS_Y), dimension2d<u32>(SCROLL_WIDTH, SCROLL_HEIGHT));
+    if(m_Palettes.empty()) return -1;
+    if( SCROLL_PAL_INDEX >= m_Palettes[0].size() || SCROLL_PAL_INDEX < 0) return -2;
+    m_ScrollFillColor = &m_Palettes[0][SCROLL_PAL_INDEX];
+
+    return 0;
 }
 
 bool Game::configMeshSceneNode(IMeshSceneNode *tnode)
@@ -2607,42 +2462,7 @@ SMesh *Game::getSquareMesh(int ul, int ur, int br, int bl)
 
 
 
-///////////////////////////////////////////////////////////////////////////////////
-//  FONT DRAWING
-bool Game::drawFontChar(UWFont *tfont, int charnum, position2d<s32> tpos, SColor tcolor)
-{
-    if(tfont == NULL) return false;
 
-    if(charnum < 0 || charnum >= 127) return false;
-
-    m_Driver->draw2DImage( tfont->m_Texture,
-                          tpos,
-                          tfont->m_Clips[charnum],
-                          NULL,
-                          tcolor,
-                          true);
-    return true;
-}
-
-bool Game::drawFontString(UWFont *tfont, std::string tstring, position2d<s32> tpos, SColor tcolor)
-{
-    if(tfont == NULL) return false;
-
-    //draw each character in string
-    for(int i = 0; i < tstring.length(); i++)
-    {
-        int charval = int(tstring[i]);
-
-        //if able to draw character, advance position by characters width
-        if(drawFontChar(tfont, charval, tpos, tcolor))
-        {
-            //advance tpos by character width
-            tpos.X += tfont->m_Clips[charval].getWidth();
-        }
-    }
-
-    return true;
-}
 
 ///////////////////////////////////////////////////////////////////////////////////
 //  DEBUG
@@ -2678,5 +2498,36 @@ void Game::reconfigureAllLevelObjects()
                 updateObject(objs[k], ttile);
             }
         }
+    }
+}
+
+void Game::dbg_drawpal(std::vector<SColor> *tpal)
+{
+    const int palsize = 4;
+
+    rect<s32> palwin( position2d<s32>(0,0), dimension2d<u32>(palsize*16*SCREEN_SCALE, palsize*16*SCREEN_SCALE));
+
+    for(int i = 0; i < 16; i++)
+    {
+        for(int n = 0; n < 16; n++)
+        {
+            int palindex = i*16 + n;
+            core::rect<s32> prect( position2d<s32>(n*SCREEN_SCALE*palsize, i*SCREEN_SCALE*palsize), dimension2d<u32>(palsize*SCREEN_SCALE, palsize*SCREEN_SCALE));
+            m_Driver->draw2DRectangle( (*tpal)[palindex], prect);
+        }
+    }
+
+    //if mouse is inside pal window rect
+    position2d<s32> mpos( int(m_Mouse->getMousePositionX()), int(m_Mouse->getMousePositionY()) );
+    if(palwin.isPointInside(mpos))
+    {
+        int mx = mpos.X / (16);
+        int my = mpos.Y / (16);
+        int mindex = my*16 + mx;
+
+        std::stringstream mss;
+        mss << "#" << mindex;
+
+        drawFontString(&m_FontNormal, mss.str(), *m_Mouse->getMousePosition() + vector2di(16,16));
     }
 }
