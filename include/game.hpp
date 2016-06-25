@@ -180,6 +180,8 @@ private:
     std::vector<ITexture*> m_QuestionTXT;
 
     //fonts
+    bool drawFontChar(UWFont *tfont, int charnum, position2d<s32> tpos, SColor tcolor = SColor(255,255,255,255));
+    bool drawFontString(UWFont *tfont, std::string tstring, position2d<s32> tpos, SColor tcolor = SColor(255,255,255,255));
     UWFont m_FontNormal;
 
     //strings

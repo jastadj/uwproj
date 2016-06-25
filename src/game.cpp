@@ -302,8 +302,8 @@ void Game::mainLoop()
     std::vector<ITexture*> *texturestotest = &m_CursorsTXT;
     int texturestotestsize = int(texturestotest->size());
     int texturestotestindex = 0;
-    //IGUIImage *mymousecursor = m_GUIEnv->addImage( (*texturestotest)[texturestotestindex], position2d<s32>(0,0), true);
-    IGUIImage *mymousecursor = m_GUIEnv->addImage( m_FontNormal.m_Texture, position2d<s32>(0,0), true);
+    IGUIImage *mymousecursor = m_GUIEnv->addImage( (*texturestotest)[texturestotestindex], position2d<s32>(0,0), true);
+    //IGUIImage *mymousecursor = m_GUIEnv->addImage( m_FontNormal.m_Texture, position2d<s32>(0,0), true);
 
 
     /*
@@ -727,14 +727,6 @@ void Game::mainLoop()
             m_GUIEnv->drawAll();
         }
 
-        //font testing
-        /*
-        const int mychar = 66;
-        int mycharx = 50;
-        int mychary = 50;
-        UWFont *myfont = &m_FontNormal;
-        m_Driver->draw2DImage( myfont->m_Texture, position2d<s32>(mycharx*SCREEN_SCALE, mychary*SCREEN_SCALE), myfont->m_Clips[mychar], NULL, SColor(255,255,255,255), true);
-        */
 
         /*
         m_Driver->setMaterial(SMaterial());
@@ -2613,6 +2605,44 @@ SMesh *Game::getSquareMesh(int ul, int ur, int br, int bl)
 
 }
 
+
+
+///////////////////////////////////////////////////////////////////////////////////
+//  FONT DRAWING
+bool Game::drawFontChar(UWFont *tfont, int charnum, position2d<s32> tpos, SColor tcolor)
+{
+    if(tfont == NULL) return false;
+
+    if(charnum < 0 || charnum >= 127) return false;
+
+    m_Driver->draw2DImage( tfont->m_Texture,
+                          tpos,
+                          tfont->m_Clips[charnum],
+                          NULL,
+                          tcolor,
+                          true);
+    return true;
+}
+
+bool Game::drawFontString(UWFont *tfont, std::string tstring, position2d<s32> tpos, SColor tcolor)
+{
+    if(tfont == NULL) return false;
+
+    //draw each character in string
+    for(int i = 0; i < tstring.length(); i++)
+    {
+        int charval = int(tstring[i]);
+
+        //if able to draw character, advance position by characters width
+        if(drawFontChar(tfont, charval, tpos, tcolor))
+        {
+            //advance tpos by character width
+            tpos.X += tfont->m_Clips[charval].getWidth();
+        }
+    }
+
+    return true;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////
 //  DEBUG

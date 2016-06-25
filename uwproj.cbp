@@ -35,9 +35,10 @@
 			<Add directory="include/irrlicht-1.8.3" />
 		</Compiler>
 		<Linker>
-			<Add library="lib\irrlicht-1.8.3\libIrrlicht.a" />
+			<Add library="lib/irrlicht-1.8.3/libIrrlicht.a" />
 			<Add directory="lib/irrlicht-1.8.3" />
 		</Linker>
+		<Unit filename="include/font.hpp" />
 		<Unit filename="include/game.hpp" />
 		<Unit filename="include/level.hpp" />
 		<Unit filename="include/object.hpp" />
