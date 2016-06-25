@@ -29,8 +29,12 @@ Object::~Object()
 
 //////////////////////////////////////////////////////
 //  OBJECT INSTANCE
+int ObjectInstance::m_InstanceCount = 0;
 ObjectInstance::ObjectInstance(Object *tobj)
 {
+    m_InstanceID = m_InstanceCount;
+    m_InstanceCount++;
+
     m_Ref = tobj;
     m_Billboard = NULL;
 
@@ -66,7 +70,8 @@ void ObjectInstance::printDebug()
     std::cout << "\nObject Instance:\n";
     std::cout << "----------------\n";
     std::cout << "Desc : " << getDescription() << std::endl;
-    std::cout << "ID   : 0x" << std::hex << getID() << std::dec << std::endl;
+    std::cout << "Ref ID   : 0x" << std::hex << getRefID() << std::dec << std::endl;
+    std::cout << "Instance ID : 0x" << std::hex << getInstanceID() << std::dec << std::endl;
     std::cout << "Flags : " << m_Flags << std::endl;
     std::cout << "Enchanted : " << m_Enchanted << std::endl;
     std::cout << "Door Dir  : " << m_DoorDir << std::endl;

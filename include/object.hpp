@@ -32,11 +32,15 @@ public:
 
     void setTexture(ITexture *ntxt) { m_TXT = ntxt;}
     void setDescription(std::string ndesc) { m_Description = ndesc;}
+
+    int getObjectCount() { return m_TotalObjects;}
 };
 
 class ObjectInstance
 {
 private:
+    static int m_InstanceCount;
+    int m_InstanceID;
     Object *m_Ref;
     IBillboardSceneNode *m_Billboard;
 
@@ -66,7 +70,8 @@ public:
 
     //reference
     Object *getRef() { return m_Ref;}
-    int getID() { return m_Ref->getID();}
+    int getRefID() { return m_Ref->getID();}
+    int getInstanceID() { return m_InstanceID;}
     ITexture *getTexture() { return m_Ref->getTexture();}
     std::string getDescription() { return m_Ref->getDescription();}
 
@@ -104,6 +109,8 @@ public:
     void setOwner(int nowner) { m_Owner = nowner;}
     int getQuantity() { return m_Quantity;}
     void setQuantity(int nquant) { m_Quantity = nquant;}
+
+    int getObjectInstanceCount() { return m_InstanceCount;}
 
     //debug
     void printDebug();

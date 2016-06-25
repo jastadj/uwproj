@@ -2231,6 +2231,7 @@ bool Game::updateObject(ObjectInstance *tobj, Tile *ttile)
 
         //set id to pickable id
         tbb->setID(ID_IsPickable);
+        tbb->setName("OBJ");
 
         //link billboard node to object
         //std::cout << "Setting billboard scene node to object...\n";
