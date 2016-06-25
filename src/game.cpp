@@ -727,6 +727,15 @@ void Game::mainLoop()
             m_GUIEnv->drawAll();
         }
 
+        //font testing
+        /*
+        const int mychar = 66;
+        int mycharx = 50;
+        int mychary = 50;
+        UWFont *myfont = &m_FontNormal;
+        m_Driver->draw2DImage( myfont->m_Texture, position2d<s32>(mycharx*SCREEN_SCALE, mychary*SCREEN_SCALE), myfont->m_Clips[mychar], NULL, SColor(255,255,255,255), true);
+        */
+
         /*
         m_Driver->setMaterial(SMaterial());
         m_Driver->setTransform(video::ETS_WORLD, IdentityMatrix);
@@ -2092,6 +2101,7 @@ int Game::loadFont(std::string tfilename, UWFont *font)
 {
     //note : this assume a 64x64 font image
 
+    //height and width of texture sheet
     const int sheetdim = 12;
 
     if(font == NULL) return -1; // font is null
@@ -2213,20 +2223,15 @@ int Game::loadFont(std::string tfilename, UWFont *font)
     for(int j = 0; j < charstoread; j++)
     {
         //create font clipping rect
-        core::rect<s32> fontrect(position2d<s32>( int(j%sheetdim) * widestcharacter, int(j/sheetdim) * heightpx),
-                                 dimension2d<u32>(charwidths[j], heightpx));
+        core::rect<s32> fontrect(position2d<s32>( int(j%sheetdim) * widestcharacter * SCREEN_SCALE, int(j/sheetdim) * heightpx * SCREEN_SCALE),
+                                 dimension2d<u32>(charwidths[j]*SCREEN_SCALE, heightpx*SCREEN_SCALE));
         font->m_Clips.push_back(fontrect);
     }
 
     //create new image and copy binary font data to image
-    newimg = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(widestcharacter * sheetdim, heightpx * sheetdim));
+    newimg = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(widestcharacter * sheetdim * SCREEN_SCALE, heightpx * sheetdim * SCREEN_SCALE));
     newimg->fill(SColor(TRANSPARENCY_COLOR) );
     if(newimg == NULL) return -5; // error creating image
-
-    //test
-    int recttest =66;
-    std::cout << "clip rect " << recttest << " : " << font->m_Clips[recttest].UpperLeftCorner.X << "," << font->m_Clips[recttest].UpperLeftCorner.Y
-     << "  -  " << font->m_Clips[recttest].getWidth() << "," << font->m_Clips[recttest].getHeight() << std::endl;
 
     for(int i = 0; i < int(fontbin.size()); i++)
     {
@@ -2239,7 +2244,19 @@ int Game::loadFont(std::string tfilename, UWFont *font)
                 //if reading beyond current font width, ignore
                 if(k - binpos >= font->m_Clips[i].getWidth()) continue;
 
-                if(fontbin[i][k]) newimg->setPixel( font->m_Clips[i].UpperLeftCorner.X + (k - binpos), font->m_Clips[i].UpperLeftCorner.Y + int(k/(widthbytes*8)), SColor(255,255,255,255));
+                if(fontbin[i][k])
+                {
+                    for(int q = 0; q < SCREEN_SCALE; q++)
+                    {
+                        for(int w = 0; w < SCREEN_SCALE; w++)
+                        {
+                            newimg->setPixel( font->m_Clips[i].UpperLeftCorner.X + ((k - binpos)*SCREEN_SCALE)+w,
+                                              font->m_Clips[i].UpperLeftCorner.Y + (int(k/(widthbytes*8))*SCREEN_SCALE)+q,
+                                              SColor(255,255,255,255));
+                        }
+                    }
+
+                }
             }
 
             //advance binary position
@@ -2248,8 +2265,8 @@ int Game::loadFont(std::string tfilename, UWFont *font)
     }
 
     //create scaled image
-    IImage *scaledimage = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(widestcharacter * sheetdim * SCREEN_SCALE, heightpx * sheetdim * SCREEN_SCALE));
-    newimg->copyToScaling(scaledimage);
+    //IImage *scaledimage = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(widestcharacter * sheetdim * SCREEN_SCALE, heightpx * sheetdim * SCREEN_SCALE));
+    //newimg->copyToScaling(scaledimage);
 
 
     //create texture name
@@ -2257,7 +2274,8 @@ int Game::loadFont(std::string tfilename, UWFont *font)
     texturename << "font";
 
     //create texture from image
-    font->m_Texture = m_Driver->addTexture( texturename.str().c_str(), scaledimage );
+    //font->m_Texture = m_Driver->addTexture( texturename.str().c_str(), scaledimage );
+    font->m_Texture = m_Driver->addTexture( texturename.str().c_str(), newimg );
 
     //set transparency color (pink, 255,0,255)
     //note : this is palette index #0, set automatically when
@@ -2268,7 +2286,7 @@ int Game::loadFont(std::string tfilename, UWFont *font)
 
     //drop image, no longer needed
     newimg->drop();
-    scaledimage->drop();
+    //scaledimage->drop();
 
     ifile.close();
 
