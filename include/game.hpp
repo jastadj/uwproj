@@ -12,6 +12,7 @@
 #include "level.hpp"
 #include "object.hpp"
 
+#define DEBUG_NO_START 0
 #define TRANSPARENCY_COLOR 0,255,0,255
 #define FULLSCREEN 0
 #define USE_OCTREE 1
@@ -155,6 +156,7 @@ private:
     int loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist);
     int loadTexture(std::string tfilename, std::vector<ITexture*> *tlist);
     int loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int tpalindex);
+    int loadFont(std::string tfilename, std::vector<ITexture*> *tlist);
     int initObjects();
 
 
@@ -175,6 +177,9 @@ private:
     std::vector<ITexture*> m_CursorsTXT;
     std::vector<ITexture*> m_ObjectsTXT;
     std::vector<ITexture*> m_QuestionTXT;
+
+    //fonts
+    std::vector<ITexture*> m_FontNormalTXT;
 
     //strings
     std::vector<stringBlock> m_StringBlocks;

@@ -73,6 +73,32 @@ std::vector<bool> printByteToBin(int val, bool quiet)
     return binlist;
 }
 
+std::vector<bool> printByteToBin(unsigned char *data, int datasize, bool quiet)
+{
+    std::vector<bool> binlist;
+
+    for(int i = 0; i < datasize; i++)
+    {
+        int tempval = int( data[i]);
+
+        std::vector<bool> tobin = printByteToBin(tempval);
+
+        for(int n = 0; n < int(tobin.size()); n++) binlist.push_back(tobin[n]);
+    }
+
+    if(!quiet)
+    {
+        for(int i = 0; i < int(binlist.size()); i++)
+        {
+            if(binlist[i]) std::cout << "1";
+            else std::cout << "0";
+        }
+        std::cout << std::endl;
+    }
+
+    return binlist;
+}
+
 int getCount(std::vector<int> ndata, int *curindex, int nibsize)
 {
     int ccount = ndata[*curindex];

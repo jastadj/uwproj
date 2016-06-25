@@ -105,6 +105,13 @@ int Game::start()
         std::cout << "done.\n";
         std::cout << std::endl;
 
+    std::cout << "Loading fonts...\n";
+        errorcode = loadFont("UWDATA\\font5x6p.sys", &m_FontNormalTXT);
+        if(errorcode) {std::cout << "Error loading normal font 5x6p!  ERROR CODE " << errorcode << "\n"; return -1;}
+        else std::cout << "Loaded normal font 5x6p with " << m_FontNormalTXT.size() << " characters.\n";
+        std::cout << std::endl;
+
+
     std::cout << "Initializing objects...";
         errorcode = initObjects();
         if(errorcode < 0) {std::cout << "Error initializing objects!  ERROR CODE " << errorcode << "\n"; return-1;}
@@ -117,7 +124,7 @@ int Game::start()
 
     //mLevels[0].printDebug();
 
-    if(true)
+    if(!DEBUG_NO_START)
     {
     //generate level geometry
     std::cout << "Generating level geometry...\n";
@@ -150,8 +157,9 @@ int Game::initIrrlicht()
 
     //get video
     m_Driver = m_Device->getVideoDriver();
-    m_Driver->setTextureCreationFlag(irr::video::ETCF_ALWAYS_32_BIT,true);
-    m_Driver->setTextureCreationFlag(irr::video::ETCF_ALWAYS_16_BIT,false);
+    m_Driver->setTextureCreationFlag(irr::video::ETCF_ALWAYS_32_BIT,false);
+    m_Driver->setTextureCreationFlag(irr::video::ETCF_ALLOW_NON_POWER_2, true);
+    m_Driver->setTextureCreationFlag(irr::video::ETCF_ALWAYS_16_BIT,true);
     m_Driver->setTextureCreationFlag(irr::video::ETCF_CREATE_MIP_MAPS,false);
 
     //get scene manager
@@ -292,9 +300,9 @@ void Game::mainLoop()
 
     IGUIImage *myguiimage = m_GUIEnv->addImage(m_BitmapsTXT[2], position2d<s32>(0,0), true);
 
-    std::vector<ITexture*> *texturestotest = &m_CursorsTXT;
+    std::vector<ITexture*> *texturestotest = &m_FontNormalTXT;
     int texturestotestsize = int(texturestotest->size());
-    int texturestotestindex = 0;
+    int texturestotestindex = 68;
     IGUIImage *mymousecursor = m_GUIEnv->addImage( (*texturestotest)[texturestotestindex], position2d<s32>(0,0), true);
 
 
@@ -2079,6 +2087,170 @@ int Game::loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int t
 
     return 0;
 }
+
+int Game::loadFont(std::string tfilename, std::vector<ITexture*> *tlist)
+{
+    if(tlist == NULL) return -1; // vector list is null
+
+    //open font (.sys) file
+    std::ifstream ifile;
+    ifile.open(tfilename.c_str(), std::ios_base::binary);
+
+    //check if file loaded properly
+    if(!ifile.is_open()) return -2; // error unable to open file
+
+    //read in header
+    //unknown byte
+    unsigned char unkbuf[2];
+    int unkbyte = 0;
+    readBin(&ifile, unkbuf, 2);
+    unkbyte = lsbSum(unkbuf, 2);
+
+    //character size (in bytes)
+    unsigned char charsizebuf[2];
+    int charbytes = 0;
+    readBin(&ifile, charsizebuf, 2);
+    charbytes = lsbSum(charsizebuf, 2);
+
+    //width of blank space character
+    unsigned char wblankspacebuf[2];
+    int blankwidthpx = 0;
+    readBin(&ifile, wblankspacebuf, 2);
+    blankwidthpx = lsbSum(wblankspacebuf, 2);
+
+    //font height
+    unsigned char fontheightbuf[2];
+    int heightpx = 0;
+    readBin(&ifile, fontheightbuf, 2);
+    heightpx = lsbSum(fontheightbuf, 2);
+
+    //width of character row in bytes
+    unsigned char wcharrowsizebuf[2];
+    int widthbytes = 0;
+    readBin(&ifile, wcharrowsizebuf, 2);
+    widthbytes = lsbSum(wcharrowsizebuf, 2);
+
+    //max width of character in pixels
+    unsigned char maxpixelwidthbuf[2];
+    int maxwidthpx = 0;
+    readBin(&ifile, maxpixelwidthbuf, 2);
+    maxwidthpx = lsbSum(maxpixelwidthbuf, 2);
+
+    //debug info
+    std::cout << std::hex;
+    std::cout << "unk val           = 0x" << unkbyte << std::endl;
+    std::cout << "char bytes        = 0x" << charbytes << std::endl;
+    std::cout << "width bytes       = 0x" << widthbytes << std::endl;
+    std::cout << "blank width px    = 0x" << blankwidthpx << std::endl;
+    std::cout << "height px         = 0x" << heightpx << std::endl;
+    std::cout << "max width px      = 0x" << maxwidthpx << std::endl;
+    std::cout << std::dec;
+
+    int charcounter = 0;
+
+    while(!ifile.eof())
+    {
+        bool isblankspace = true;
+
+        //read in bytes for each font pixel row
+        std::vector< std::vector<bool> > fontbin;
+
+        for(int i = 0; i < heightpx; i++)
+        {
+            unsigned char rowbuf[widthbytes];
+            if(!readBin(&ifile, rowbuf, widthbytes)) break;;
+            fontbin.push_back( printByteToBin(rowbuf, widthbytes ));
+        }
+
+        if(ifile.eof()) break;
+
+        //read in current character width in pixels
+        unsigned char currentwidthpxbuf[1];
+        int currentwidthpx = 0;
+        readBin(&ifile, currentwidthpxbuf, 1);
+        currentwidthpx = int(currentwidthpxbuf[0]);
+
+        //if current width is 0, assume maximum pixel width value
+        // note : need to figure out where blank space is used??
+        if(currentwidthpx == 0) currentwidthpx = maxwidthpx;
+
+        //determine if character is blank character (no data)
+        for(int i = 0; i < int(fontbin.size()); i++)
+        {
+            for(int n = 0; n < int(fontbin[i].size()); n++)
+            {
+                if(n >= currentwidthpx) continue;
+
+                //if data is found, not a blank space
+                if(fontbin[i][n] && isblankspace) isblankspace = false;
+                if(!isblankspace) break;
+            }
+            if(!isblankspace) break;
+        }
+
+        //if is a blank space, set current pixel width to blank space width
+        if(isblankspace) currentwidthpx = blankwidthpx;
+
+        //texture / image
+        ITexture *newtxt = NULL;
+        IImage *newimg = NULL;
+
+        //create new image using bitmap dimensions
+        //note : due to nature of small font, create image already scaled up, or else doesn't seem to work right
+        //newimg = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(currentwidthpx*SCREEN_SCALE, heightpx*SCREEN_SCALE));
+        newimg = m_Driver->createImage(ECF_A1R5G5B5, dimension2d<u32>(currentwidthpx*SCREEN_SCALE, heightpx*SCREEN_SCALE));
+        newimg->fill(SColor(TRANSPARENCY_COLOR) );
+        if(newimg == NULL) return -5; // error creating image
+
+        //set pixel data from bits
+        //newimg->fill( SColor(255,255,255,255));
+
+        if(charcounter == 68) std::cout << "font bin dimensions:" << fontbin[0].size() << "," << fontbin.size() << std::endl;
+        for(int i = 0; i < int(fontbin.size()); i++)
+        {
+            for(int n = 0; n < int(fontbin[i].size()); n++)
+            {
+                if(n >= currentwidthpx) continue;
+
+                if(fontbin[i][n])
+                {
+                    for(int k = 0; k < SCREEN_SCALE; k++)
+                        for(int p = 0; p < SCREEN_SCALE; p++) newimg->setPixel( (n*SCREEN_SCALE) + p, (i*SCREEN_SCALE) + k, SColor(255,255,255,255));
+                }
+
+            }
+        }
+
+
+
+        //create texture name
+        std::stringstream texturename;
+        texturename << "fontchar_" << charcounter;
+
+        //create texture from image
+        newtxt = m_Driver->addTexture( texturename.str().c_str(), newimg );
+
+        //set transparency color (pink, 255,0,255)
+        //note : this is palette index #0, set automatically when
+        //       loading in palettes (see loadPalette())
+        m_Driver->makeColorKeyTexture(newtxt,  SColor(TRANSPARENCY_COLOR));
+
+        if(newtxt == NULL) return -12; // error creating texture
+        //push texture into texture list
+        tlist->push_back(newtxt);
+
+        //drop image, no longer needed
+        newimg->drop();
+
+        charcounter++;
+    }
+
+
+    ifile.close();
+
+    return 0;
+}
+
 
 int Game::initObjects()
 {
