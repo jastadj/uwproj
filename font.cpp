@@ -76,6 +76,9 @@ int loadFont(std::string tfilename, UWFont *font)
     //characters to read
     int charstoread = (fsize - 12) / (charbytes + 1); // header is 12 bytes, charsize + 1 currentcharwidth byte
 
+    //set font height
+    font->m_Height = heightpx;
+
     //debug info
     std::cout << std::hex;
     std::cout << "unk val           = 0x" << unkbyte << std::endl;

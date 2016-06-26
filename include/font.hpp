@@ -17,6 +17,7 @@ struct UWFont
 {
     ITexture *m_Texture;
     std::vector<core::rect<s32> > m_Clips;
+    int m_Height;
 };
 
 int loadFont(std::string tfilename, UWFont *font);

@@ -15,13 +15,16 @@ Game::Game()
 
     m_CurrentLevel = 0;
 
+    m_DoShutdown = false; //shutdown flag to let threads know they need to die
+
+    //debug parameters
     dbg_noclip = false;
     dbg_nolighting = false;
     dbg_showboundingbox = false;
     dbg_showmainui = true;
     dbg_dodrawpal = false;
 
-    //debug
+    //debug build options
 #ifdef DEBUG
     dbg_noclip = true;
     dbg_nolighting = true;
@@ -34,8 +37,16 @@ Game::~Game()
     m_Device->drop();
 }
 
+
 /////////////////////////////////////////////////////////////////////
-//
+//  THREADS
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////
+//  INITIALIZATION
 int Game::start()
 {
     int errorcode = 0;
@@ -149,14 +160,24 @@ int Game::start()
         std::cout << mLevels[m_CurrentLevel].getMeshes().size() << " meshes generated for level " << m_CurrentLevel << std::endl;
         std::cout << std::endl;
 
+    //create threads
+    MouseUpdateThread *mouseupdatethread = new MouseUpdateThread(m_Mouse, &m_DoShutdown);
+    m_Threads.push_back(mouseupdatethread);
+
+    //start threads
+    for(int i = 0; i < int(m_Threads.size()); i++) m_Threads[i]->StartInternalThread();
+
     //start main loop
     std::cout << "Starting main loop...\n";
     mainLoop();
+
+    m_DoShutdown = true;
     }
 
-
-
-
+    for(int i = 0; i < int(m_Threads.size()); i++)
+    {
+        m_Threads[i]->WaitForInternalThreadToExit();
+    }
 
     return 0;
 }
@@ -221,14 +242,7 @@ int Game::initCamera()
     //capture default FOV
     m_CameraDefaultFOV = m_Camera->getFOV();
 
-    //additional camera settings
-    m_Camera->setUpVector(vector3df(0,1,0));
-    m_Camera->setFarValue(UNIT_SCALE*20);
-    m_Camera->setNearValue(0.1f);
-    //m_Camera->setAutomaticCulling(EAC_OFF);
-    //m_CameraTarget->setPosition( vector3df(0,0,1));
-    //m_Camera->addChild(m_CameraTarget);
-    //m_CameraTarget->addChild(m_Camera);
+
 
     //camera light
     m_LightRadius = 5*8; // 5 tiles * tile units
@@ -240,6 +254,17 @@ int Game::initCamera()
     m_CameraLight->enableCastShadow(false);
     m_CameraLight->setRadius(m_LightRadius/40);
     m_LightData = m_CameraLight->getLightData();
+
+
+    //additional camera settings
+    m_Camera->setUpVector(vector3df(0,1,0));
+    m_Camera->setFarValue(m_LightRadius/1.6);
+    m_Camera->setNearValue(0.1f);
+    //m_Camera->setAutomaticCulling(EAC_OFF);
+    //m_CameraTarget->setPosition( vector3df(0,0,1));
+    //m_Camera->addChild(m_CameraTarget);
+    //m_CameraTarget->addChild(m_Camera);
+
 
 
     //level camera (avoid camera rotation when pointing at target)
@@ -415,7 +440,7 @@ void Game::mainLoop()
         mouseLeftClicked = false;
 
         //update mouse position
-        m_Mouse->updatePosition();
+        //m_Mouse->updatePosition();
 
         //std::cout << "Mouse:" << m_MousePos.X << "," << m_MousePos.Y << std::endl;
 
@@ -773,20 +798,22 @@ void Game::mainLoop()
 
 int Game::drawMainUI()
 {
-    const static core::rect<s32> screen_rect( position2d<s32>(0,0), dimension2d<u32>(SCREEN_WIDTH, SCREEN_HEIGHT));
-    const static rect<s32> scroll_edge_rect( position2d<s32>(0,0), dimension2d<u32>(m_ScrollEdgeTXT[0]->getSize()));
-    const static core::rect<s32> m_ScrollRect( position2d<s32>(SCROLL_POS_X, SCROLL_POS_Y), dimension2d<u32>(SCROLL_WIDTH, SCROLL_HEIGHT));
+    const static rect<s32> screen_rect( position2d<s32>(0,0), dimension2d<u32>(SCREEN_WIDTH, SCREEN_HEIGHT));
+    const static rect<s32> scroll_edge_rect( position2d<s32>(0,0), dimension2d<u32>(m_ScrollEdgeTXT[0]->getSize()) );
     const static SColor m_ScrollFillColor = m_Palettes[0][SCROLL_PAL_INDEX];
 
+    //draw main ui graphic
     m_Driver->draw2DImage( m_BitmapsTXT[2], position2d<s32>(0,0), screen_rect, NULL, SColor(255,255,255,255), true);
 
-    //draw scroll components
-    m_Driver->draw2DRectangle(m_ScrollFillColor, m_ScrollRect);
-    m_Driver->draw2DImage( m_ScrollEdgeTXT[m_ScrollEdgeState], position2d<s32>(SCROLL_EDGE_LEFT_X, SCROLL_EDGE_Y), scroll_edge_rect, NULL, SColor(255,255,255,255), true);
-    m_Driver->draw2DImage( m_ScrollEdgeTXT[m_ScrollEdgeState+5], position2d<s32>(SCROLL_EDGE_RIGHT_X, SCROLL_EDGE_Y), scroll_edge_rect, NULL, SColor(255,255,255,255), true);
+    //draw scroll components (edges and main scroll window)
+    int scrolledgestate = m_Scroll->getScrollEdgeState();
+    m_Driver->draw2DRectangle(m_ScrollFillColor, m_Scroll->getScrollRect());
+    m_Driver->draw2DImage( m_ScrollEdgeTXT[scrolledgestate], position2d<s32>(SCROLL_EDGE_LEFT_X, SCROLL_EDGE_Y), scroll_edge_rect, NULL, SColor(255,255,255,255), true);
+    m_Driver->draw2DImage( m_ScrollEdgeTXT[scrolledgestate+5], position2d<s32>(SCROLL_EDGE_RIGHT_X, SCROLL_EDGE_Y), scroll_edge_rect, NULL, SColor(255,255,255,255), true);
 
-    //test characters
-    drawFontString(&m_FontNormal, "This is a test.", m_ScrollRect.UpperLeftCorner);
+    //draw scroll messages
+    m_Scroll->draw();
+
 }
 
 void Game::updateCamera()
@@ -2188,7 +2215,8 @@ int Game::initMainUI()
     if(m_ScrollEdgeTXT.empty()) return -3;
     if( int(m_ScrollEdgeTXT.size()) < 10) return -4;
 
-    m_ScrollEdgeState = 0; // state of edge indexes, as scroll "pushes down", edges scroll
+    //create scroll object
+    m_Scroll = new Scroll(this);
 
     return 0;
 }

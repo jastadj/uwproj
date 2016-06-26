@@ -4,6 +4,8 @@
 #include <irrlicht.h>
 #include "game.hpp"
 
+#include "thread.hpp"
+
 //irrlicht namespaces
 using namespace irr;
 using namespace core;
@@ -39,6 +41,19 @@ public:
     int getMousePositionX() { return m_MousePos.X;}
     int getMousePositionY() { return m_MousePos.Y;}
     vector2di *getMousePosition() { return &m_MousePos;}
+};
+
+//mouse update thread
+class MouseUpdateThread:public MyThreadClass
+{
+private:
+    Mouse *m_Mouse;
+    bool *shutdownflag;
+
+    void InternalThreadEntry();
+public:
+    MouseUpdateThread(Mouse *nmouse, bool *nshutdownflag);
+    ~MouseUpdateThread();
 };
 
 #endif // CLASS_MOUSE

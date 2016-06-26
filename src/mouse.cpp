@@ -29,3 +29,27 @@ void Mouse::draw()
     core::rect<s32> screen_rect( position2d<s32>(0,0), m_Texture->getSize());
     m_Driver->draw2DImage( m_Texture, m_MousePos, screen_rect, NULL, SColor(255,255,255,255), true);
 }
+
+////////////////////////////////////////////////////////////
+//  MOUSE UPDATE THREAD
+MouseUpdateThread::MouseUpdateThread(Mouse *nmouse, bool *nshutdownflag)
+{
+    m_Mouse = nmouse;
+
+    shutdownflag = nshutdownflag;
+}
+
+MouseUpdateThread::~MouseUpdateThread()
+{
+
+}
+
+void MouseUpdateThread::InternalThreadEntry()
+{
+    while(!(*shutdownflag) )
+    {
+        m_Mouse->updatePosition();
+    }
+
+    pthread_exit(NULL);
+}

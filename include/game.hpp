@@ -6,14 +6,16 @@
 #include <string>
 #include <fstream>
 #include <vector>
-#include <pthread.h>
+
 
 #include <irrlicht.h>
 
 #include "level.hpp"
 #include "object.hpp"
 #include "font.hpp"
+#include "thread.hpp"
 #include "mouse.hpp"
+#include "scroll.hpp"
 
 #define DEBUG_NO_START 0
 #define TRANSPARENCY_COLOR 0,255,0,255
@@ -36,14 +38,7 @@
 #define MOVE_SPEED 15
 #define STANDING_HEIGHT 3
 
-#define SCROLL_POS_X 15*SCREEN_SCALE
-#define SCROLL_POS_Y 169*SCREEN_SCALE
-#define SCROLL_WIDTH 291*SCREEN_SCALE
-#define SCROLL_HEIGHT 30*SCREEN_SCALE
-#define SCROLL_PAL_INDEX 42
-#define SCROLL_EDGE_Y 169*SCREEN_SCALE
-#define SCROLL_EDGE_LEFT_X 11*SCREEN_SCALE
-#define SCROLL_EDGE_RIGHT_X 306*SCREEN_SCALE
+
 
 
 //irrlicht namespaces
@@ -81,6 +76,7 @@ struct stringBlock
 
 //forward declaration
 class Mouse;
+class Scroll;
 
 
 class MyEventReceiver : public IEventReceiver
@@ -137,6 +133,8 @@ private:
     Game();
     static Game *mInstance;
 
+    bool m_DoShutdown;
+
     //irrlicht renderer
     IrrlichtDevice *m_Device;
     IVideoDriver *m_Driver;
@@ -160,8 +158,12 @@ private:
     int m_LightRadius;
     SLight m_LightData;
 
+    //threads
+    std::vector<MyThreadClass*> m_Threads;
+
     //mouse
     Mouse *m_Mouse;
+
 
     //mesh stuff
     SMesh *getCubeMesh(f32 cubesize);
@@ -216,7 +218,7 @@ private:
 
     //main UI
     int drawMainUI();
-    int m_ScrollEdgeState;
+    Scroll *m_Scroll;
 
     //debug
     bool dbg_noclip;
@@ -256,6 +258,9 @@ public:
 
     //strings
     std::string getDefaultString() { return "no string";}
+
+    //fonts
+    UWFont *getNormalFont() { return &m_FontNormal;}
 
     //get irrlicht components
     ISceneManager *getSceneManager() { return m_SMgr;}
