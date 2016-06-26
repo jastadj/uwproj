@@ -585,7 +585,11 @@ void Game::mainLoop()
                 {
                     mouseLeftClicked = true;
 
-                    std::cout << "mouse clicked @" << m_Mouse->getMousePositionX() << "," << m_Mouse->getMousePositionY() << std::endl;
+                    std::stringstream mouseclickss;
+                    mouseclickss << "mouse clicked @" << m_Mouse->getMousePositionX() << "," << m_Mouse->getMousePositionY();
+                    //print to scroll message window and console
+                    std::cout << mouseclickss.str() << std::endl;
+                    m_Scroll->addMessage(mouseclickss.str());
 
                     //if mouse was clicked within world view
                     //if main ui is displayed

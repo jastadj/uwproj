@@ -13,6 +13,7 @@
 #define SCROLL_EDGE_Y 169*SCREEN_SCALE
 #define SCROLL_EDGE_LEFT_X 11*SCREEN_SCALE
 #define SCROLL_EDGE_RIGHT_X 306*SCREEN_SCALE
+#define SCROLL_DEFAULT_FONT_PAL 47
 
 enum SCROLLMSGFONTS
 {
@@ -38,6 +39,8 @@ private:
     int m_ScrollEdgeState;
 
     rect<s32> m_ScrollRect;
+    static SColor m_DefaultColor;
+    int m_ScrollStartIndex;
 
     //fonts
     UWFont *m_FontNormal;
@@ -55,7 +58,7 @@ public:
     int getScrollEdgeState() { return m_ScrollEdgeState;}
 
     void draw();
-    void addMessage(std::string msgstring, int fonttype = FONT_NORMAL, SColor fcolor = SColor(255,255,255,255));
+    void addMessage(std::string msgstring, int fonttype = FONT_NORMAL, SColor fcolor = m_DefaultColor);
 
 };
 #endif // CLASS_SCROLL

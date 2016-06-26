@@ -106,8 +106,6 @@ private:
     //init / load
     int initIrrlicht();
     int initCamera();
-
-
     int initMouse();
     int initObjects();
     int initMainUI();

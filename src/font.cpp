@@ -76,8 +76,11 @@ int loadFont(std::string tfilename, UWFont *font)
     //characters to read
     int charstoread = (fsize - 12) / (charbytes + 1); // header is 12 bytes, charsize + 1 currentcharwidth byte
 
+    //set fonts character count
+    font->m_Count = charstoread;
+
     //set font height
-    font->m_Height = heightpx;
+    font->m_Height = heightpx * SCREEN_SCALE;
 
     //debug info
     std::cout << std::hex;
