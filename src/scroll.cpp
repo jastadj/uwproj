@@ -47,6 +47,9 @@ bool Scroll::startInputMode(std::string promptstr)
     m_CursorGraphic = gptr->getDriver()->addTexture( "temp", newimg );
     newimg->drop();
 
+    //reset cursor blink timer
+    m_CursorTimer.reset();
+
     //tell game that input context is scroll input entry
     gptr->setInputContext(IMODE_SCROLL_ENTRY);
 }
@@ -148,12 +151,13 @@ void Scroll::draw()
                                    m_MsgBuffer[i + m_ScrollStartIndex].color );
 
                     //draw a cursor
-                    if(m_CursorGraphic != NULL)
+                    if(m_CursorGraphic != NULL && m_CursorTimer.getElapsedTime() < SCROLL_CURSOR_BLINK)
                     {
                         //get width of message
                         int msgwidth = getStringWidth(m_MsgBuffer[i + m_ScrollStartIndex].font,  std::string(m_MsgBuffer[i+m_ScrollStartIndex].msg + *m_InputModeString) );
                         gptr->getDriver()->draw2DImage( m_CursorGraphic, position2d<s32>(mpos.X + msgwidth, mpos.Y ));
                     }
+                    if(m_CursorTimer.getElapsedTime() >= SCROLL_CURSOR_BLINK*2) m_CursorTimer.reset();
 
                 }
 

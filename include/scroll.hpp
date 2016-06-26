@@ -4,6 +4,7 @@
 #include "game.hpp"
 #include "irrcommon.hpp"
 
+#include "timer.hpp"
 
 #define SCROLL_POS_X 15*SCREEN_SCALE
 #define SCROLL_POS_Y 169*SCREEN_SCALE
@@ -53,6 +54,7 @@ private:
     //input mode
     std::string *m_InputModeString;
     ITexture *m_CursorGraphic;
+    Timer m_CursorTimer;
 
 
 public:
