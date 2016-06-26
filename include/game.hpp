@@ -12,6 +12,7 @@
 
 #include "event.hpp"
 #include "strings.hpp"
+#include "graphics.hpp"
 #include "level.hpp"
 #include "object.hpp"
 #include "font.hpp"
@@ -20,7 +21,6 @@
 #include "scroll.hpp"
 
 #define DEBUG_NO_START 0
-#define TRANSPARENCY_COLOR 0,255,0,255
 #define FULLSCREEN 0
 #define USE_OCTREE 1
 #define CONFIG_FOR_COLLISION 1
@@ -106,11 +106,8 @@ private:
     //init / load
     int initIrrlicht();
     int initCamera();
-    int loadPalette();
-    int loadAuxPalette();
-    int loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist);
-    int loadTexture(std::string tfilename, std::vector<ITexture*> *tlist);
-    int loadBitmap(std::string tfilename, std::vector<ITexture*> *tlist, int tpalindex);
+
+
     int initMouse();
     int initObjects();
     int initMainUI();
@@ -185,6 +182,8 @@ public:
     const std::vector<ITexture*> *getWall64Textures() const { return &m_Wall64TXT;}
     const std::vector<ITexture*> *getFloor32Textures() const { return &m_Floor32TXT;}
     ITexture *getDefaultTexture() { return m_QuestionTXT[0];}
+    std::vector< std::vector<SColor> > *getPalletes() { return &m_Palettes;}
+    std::vector< std::vector<SColor> > *getAuxPalletes() { return &m_AuxPalettes;}
 
     //objects
     bool updateObject(ObjectInstance *tobj, Tile *ttile);
