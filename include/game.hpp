@@ -11,6 +11,7 @@
 #include "irrcommon.hpp"
 
 #include "event.hpp"
+#include "strings.hpp"
 #include "level.hpp"
 #include "object.hpp"
 #include "font.hpp"
@@ -55,19 +56,11 @@ enum
     ID_IsObject = 1 << 1
 };
 
-struct stringBlock
-{
-    int id;
-    std::vector<std::string> strings;
-};
 
 
 //forward declaration
 class Mouse;
 class Scroll;
-
-
-
 
 class Game
 {
@@ -106,7 +99,6 @@ private:
     //mouse
     Mouse *m_Mouse;
 
-
     //mesh stuff
     SMesh *getCubeMesh(f32 cubesize);
     SMesh *getSquareMesh(int ul, int ur, int br, int bl);
@@ -114,7 +106,7 @@ private:
     //init / load
     int initIrrlicht();
     int initCamera();
-    int loadStrings();
+
     int loadLevel();
     int loadPalette();
     int loadAuxPalette();

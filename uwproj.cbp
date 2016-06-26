@@ -46,6 +46,7 @@
 		<Unit filename="include/mouse.hpp" />
 		<Unit filename="include/object.hpp" />
 		<Unit filename="include/scroll.hpp" />
+		<Unit filename="include/strings.hpp" />
 		<Unit filename="include/thread.hpp" />
 		<Unit filename="include/tools.hpp" />
 		<Unit filename="src/font.cpp" />
@@ -55,6 +56,7 @@
 		<Unit filename="src/mouse.cpp" />
 		<Unit filename="src/object.cpp" />
 		<Unit filename="src/scroll.cpp" />
+		<Unit filename="src/strings.cpp" />
 		<Unit filename="src/tools.cpp" />
 		<Extensions>
 			<code_completion />
