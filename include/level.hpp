@@ -10,14 +10,7 @@
 
 #include "object.hpp"
 
-#include <irrlicht.h>
-
-using namespace irr;
-using namespace core;
-using namespace scene;
-using namespace video;
-using namespace io;
-using namespace gui;
+#include "irrcommon.hpp"
 
 enum _TILETYPE{TILETYPE_SOLID, TILETYPE_OPEN, TILETYPE_D_SE, TILETYPE_D_SW, TILETYPE_D_NE, TILETYPE_D_NW,
                 TILETYPE_SL_N, TILETYPE_SL_S, TILETYPE_SL_E, TILETYPE_SL_W, TILETYPE_TOTAL};

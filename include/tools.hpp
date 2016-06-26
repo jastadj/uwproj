@@ -7,7 +7,7 @@
 #include <fstream>
 #include <vector>
 
-#include <irrlicht.h>
+#include "irrcommon.hpp"
 
 
 bool readBin(std::ifstream *fptr, unsigned char *data, int length, bool quiet = true);

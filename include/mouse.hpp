@@ -1,18 +1,11 @@
 #ifndef CLASS_MOUSE
 #define CLASS_MOUSE
 
-#include <irrlicht.h>
+#include "irrcommon.hpp"
 #include "game.hpp"
 
 #include "thread.hpp"
 
-//irrlicht namespaces
-using namespace irr;
-using namespace core;
-using namespace scene;
-using namespace video;
-using namespace io;
-using namespace gui;
 
 //forward declarations
 class Game;

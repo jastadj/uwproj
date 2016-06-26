@@ -1,17 +1,9 @@
 #ifndef CLASS_SCROLL
 #define CLASS_SCROLL
 
-#include <irrlicht.h>
-
 #include "game.hpp"
+#include "irrcommon.hpp"
 
-//irrlicht namespaces
-using namespace irr;
-using namespace core;
-using namespace scene;
-using namespace video;
-using namespace io;
-using namespace gui;
 
 #define SCROLL_POS_X 15*SCREEN_SCALE
 #define SCROLL_POS_Y 169*SCREEN_SCALE

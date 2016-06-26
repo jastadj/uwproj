@@ -38,8 +38,10 @@
 			<Add library="lib/irrlicht-1.8.3/libIrrlicht.a" />
 			<Add directory="lib/irrlicht-1.8.3" />
 		</Linker>
+		<Unit filename="include/event.hpp" />
 		<Unit filename="include/font.hpp" />
 		<Unit filename="include/game.hpp" />
+		<Unit filename="include/irrcommon.hpp" />
 		<Unit filename="include/level.hpp" />
 		<Unit filename="include/mouse.hpp" />
 		<Unit filename="include/object.hpp" />
