@@ -31,8 +31,6 @@ void Scroll::draw()
 {
     //update scroll edges using modulus of start index
     m_ScrollEdgeState = abs(m_ScrollStartIndex) % 5;
-    std::cout << "scroll edge state = " << m_ScrollEdgeState << std::endl;
-    std::cout << "scroll start index = " << m_ScrollStartIndex << std::endl;
 
     //if start index is too far up or down, adjust
     if(m_ScrollStartIndex < -4) m_ScrollStartIndex = -4;

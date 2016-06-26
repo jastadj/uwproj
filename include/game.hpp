@@ -104,6 +104,7 @@ private:
     SMesh *getSquareMesh(int ul, int ur, int br, int bl);
 
     //init / load
+    void loadScreen(std::string loadmessage);
     int initIrrlicht();
     int initCamera();
     int initMouse();

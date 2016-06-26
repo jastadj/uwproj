@@ -51,7 +51,13 @@ int Game::start()
         if(errorcode) {std::cout << "Error initializing irrlicht!  ERROR CODE " << errorcode << "\n"; return -1;}
         else std::cout << "done.\n";
 
+    std::cout << "Loading fonts...\n";
+        errorcode = loadFont("UWDATA\\font5x6p.sys", &m_FontNormal);
+        if(errorcode) {std::cout << "Error loading normal font 5x6p!  ERROR CODE " << errorcode << "\n"; return -1;}
+        std::cout << std::endl;
+
     std::cout << "Initializing camera...";
+    loadScreen("Initializing camera...");
         errorcode = initCamera();
         if(errorcode) {std::cout << "Error initializing camera!  ERROR CODE " << errorcode << "\n"; return -1;}
         else std::cout << "done.\n";
@@ -59,6 +65,7 @@ int Game::start()
 
     //load UW data
     std::cout << "Loading strings...";
+    loadScreen("Loading strings...");
         errorcode = loadStrings(&m_StringBlocks);
         if(errorcode < 0) {std::cout << "Error loading string data!  ERROR CODE " << errorcode << "\n"; return -1;}
         else std::cout << "done.\n";
@@ -67,6 +74,7 @@ int Game::start()
         std::cout << m_StringBlocks[0].strings[0] << std::endl;
 
     std::cout << "Loading palette data...\n";
+    loadScreen("Loading palettes...");
         errorcode = loadPalette(&m_Palettes);
         if(errorcode) { std::cout << "Error loading palette!  ERROR CODE " << errorcode << "\n"; return -1;}
         else std::cout << "....." << m_Palettes.size() << " palettes loaded.\n";
@@ -75,6 +83,7 @@ int Game::start()
         else std::cout << "....." << m_AuxPalettes.size() << " aux palettes loaded.\n";
 
     std::cout << "Loading textures...\n";
+    loadScreen("Loading textures...");
         errorcode = loadTexture("UWDATA\\w64.tr", &m_Wall64TXT);
         if(errorcode) { std::cout << "Error loading textures!  ERROR CODE " << errorcode << "\n"; return -1;}
             else std::cout << "....." << m_Wall64TXT.size() << " wall64 textures loaded.\n";
@@ -84,6 +93,7 @@ int Game::start()
         std::cout << std::endl;
 
     std::cout << "Loading graphics...\n";
+    loadScreen("Loading graphics...");
     //note : this needs to be fixed, throws bad alloc, need to investigate parsing for graphics load
         errorcode = loadGraphic("UWDATA\\charhead.gr", &m_CharHeadTXT);
         if(errorcode) {std::cout << "Error loading charhead graphic!  ERROR CODE " << errorcode << "\n"; return -1;}
@@ -103,6 +113,7 @@ int Game::start()
         std::cout << std::endl;
 
     std::cout << "Loading bitmaps...";
+    loadScreen("Loading bitmaps...");
         errorcode = loadBitmap("UWDATA\\pres1.byt", &m_BitmapsTXT, 5);
         if(errorcode) {std::cout << "Error loading bitmap!  ERROR CODE " << errorcode << "\n"; return -1;}
         errorcode = loadBitmap("UWDATA\\pres2.byt", &m_BitmapsTXT, 5);
@@ -114,29 +125,30 @@ int Game::start()
         std::cout << "done.\n";
         std::cout << std::endl;
 
-    std::cout << "Loading fonts...\n";
-        errorcode = loadFont("UWDATA\\font5x6p.sys", &m_FontNormal);
-        if(errorcode) {std::cout << "Error loading normal font 5x6p!  ERROR CODE " << errorcode << "\n"; return -1;}
-        std::cout << std::endl;
+
 
 
     std::cout << "Initializing objects...";
+    loadScreen("Initializing objects...");
         errorcode = initObjects();
         if(errorcode < 0) {std::cout << "Error initializing objects!  ERROR CODE " << errorcode << "\n"; return-1;}
         else std::cout << errorcode << " objects initialized.\n";
 
 
     std::cout << "Initializing mouse...";
+    loadScreen("Initializing mousea...");
         errorcode = initMouse();
         if(errorcode) {std::cout << "Error initializing mouse!  ERROR CODE " << errorcode << "\n"; return -1;}
         else std::cout << "done.\n";
 
     std::cout << "Initializing main UI...";
+    loadScreen("Initializing UI...");
         errorcode = initMainUI();
         if(errorcode) {std::cout << "Error initializing main UI!  ERROR CODE " << errorcode << "\n"; return -1;}
         else std::cout << "done.\n";
 
     std::cout << "Loading level data...";
+    loadScreen("Loading level data...");
         errorcode = loadLevel(&mLevels);
         if(errorcode) {std::cout << "Error loading level data!  ERROR CODE " << errorcode << "\n"; return -1;}
         else std::cout << mLevels.size() << " levels loaded.\n";
@@ -147,12 +159,14 @@ int Game::start()
     {
     //generate level geometry
     std::cout << "Generating level geometry...\n";
+    loadScreen("Generating level geometry...");
         errorcode = mLevels[0].buildLevelGeometry();
         if(!errorcode) { std::cout << "Error generating level geometry!!  ERROR CODE " << errorcode << "\n"; return -1;}
         std::cout << mLevels[m_CurrentLevel].getMeshes().size() << " meshes generated for level " << m_CurrentLevel << std::endl;
         std::cout << std::endl;
 
     //create threads
+    loadScreen("Launching threads...");
     MouseUpdateThread *mouseupdatethread = new MouseUpdateThread(m_Mouse, &m_DoShutdown);
     m_Threads.push_back(mouseupdatethread);
 
@@ -161,6 +175,7 @@ int Game::start()
 
     //start main loop
     std::cout << "Starting main loop...\n";
+    loadScreen("Starting...");
     mainLoop();
 
     m_DoShutdown = true;
@@ -174,6 +189,18 @@ int Game::start()
     */
 
     return 0;
+}
+
+void Game::loadScreen(std::string loadmessage)
+{
+    //clear scene
+    m_Driver->beginScene(true, true, SColor(255,0,0,0));
+
+    drawFontString(&m_FontNormal, loadmessage, vector2d<s32>(0,0), SColor(255,255,255,255));
+
+    //done and display
+    m_Driver->endScene();
+
 }
 
 int Game::initIrrlicht()
@@ -394,9 +421,11 @@ void Game::mainLoop()
 
 
     //texture testing
+    /*
     std::vector<ITexture*> *testtextures = &m_ScrollEdgeTXT;
     int testtexturesindex = 0;
     m_Mouse->setTexture( (*testtextures)[testtexturesindex]);
+    */
 
 
 
@@ -509,17 +538,21 @@ void Game::mainLoop()
                     }
                     else if(event->KeyInput.Key == KEY_KEY_Z)
                     {
+                        /*
                         testtexturesindex--;
                         if(testtexturesindex < 0) testtexturesindex = int(testtextures->size()-1);
                         m_Mouse->setTexture( (*testtextures)[testtexturesindex]);
                         std::cout << "test texture index = " << testtexturesindex << std::endl;
+                        */
                     }
                     else if(event->KeyInput.Key == KEY_KEY_X)
                     {
+                        /*
                         testtexturesindex++;
                         if(testtexturesindex >= int(testtextures->size()) ) testtexturesindex = 0;
                         m_Mouse->setTexture( (*testtextures)[testtexturesindex]);
                         std::cout << "test texture index = " << testtexturesindex << std::endl;
+                        */
                     }
                     else if(m_Receiver.isKeyPressed(KEY_F1))
                     {
