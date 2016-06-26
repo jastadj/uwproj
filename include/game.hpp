@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <pthread.h>
 
 #include <irrlicht.h>
 
@@ -35,11 +36,15 @@
 #define MOVE_SPEED 15
 #define STANDING_HEIGHT 3
 
-#define SCROLL_POS_X 16*SCREEN_SCALE
+#define SCROLL_POS_X 15*SCREEN_SCALE
 #define SCROLL_POS_Y 169*SCREEN_SCALE
-#define SCROLL_WIDTH 289*SCREEN_SCALE
+#define SCROLL_WIDTH 291*SCREEN_SCALE
 #define SCROLL_HEIGHT 30*SCREEN_SCALE
-#define SCROLL_PAL_INDEX 43
+#define SCROLL_PAL_INDEX 42
+#define SCROLL_EDGE_Y 169*SCREEN_SCALE
+#define SCROLL_EDGE_LEFT_X 11*SCREEN_SCALE
+#define SCROLL_EDGE_RIGHT_X 306*SCREEN_SCALE
+
 
 //irrlicht namespaces
 using namespace irr;
@@ -152,6 +157,8 @@ private:
     ISceneNode *m_CameraTarget;
     f32 m_CameraDefaultFOV;
     ILightSceneNode *m_CameraLight;
+    int m_LightRadius;
+    SLight m_LightData;
 
     //mouse
     Mouse *m_Mouse;
@@ -208,9 +215,8 @@ private:
     void mainLoop();
 
     //main UI
-    void drawMainUI();
-    core::rect<s32> m_ScrollRect;
-    SColor *m_ScrollFillColor;
+    int drawMainUI();
+    int m_ScrollEdgeState;
 
     //debug
     bool dbg_noclip;

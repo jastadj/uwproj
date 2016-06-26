@@ -231,13 +231,16 @@ int Game::initCamera()
     //m_CameraTarget->addChild(m_Camera);
 
     //camera light
+    m_LightRadius = 5*8; // 5 tiles * tile units
     m_CameraLight = m_SMgr->addLightSceneNode(0, vector3df(0,0,0), SColorf(1.0f, 1.0f, 1.0f, 1.f), 4.0f);
     m_CameraLight->setID(ID_IsNotPickable);
+    m_CameraLight->setLightData(m_LightData);
     m_CameraLight->setLightType(video::ELT_POINT);
-    //light1->setRotation(vector3df(0,180,0));
-    //light1->getLightData().Falloff = 5;
+    m_CameraLight->getLightData().Attenuation = vector3df(0, 1.f/(m_LightRadius/40), 0);
     m_CameraLight->enableCastShadow(false);
-    m_CameraLight->setRadius(2);
+    m_CameraLight->setRadius(m_LightRadius/40);
+    m_LightData = m_CameraLight->getLightData();
+
 
     //level camera (avoid camera rotation when pointing at target)
 
@@ -313,16 +316,6 @@ void Game::mainLoop()
     mycubemesh->drop();
     */
 
-
-    //IGUIImage *myguiimage = m_GUIEnv->addImage(m_BitmapsTXT[2], position2d<s32>(0,0), true);
-
-    std::vector<ITexture*> *texturestotest = &m_ScrollEdgeTXT;
-    int texturestotestsize = int(texturestotest->size());
-    int texturestotestindex = 0;
-    IGUIImage *mymousecursor = m_GUIEnv->addImage( (*texturestotest)[texturestotestindex], position2d<s32>(0,0), true);
-    //IGUIImage *mymousecursor = m_GUIEnv->addImage( m_FontNormal.m_Texture, position2d<s32>(0,0), true);
-
-
     /*
     //create mesh
     SMesh *mycubemesh = getCubeMesh(128);
@@ -379,6 +372,12 @@ void Game::mainLoop()
     //animator no longer needed, drop it
     anim->drop();
     */
+
+
+    //texture testing
+    std::vector<ITexture*> *testtextures = &m_ScrollEdgeTXT;
+    int testtexturesindex = 0;
+    m_Mouse->setTexture( (*testtextures)[testtexturesindex]);
 
 
 
@@ -491,21 +490,17 @@ void Game::mainLoop()
                     }
                     else if(event->KeyInput.Key == KEY_KEY_Z)
                     {
-                        texturestotestindex--;
-                        if(texturestotestindex < 0) texturestotestindex = texturestotestsize-1;
-                        mymousecursor->setVisible(false);
-                        mymousecursor = m_GUIEnv->addImage( (*texturestotest)[texturestotestindex], position2d<s32>(0,0), true);
-                        mymousecursor->setImage( (*texturestotest)[texturestotestindex]);
-                        std::cout << "test texture index = " << texturestotestindex << std::endl;
+                        testtexturesindex--;
+                        if(testtexturesindex < 0) testtexturesindex = int(testtextures->size()-1);
+                        m_Mouse->setTexture( (*testtextures)[testtexturesindex]);
+                        std::cout << "test texture index = " << testtexturesindex << std::endl;
                     }
                     else if(event->KeyInput.Key == KEY_KEY_X)
                     {
-                        texturestotestindex++;
-                        if(texturestotestindex >= texturestotestsize) texturestotestindex = 0;
-                        mymousecursor->setVisible(false);
-                        mymousecursor = m_GUIEnv->addImage( (*texturestotest)[texturestotestindex], position2d<s32>(0,0), true);
-                        mymousecursor->setImage( (*texturestotest)[texturestotestindex]);
-                        std::cout << "test texture index = " << texturestotestindex << std::endl;
+                        testtexturesindex++;
+                        if(testtexturesindex >= int(testtextures->size()) ) testtexturesindex = 0;
+                        m_Mouse->setTexture( (*testtextures)[testtexturesindex]);
+                        std::cout << "test texture index = " << testtexturesindex << std::endl;
                     }
                     else if(m_Receiver.isKeyPressed(KEY_F1))
                     {
@@ -776,13 +771,22 @@ void Game::mainLoop()
     return;
 }
 
-void Game::drawMainUI()
+int Game::drawMainUI()
 {
-    const core::rect<s32> screen_rect( position2d<s32>(0,0), dimension2d<u32>(SCREEN_WIDTH, SCREEN_HEIGHT));
+    const static core::rect<s32> screen_rect( position2d<s32>(0,0), dimension2d<u32>(SCREEN_WIDTH, SCREEN_HEIGHT));
+    const static rect<s32> scroll_edge_rect( position2d<s32>(0,0), dimension2d<u32>(m_ScrollEdgeTXT[0]->getSize()));
+    const static core::rect<s32> m_ScrollRect( position2d<s32>(SCROLL_POS_X, SCROLL_POS_Y), dimension2d<u32>(SCROLL_WIDTH, SCROLL_HEIGHT));
+    const static SColor m_ScrollFillColor = m_Palettes[0][SCROLL_PAL_INDEX];
+
     m_Driver->draw2DImage( m_BitmapsTXT[2], position2d<s32>(0,0), screen_rect, NULL, SColor(255,255,255,255), true);
 
-    m_Driver->draw2DRectangle(*m_ScrollFillColor, m_ScrollRect);
+    //draw scroll components
+    m_Driver->draw2DRectangle(m_ScrollFillColor, m_ScrollRect);
+    m_Driver->draw2DImage( m_ScrollEdgeTXT[m_ScrollEdgeState], position2d<s32>(SCROLL_EDGE_LEFT_X, SCROLL_EDGE_Y), scroll_edge_rect, NULL, SColor(255,255,255,255), true);
+    m_Driver->draw2DImage( m_ScrollEdgeTXT[m_ScrollEdgeState+5], position2d<s32>(SCROLL_EDGE_RIGHT_X, SCROLL_EDGE_Y), scroll_edge_rect, NULL, SColor(255,255,255,255), true);
 
+    //test characters
+    drawFontString(&m_FontNormal, "This is a test.", m_ScrollRect.UpperLeftCorner);
 }
 
 void Game::updateCamera()
@@ -2176,11 +2180,15 @@ int Game::initMouse()
 
 int Game::initMainUI()
 {
-    //config message scroll
-    m_ScrollRect = rect<s32>( position2d<s32>(SCROLL_POS_X, SCROLL_POS_Y), dimension2d<u32>(SCROLL_WIDTH, SCROLL_HEIGHT));
+    //check scroll palette
     if(m_Palettes.empty()) return -1;
     if( SCROLL_PAL_INDEX >= m_Palettes[0].size() || SCROLL_PAL_INDEX < 0) return -2;
-    m_ScrollFillColor = &m_Palettes[0][SCROLL_PAL_INDEX];
+
+    //check scroll textures
+    if(m_ScrollEdgeTXT.empty()) return -3;
+    if( int(m_ScrollEdgeTXT.size()) < 10) return -4;
+
+    m_ScrollEdgeState = 0; // state of edge indexes, as scroll "pushes down", edges scroll
 
     return 0;
 }
