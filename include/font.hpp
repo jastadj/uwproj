@@ -10,6 +10,7 @@ struct UWFont
     ITexture *m_Texture;
     std::vector<core::rect<s32> > m_Clips;
     int m_Height;
+    int m_WidestCharacter;
     int m_Count;
 };
 

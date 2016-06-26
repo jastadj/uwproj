@@ -15,6 +15,7 @@
 #define SCROLL_EDGE_RIGHT_X 306*SCREEN_SCALE
 #define SCROLL_DEFAULT_FONT_PAL 47
 #define SCROLL_FONT_PAL_GREEN 253
+#define SCROLL_CURSOR_BLINK 500
 
 enum SCROLLMSGFONTS
 {
@@ -49,6 +50,11 @@ private:
     //message buffer
     std::vector<ScrollMessage> m_MsgBuffer;
 
+    //input mode
+    std::string *m_InputModeString;
+    ITexture *m_CursorGraphic;
+
+
 public:
     Scroll(Game *ngame);
     ~Scroll();
@@ -60,6 +66,11 @@ public:
 
     void draw();
     void addMessage(std::string msgstring, int fonttype = FONT_NORMAL, SColor fcolor = m_DefaultColor);
+
+    //input mode
+    bool startInputMode(std::string promptstr = std::string(">"));
+    std::string endInputMode();
+    void addInputCharacter(int cval);
 
 };
 #endif // CLASS_SCROLL

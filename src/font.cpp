@@ -139,6 +139,9 @@ int loadFont(std::string tfilename, UWFont *font)
 
     }
 
+    //save widest character value
+    font->m_WidestCharacter = widestcharacter;
+
     //create clip rects
     for(int j = 0; j < charstoread; j++)
     {

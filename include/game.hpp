@@ -40,34 +40,20 @@
 #define MOVE_SPEED 15
 #define STANDING_HEIGHT 3
 
-enum
-{
-    // I use this ISceneNode ID to indicate a scene node that is
-    // not pickable by getSceneNodeAndCollisionPointFromRay()
-    ID_IsNotPickable = 0,
-
-    // I use this flag in ISceneNode IDs to indicate that the
-    // scene node can be picked by ray selection.
-    ID_IsMap = 1 << 0,
-
-    // I use this flag in ISceneNode IDs to indicate that the
-    // scene node can be highlighted.  In this example, the
-    // homonids can be highlighted, but the level mesh can't.
-    ID_IsObject = 1 << 1
-};
-
-
 
 //forward declaration
 class Mouse;
 class Scroll;
+
+
+enum {ID_IsNotPickable = 0, ID_IsMap = 1 << 0, ID_IsObject = 1 << 1};
+enum {IMODE_PLAY, IMODE_SCROLL_ENTRY, IMODE_TOTAL};
 
 class Game
 {
 private:
     Game();
     static Game *mInstance;
-
     bool m_DoShutdown;
 
     //irrlicht renderer
@@ -142,6 +128,8 @@ private:
     std::vector<Object*> m_Objects;
 
     //mainloop
+    int m_InputContext;
+    int m_PreviousInputContext;
     void mainLoop();
     void processEvents(const SEvent *event);
 
@@ -174,7 +162,7 @@ public:
     bool configMeshSceneNode(IMeshSceneNode *tnode);
     bool configBillboardSceneNode(IBillboardSceneNode *tnode);
 
-    //world funcitons
+    //world functions
     bool processCollision(vector3df *pos, vector3df *vel);
     int getCurrentLevel() { return m_CurrentLevel;}
 
@@ -194,6 +182,11 @@ public:
 
     //fonts
     UWFont *getNormalFont() { return &m_FontNormal;}
+
+    //
+    int getInputContext() { return m_InputContext;}
+    int getPreviousInputContext() { return m_PreviousInputContext;}
+    bool setInputContext(int ncontext);
 
     //get irrlicht components
     ISceneManager *getSceneManager() { return m_SMgr;}

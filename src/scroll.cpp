@@ -10,6 +10,9 @@ Scroll::Scroll(Game *ngame)
     m_ScrollEdgeState = 0;
     m_ScrollStartIndex = 0;
 
+    m_InputModeString = NULL;
+    m_CursorGraphic = NULL;
+
     m_ScrollRect = rect<s32>(position2d<s32>(SCROLL_POS_X, SCROLL_POS_Y), dimension2d<u32>(SCROLL_WIDTH, SCROLL_HEIGHT) );
 
     if(SCROLL_DEFAULT_FONT_PAL >= 0 && SCROLL_DEFAULT_FONT_PAL < int((*gptr->getPalletes())[0].size()) )
@@ -25,6 +28,50 @@ Scroll::Scroll(Game *ngame)
 Scroll::~Scroll()
 {
 
+}
+
+bool Scroll::startInputMode(std::string promptstr)
+{
+    if(m_InputModeString != NULL) return false;
+
+    //create input mode string
+    m_InputModeString = new std::string;
+
+    //draw prompt
+    addMessage(promptstr, FONT_NORMAL);
+
+    //tell game that input context is scroll input entry
+    gptr->setInputContext(IMODE_SCROLL_ENTRY);
+}
+
+std::string Scroll::endInputMode()
+{
+    std::string retstring;
+
+    //for some reason there was no dynamic???
+    if(m_InputModeString == NULL) return "ERROR";
+
+    //copy input string and delete dynamic
+    retstring = *m_InputModeString;
+    delete m_InputModeString;
+
+    //tell game that scroll input is done and return to previous context
+    gptr->setInputContext( gptr->getPreviousInputContext());
+
+    //return copied string
+    return retstring;
+}
+
+void Scroll::addInputCharacter(int cval)
+{
+    if(m_InputModeString == NULL) return;
+
+    if(cval < 0 || cval >= 127) return;
+
+    //special keys (backspace, escape, return, delete)
+
+    //add character to input string
+    m_InputModeString->push_back(char(cval));
 }
 
 void Scroll::draw()
@@ -50,6 +97,9 @@ void Scroll::draw()
             drawFontString(m_MsgBuffer[i + m_ScrollStartIndex].font,
                            m_MsgBuffer[i + m_ScrollStartIndex].msg, mpos,
                            m_MsgBuffer[i + m_ScrollStartIndex].color );
+
+            //if it's the last message, and am in input mode, draw input string
+            wip
         }
 
     }
