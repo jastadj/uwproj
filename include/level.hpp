@@ -21,7 +21,9 @@ enum _DIRS{NORTH,EAST,SOUTH,WEST};
 
 //forward declaration
 class Tile;
+class Level;
 
+int loadLevel(std::vector<Level> *levels);
 
 class Level
 {

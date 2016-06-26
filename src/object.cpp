@@ -30,6 +30,7 @@ Object::~Object()
 //////////////////////////////////////////////////////
 //  OBJECT INSTANCE
 int ObjectInstance::m_InstanceCount = 0;
+
 ObjectInstance::ObjectInstance(Object *tobj)
 {
     m_InstanceID = m_InstanceCount;

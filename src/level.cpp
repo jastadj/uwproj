@@ -4,6 +4,293 @@
 #include <sstream>
 
 #include "game.hpp"
+#include "tools.hpp"
+#include "object.hpp"
+
+int loadLevel(std::vector<Level> *levels)
+{
+    if(levels == NULL) return -1;
+
+    //get game reference
+    Game *gptr = NULL;
+    gptr = Game::getInstance();
+
+    //read in level archive
+    std::ifstream ifile;
+    //const std::string tfile("UWDATA\\lev.ark");
+    const std::string tfile("SAVE01\\lev.ark");
+
+    //blocks in level archive (read from header)
+    uint16_t blockcount = 0;
+
+    //texture mapping storage
+    //texture map blocks indexes that link tile data floor/wall values to actual w64 and f32 textures indices
+    std::vector< std::vector<int> > texturemap; // 9 blocks of texture mappings
+    texturemap.resize(9);
+
+    //offset locations for each block
+    std::vector<std::streampos> blockoffsets;
+
+    //attempt to open level archive
+    ifile.open(tfile.c_str(), std::ios_base::binary);
+    if(!ifile.is_open()) return -1; // error unable to open file
+
+    //read block count from header
+    unsigned char blockcountbuf[2];
+    if(!readBin(&ifile, blockcountbuf, 2)) return -2; // error unable to read block count
+    blockcount = uint16_t(lsbSum(blockcountbuf, 2));
+    //std::cout << std::dec << "Block count:" << blockcount << std::endl;
+
+    //read block offsets
+    for(int i = 0; i < int(blockcount); i++)
+    {
+        unsigned char bobuf[4];
+        readBin(&ifile, bobuf, 4);
+
+        blockoffsets.push_back( std::streampos(lsbSum(bobuf, 4)));
+        //std::cout << std::dec << "block " << i << "[" << char((i/9)+97) << "]: offset = 0x" << std::hex << blockoffsets.back() << std::endl;
+    }
+
+    //load texture map blocks
+    const int txtmapwalls = 48; // 2bytes
+    const int txtmapfloors = 10; // 2bytes
+    const int txtmapdoors = 6; // 1byte
+
+    for(int i = 0; i < 9; i++)
+    {
+        //texture maps are 18 (9*3) blocks in the file
+        //jump to texture map block
+        ifile.seekg(blockoffsets[(9*2)+i]);
+
+        //read in texture mapping for walls
+        for(int n = 0; n < txtmapwalls; n++)
+        {
+            unsigned char wallmap[2];
+            readBin(&ifile, wallmap, 2);
+
+            texturemap[i].push_back( lsbSum(wallmap, 2));
+        }
+
+        //read in texture mapping for floors
+        for(int n = 0; n < txtmapfloors; n++)
+        {
+            unsigned char floormap[2];
+            readBin(&ifile, floormap, 2);
+
+            texturemap[i].push_back( lsbSum(floormap, 2));
+        }
+
+        //read in texture mapping for doors
+        for(int n = 0; n < txtmapdoors; n++)
+        {
+            unsigned char doormap[1];
+            readBin(&ifile, doormap, 1);
+
+            texturemap[i].push_back( lsbSum(doormap, 1));
+        }
+
+        /*
+        if(i == 0)
+        {
+            std::cout << "starting at block:" << std::hex << blockoffsets[2*9+i] << std::endl;
+            for(int n = 0; n < int(texturemap[0].size()); n++)
+            {
+                std::cout << std::dec << "texturemap index " << n << ":" << texturemap[0][n] << std::endl;
+            }
+        }
+        */
+    }
+
+    //read in level data
+    // note : UW1 only has 9 levels
+    // note : UW1 maps are 64x64 tiles * 4 bytes
+    for(int i = 0; i < 9; i++)
+    {
+        //create level
+        levels->push_back(Level());
+
+        //save texture map data for shits and giggles
+        levels->back().mTextureMapping = texturemap[i];
+
+        //set ceiling texture index from texture map (level uses one for whole map)
+        levels->back().setCeilingTextureIndex( texturemap[i][txtmapwalls+txtmapfloors-1]);
+
+        //jump file position pointer to offset to begin reading in level data
+        ifile.seekg(blockoffsets[i]);
+
+        //read in 64 x 64 map tiles
+        //note: uw tiles are flipped on y axis
+        for(int n = TILE_ROWS-1; n >=0; n--)
+        {
+            for(int p = 0; p < TILE_COLS; p++)
+            {
+                //get tile
+                Tile *tile = levels->back().getTile(p, n);
+
+                //first two bytes
+                unsigned char ldatabuf1[2];
+                readBin(&ifile, ldatabuf1, 2);
+                int tiledata1 = lsbSum(ldatabuf1, 2);
+
+                //set tile type
+                tile->setType( getBitVal(tiledata1, 0, 4));
+
+                //set tile height
+                tile->setHeight( getBitVal(tiledata1, 4, 4));
+
+                //set unknown bit 1
+                if( getBitVal(tiledata1, 8, 1)) tile->setUnk1(true);
+                else tile->setUnk1(false);
+
+                //set unknown bit 2
+                if( getBitVal(tiledata1, 9, 1)) tile->setUnk2(true);
+                else tile->setUnk2(false);
+
+                //set floor texture index
+                //match up texture map block index to actual floor texture index
+                tile->setFloorTXT( texturemap[i][txtmapwalls + getBitVal(tiledata1, 10, 4)] );
+
+                //set magic illegal flag
+                if( getBitVal(tiledata1, 14, 1)) tile->setMagicIllegal(true);
+                else tile->setMagicIllegal(false);
+
+                //set has door flag
+                //match up texture map block index to actual door texture index
+                if( texturemap[i][txtmapwalls + txtmapfloors + getBitVal(tiledata1, 15, 1)] ) tile->setHasDoor(true);
+                else tile->setHasDoor(false);
+
+                //last two bytes
+                unsigned char ldatabuf2[2];
+                readBin(&ifile, ldatabuf2, 2);
+                int tiledata2 = lsbSum(ldatabuf2, 2);
+
+                //set wall texture index
+                //match up texture map block index to actual floor texture index
+                tile->setWallTXT( texturemap[0][getBitVal(tiledata2, 0, 6)] );
+
+                //set first object in tile
+                tile->setFirstObjectIndex( getBitVal(tiledata2, 6, 10) );
+            }
+        }
+
+        //read in level objects
+
+        //jump to master list for mobile objects in block (offset 0x4000)
+        //total of 1024 objects (256 mobile(npc), and 768 static objects)
+        //build master list index starting with mobile objects
+        ifile.seekg( blockoffsets[i] + std::streampos(0x4000));
+
+        //master object list
+        for(int n = 0; n < 1024; n++)
+        {
+            //both mobile and static objects have general object information header
+
+            //each object has general object header, contains 8 bytes of information
+            //object info
+            unsigned char objinfobuf[2];
+            int objinfo;
+            readBin(&ifile, objinfobuf, 2);
+            objinfo = lsbSum(objinfobuf, 2);
+            int objid = getBitVal(objinfo, 0, 8);
+
+            //create new object instance of object id
+            ObjectInstance *newobj = new ObjectInstance( gptr->getObject(objid) );
+            //add new object to master object list
+            levels->back().addObject(newobj);
+
+            //populate the rest of object flags/info
+            newobj->setFlags( getBitVal(objinfo, 8, 4));
+            newobj->setEnchanted( getBitVal(objinfo, 12, 1));
+            newobj->setDoorDir( getBitVal(objinfo, 13, 1));
+            newobj->setInvisible( getBitVal(objinfo, 14, 1));
+            newobj->setIsQuantity( getBitVal(objinfo, 15, 1));
+
+            //object position
+            unsigned char objposbuf[2];
+            readBin(&ifile, objposbuf, 2);
+            int objpos = lsbSum(objposbuf, 2);
+            newobj->setAngle( getBitVal(objpos, 7, 3));
+            vector3di opos;
+            opos.Z = getBitVal(objpos, 0, 7);
+            opos.Y = getBitVal(objpos, 10, 3);
+            opos.X = getBitVal(objpos, 13, 3);
+            newobj->setPosition(opos);
+
+
+            //object quality / chain
+            unsigned char objqualbuf[2];
+            readBin(&ifile, objqualbuf, 2);
+            int objqualdat = lsbSum(objqualbuf, 2);
+            newobj->setQuality( getBitVal(objqualdat, 0, 6) );
+            newobj->setNext( getBitVal(objqualdat, 6, 10) );
+
+            //object link / special
+            unsigned char objlinkbuf[2];
+            readBin(&ifile, objlinkbuf, 2);
+            int objectlinkdat = lsbSum(objlinkbuf, 2);
+            newobj->setOwner( getBitVal(objectlinkdat, 0, 6));
+            newobj->setQuantity( getBitVal(objectlinkdat, 6, 10));
+
+            //mobile (npc) objects have an additional 19 bytes of data
+            //mobile objects are the first 256 object in master list
+            if( n < 256)
+            {
+                //temp mob dat
+                unsigned char mobdata[19];
+                readBin(&ifile, mobdata, 19);
+            }
+        }
+
+        //get master objects list
+        std::vector<ObjectInstance*> *objlist = levels->back().getObjectsMaster();
+
+        //add objects to tiles
+        for(int n = 0; n < TILE_ROWS; n++)
+        {
+            for(int p = 0; p < TILE_COLS; p++)
+            {
+
+                //for debug purposes, only process one tile
+
+                //get tile
+                Tile *ttile = levels->back().getTile(p, n);
+
+                //get first object index from tile
+                int objindex = ttile->getFirstObjectIndex();
+
+                //note : object 0 means empty, no objects on tile
+                //add each linked object to tile object list
+                while(objindex != 0 && i == gptr->getCurrentLevel()) // for now, only process current level
+                {
+
+                        //retrieve object from master list
+                        ObjectInstance *tobj = (*objlist)[objindex];
+
+                        //add object to tile objects list
+                        ttile->addObject(tobj);
+
+                        //update tile's object
+                        gptr->updateObject(tobj, ttile);
+
+                        //get next linked object
+                        objindex = tobj->getNext();
+                }
+            }
+        }
+
+    }
+
+
+
+    //print level 1 debug
+    //mLevels[0].printDebug();
+
+    ifile.close();
+
+    std::cout << std::dec;
+    return 0;
+}
+
 
 Level::Level()
 {

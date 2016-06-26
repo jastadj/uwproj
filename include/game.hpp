@@ -106,8 +106,6 @@ private:
     //init / load
     int initIrrlicht();
     int initCamera();
-
-    int loadLevel();
     int loadPalette();
     int loadAuxPalette();
     int loadGraphic(std::string tfilename, std::vector<ITexture*> *tlist);
@@ -181,6 +179,7 @@ public:
 
     //world funcitons
     bool processCollision(vector3df *pos, vector3df *vel);
+    int getCurrentLevel() { return m_CurrentLevel;}
 
     //textures
     const std::vector<ITexture*> *getWall64Textures() const { return &m_Wall64TXT;}
@@ -189,6 +188,7 @@ public:
 
     //objects
     bool updateObject(ObjectInstance *tobj, Tile *ttile);
+    Object *getObject(int id);
 
     //strings
     std::string getDefaultString() { return "no string";}
