@@ -17,6 +17,7 @@ struct UWFont
 int loadFont(std::string tfilename, UWFont *font);
 bool drawFontChar(UWFont *tfont, int charnum, position2d<s32> tpos, SColor tcolor = SColor(255,255,255,255));
 bool drawFontString(UWFont *tfont, std::string tstring, position2d<s32> tpos, SColor tcolor = SColor(255,255,255,255));
+int getStringWidth(UWFont *tfont, std::string tstring);
 
 
 #endif // CLASS_FONT

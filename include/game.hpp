@@ -44,7 +44,7 @@
 //forward declaration
 class Mouse;
 class Scroll;
-
+class MyEventReceiver;
 
 enum {ID_IsNotPickable = 0, ID_IsMap = 1 << 0, ID_IsObject = 1 << 1};
 enum {IMODE_PLAY, IMODE_SCROLL_ENTRY, IMODE_TOTAL};
@@ -62,7 +62,6 @@ private:
     ISceneManager *m_SMgr;
     ISceneCollisionManager *m_ColMgr;
     IGUIEnvironment *m_GUIEnv;
-    MyEventReceiver m_Receiver;
     IMetaTriangleSelector *m_MetaTriangleSelector;
     ITriangleSelector *m_TriangleSelector;
     f32 frameDeltaTime;
@@ -81,9 +80,6 @@ private:
 
     //threads
     std::vector<MyThreadClass*> m_Threads;
-
-    //mouse
-    Mouse *m_Mouse;
 
     //mesh stuff
     SMesh *getCubeMesh(f32 cubesize);
@@ -128,10 +124,18 @@ private:
     std::vector<Object*> m_Objects;
 
     //mainloop
+
+    void mainLoop();
+
+
+    //input
+    MyEventReceiver *m_Receiver;
+    Mouse *m_Mouse;
     int m_InputContext;
     int m_PreviousInputContext;
-    void mainLoop();
-    void processEvents(const SEvent *event);
+    void handleInputs();
+    void processEvent(const SEvent *event);
+
 
     //main UI
     int drawMainUI();
@@ -196,5 +200,6 @@ public:
     IMetaTriangleSelector *getMetaTriangleSelector() { return m_MetaTriangleSelector;}
     ICameraSceneNode *getCamera() { return m_Camera;}
 
+    friend MyEventReceiver;
 };
 #endif // CLASS_GAME

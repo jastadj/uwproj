@@ -12,6 +12,7 @@ Game::Game()
     m_Camera = NULL;
     m_MetaTriangleSelector = NULL;
     m_Mouse = NULL;
+    m_Receiver = NULL;
     m_InputContext = IMODE_PLAY;
     m_PreviousInputContext = IMODE_PLAY;
 
@@ -210,8 +211,11 @@ int Game::initIrrlicht()
     //already initialized!!
     if(m_Device != NULL) return -1; // error, already initialized
 
+    //init receiver
+    m_Receiver = new MyEventReceiver(this);
+
     //init device
-    m_Device = createDevice( video::EDT_OPENGL, dimension2d<u32>(SCREEN_WIDTH, SCREEN_HEIGHT), 16, FULLSCREEN, false, false, &m_Receiver);
+    m_Device = createDevice( video::EDT_OPENGL, dimension2d<u32>(SCREEN_WIDTH, SCREEN_HEIGHT), 16, FULLSCREEN, false, false, m_Receiver);
     if(!m_Device) return -2; // error device unable to be created successfully
     m_Device->setWindowCaption(L"UWproj");
 
@@ -457,9 +461,6 @@ void Game::mainLoop()
     //main loop
     while(m_Device->run())
     {
-
-        const SEvent *event = NULL;
-
         //update mouse position
         //m_Mouse->updatePosition();
 
@@ -471,7 +472,8 @@ void Game::mainLoop()
         then = now;
 
 
-        processEvents(event);
+        //processEvents();
+        handleInputs();
 
         //update camera / collision
         updateCamera();
@@ -587,208 +589,193 @@ void Game::mainLoop()
     return;
 }
 
-void Game::processEvents(const SEvent *event)
+void Game::handleInputs()
 {
     if(m_InputContext == IMODE_PLAY)
     {
         //check if keys are held for movement
-        if(m_Receiver.isKeyPressed(KEY_KEY_A))
+        if(m_Receiver->isKeyPressed(KEY_KEY_A))
         {
             m_CameraRot.Y -= frameDeltaTime * ROTATION_SPEED;
         }
-        else if(m_Receiver.isKeyPressed(KEY_KEY_D))
+        else if(m_Receiver->isKeyPressed(KEY_KEY_D))
         {
             m_CameraRot.Y += frameDeltaTime * ROTATION_SPEED;
         }
 
-        if(m_Receiver.isKeyPressed(KEY_KEY_W))
+        if(m_Receiver->isKeyPressed(KEY_KEY_W))
         {
             m_CameraVel.Z = frameDeltaTime * MOVE_SPEED;
         }
-        else if(m_Receiver.isKeyPressed(KEY_KEY_S) )
+        else if(m_Receiver->isKeyPressed(KEY_KEY_S) )
         {
             m_CameraVel.Z = -frameDeltaTime * MOVE_SPEED;
         }
         else m_CameraVel.Z = 0;
 
-        if(m_Receiver.isKeyPressed(KEY_KEY_E))
+        if(m_Receiver->isKeyPressed(KEY_KEY_E))
         {
             m_CameraVel.Y = frameDeltaTime * MOVE_SPEED;
         }
-        else if(m_Receiver.isKeyPressed(KEY_KEY_Q))
+        else if(m_Receiver->isKeyPressed(KEY_KEY_Q))
         {
             m_CameraVel.Y = -frameDeltaTime * MOVE_SPEED;
         }
         else m_CameraVel.Y = 0;
     }
 
-    //process events in que
-    while(m_Receiver.processEvents(event))
+}
+
+void Game::processEvent(const SEvent *event)
+{
+
+    //input mode is scroll entry mode
+    if(m_InputContext == IMODE_SCROLL_ENTRY)
     {
-        //input mode is scroll entry mode
-        if(m_InputContext == IMODE_SCROLL_ENTRY)
+        if(event->EventType == EET_KEY_INPUT_EVENT)
         {
-            if(event->EventType == EET_KEY_INPUT_EVENT)
+            if(event->KeyInput.PressedDown)
             {
-                if(event->KeyInput.PressedDown)
-                {
-                    if(event->KeyInput.Key == KEY_ESCAPE)
-                    {
-                        //stop scroll entry input
-                        m_Scroll->endInputMode();
-                    }
-                }
+                // pass key down to scroll
+                m_Scroll->addInputCharacter(event->KeyInput.Key);
             }
-        }//end scroll entry event
-        //else input mode is play mode
-        else
+        }
+    }//end scroll entry event
+    //else input mode is play mode
+    else
+    {
+        //key event
+        if(event->EventType == EET_KEY_INPUT_EVENT)
         {
-            //key event
-            if(event->EventType == EET_KEY_INPUT_EVENT)
+            //key pressed
+            if(event->KeyInput.PressedDown)
             {
-                //key pressed
-                if(event->KeyInput.PressedDown)
+
+                if(event->KeyInput.Key == KEY_ESCAPE) m_Device->closeDevice();
+                else if(event->KeyInput.Key == KEY_OEM_3)
                 {
-                    if(event->KeyInput.Key == KEY_ESCAPE) m_Device->closeDevice();
-                    else if(event->KeyInput.Key == KEY_OEM_3)
-                    {
-                        m_Scroll->startInputMode();
-                    }
-                    else if(event->KeyInput.Key == KEY_SPACE)
-                    {
-                    }
-                    else if(event->KeyInput.Key == KEY_KEY_W)
-                    {
-                    }
-                    else if(event->KeyInput.Key == KEY_KEY_A)
-                    {
-
-                    }
-                    else if(event->KeyInput.Key == KEY_KEY_D)
-                    {
-
-                    }
-                    else if(event->KeyInput.Key == KEY_KEY_E)
-                    {
-                    }
-                    else if(event->KeyInput.Key == KEY_KEY_Q)
-                    {
-                    }
-                    else if(event->KeyInput.Key == KEY_KEY_T)
-                    {
-                    }
-                    else if(event->KeyInput.Key == KEY_KEY_Z)
-                    {
-                        /*
-                        testtexturesindex--;
-                        if(testtexturesindex < 0) testtexturesindex = int(testtextures->size()-1);
-                        m_Mouse->setTexture( (*testtextures)[testtexturesindex]);
-                        std::cout << "test texture index = " << testtexturesindex << std::endl;
-                        */
-                    }
-                    else if(event->KeyInput.Key == KEY_KEY_X)
-                    {
-                        /*
-                        testtexturesindex++;
-                        if(testtexturesindex >= int(testtextures->size()) ) testtexturesindex = 0;
-                        m_Mouse->setTexture( (*testtextures)[testtexturesindex]);
-                        std::cout << "test texture index = " << testtexturesindex << std::endl;
-                        */
-                    }
-                    else if(m_Receiver.isKeyPressed(KEY_F1))
-                    {
-                        m_CameraPos = m_Camera->getPosition();
-                        Tile *ttile = mLevels[m_CurrentLevel].getTile(int(m_CameraPos.Z)/UNIT_SCALE, int(m_CameraPos.X)/UNIT_SCALE);
-                        std::cout << "Camera Position : " << m_CameraPos.X << "," << m_CameraPos.Y << "," << m_CameraPos.Z << std::endl;
-                        std::cout << "Camera ID = " << m_Camera->getID() << ", Camera Target ID = " << m_CameraTarget->getID() << std::endl;
-                        if(ttile != NULL)
-                        {
-                            ttile->printDebug();
-                        }
-                        else std::cout << "Current tile = NULL!\n";
-                    }
-                    else if(m_Receiver.isKeyPressed(KEY_F2))
-                    {
-                        dbg_noclip = !dbg_noclip;
-                        std::cout << "debug no clip = " << dbg_noclip << std::endl;
-                    }
-                    else if(m_Receiver.isKeyPressed(KEY_F3))
-                    {
-                        dbg_nolighting = !dbg_nolighting;
-                        std::cout << "debug no lighting = " << dbg_nolighting << std::endl;
-                        reconfigureAllLevelMeshes();
-                        reconfigureAllLevelObjects();
-                    }
-                    else if(m_Receiver.isKeyPressed(KEY_F4))
-                    {
-                        dbg_showboundingbox = !dbg_showboundingbox;
-                        std::cout << "debug show bounding box = " << dbg_showboundingbox << std::endl;
-                        reconfigureAllLevelMeshes();
-                        reconfigureAllLevelObjects();
-                    }
-                    else if(m_Receiver.isKeyPressed(KEY_F5))
-                    {
-                        m_CameraPos = m_Camera->getPosition();
-                        std::cout << "CAMERA_POS:" << m_CameraPos.X << "," << m_CameraPos.Y << "," << m_CameraPos.Z << std::endl;
-                    }
-                    else if(m_Receiver.isKeyPressed(KEY_F6))
-                    {
-                        dbg_showmainui = !dbg_showmainui;
-                        std::cout << "show main ui = " << dbg_showmainui << std::endl;
-                    }
-                    else if(m_Receiver.isKeyPressed(KEY_F12))
-                    {
-                        dbg_dodrawpal = !dbg_dodrawpal;
-                        std::cout << "draw pal = " << dbg_dodrawpal << std::endl;
-                    }
-
+                    m_Scroll->startInputMode();
                 }
-                //key released
-                else
+                else if(event->KeyInput.Key == KEY_SPACE)
+                {
+                }
+                else if(event->KeyInput.Key == KEY_KEY_W)
+                {
+                }
+                else if(event->KeyInput.Key == KEY_KEY_A)
                 {
 
                 }
+                else if(event->KeyInput.Key == KEY_KEY_D)
+                {
 
+                }
+                else if(event->KeyInput.Key == KEY_KEY_E)
+                {
+                }
+                else if(event->KeyInput.Key == KEY_KEY_Q)
+                {
+                }
+                else if(event->KeyInput.Key == KEY_KEY_T)
+                {
+                }
+                else if(event->KeyInput.Key == KEY_KEY_Z)
+                {
+                    /*
+                    testtexturesindex--;
+                    if(testtexturesindex < 0) testtexturesindex = int(testtextures->size()-1);
+                    m_Mouse->setTexture( (*testtextures)[testtexturesindex]);
+                    std::cout << "test texture index = " << testtexturesindex << std::endl;
+                    */
+                }
+                else if(event->KeyInput.Key == KEY_KEY_X)
+                {
+                    /*
+                    testtexturesindex++;
+                    if(testtexturesindex >= int(testtextures->size()) ) testtexturesindex = 0;
+                    m_Mouse->setTexture( (*testtextures)[testtexturesindex]);
+                    std::cout << "test texture index = " << testtexturesindex << std::endl;
+                    */
+                }
+                else if(m_Receiver->isKeyPressed(KEY_F1))
+                {
+                    m_CameraPos = m_Camera->getPosition();
+                    Tile *ttile = mLevels[m_CurrentLevel].getTile(int(m_CameraPos.Z)/UNIT_SCALE, int(m_CameraPos.X)/UNIT_SCALE);
+                    std::cout << "Camera Position : " << m_CameraPos.X << "," << m_CameraPos.Y << "," << m_CameraPos.Z << std::endl;
+                    std::cout << "Camera ID = " << m_Camera->getID() << ", Camera Target ID = " << m_CameraTarget->getID() << std::endl;
+                    if(ttile != NULL)
+                    {
+                        ttile->printDebug();
+                    }
+                    else std::cout << "Current tile = NULL!\n";
+                }
+                else if(m_Receiver->isKeyPressed(KEY_F2))
+                {
+                    dbg_noclip = !dbg_noclip;
+                    std::cout << "debug no clip = " << dbg_noclip << std::endl;
+                }
+                else if(m_Receiver->isKeyPressed(KEY_F3))
+                {
+                    dbg_nolighting = !dbg_nolighting;
+                    std::cout << "debug no lighting = " << dbg_nolighting << std::endl;
+                    reconfigureAllLevelMeshes();
+                    reconfigureAllLevelObjects();
+                }
+                else if(m_Receiver->isKeyPressed(KEY_F4))
+                {
+                    dbg_showboundingbox = !dbg_showboundingbox;
+                    std::cout << "debug show bounding box = " << dbg_showboundingbox << std::endl;
+                    reconfigureAllLevelMeshes();
+                    reconfigureAllLevelObjects();
+                }
+                else if(m_Receiver->isKeyPressed(KEY_F5))
+                {
+                    m_CameraPos = m_Camera->getPosition();
+                    std::cout << "CAMERA_POS:" << m_CameraPos.X << "," << m_CameraPos.Y << "," << m_CameraPos.Z << std::endl;
+                }
+                else if(m_Receiver->isKeyPressed(KEY_F6))
+                {
+                    dbg_showmainui = !dbg_showmainui;
+                    std::cout << "show main ui = " << dbg_showmainui << std::endl;
+                }
+                else if(m_Receiver->isKeyPressed(KEY_F12))
+                {
+                    dbg_dodrawpal = !dbg_dodrawpal;
+                    std::cout << "draw pal = " << dbg_dodrawpal << std::endl;
+                }
 
             }
-            //mouse event
-            if(event->EventType == EET_MOUSE_INPUT_EVENT)
+            //key released
+            else
             {
-                //if mouse left button pressed
-                if(event->MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN)
+
+            }
+
+
+        }
+        //mouse event
+        if(event->EventType == EET_MOUSE_INPUT_EVENT)
+        {
+            //if mouse left button pressed
+            if(event->MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN)
+            {
+
+                std::stringstream mouseclickss;
+                mouseclickss << "mouse clicked @" << m_Mouse->getMousePositionX() << "," << m_Mouse->getMousePositionY();
+                //print to scroll message window and console
+                std::cout << mouseclickss.str() << std::endl;
+                m_Scroll->addMessage(mouseclickss.str(), FONT_NORMAL, m_Palettes[0][SCROLL_FONT_PAL_GREEN]);
+
+                //if mouse was clicked within world view
+                //if main ui is displayed
+                if(dbg_showmainui)
                 {
-
-                    std::stringstream mouseclickss;
-                    mouseclickss << "mouse clicked @" << m_Mouse->getMousePositionX() << "," << m_Mouse->getMousePositionY();
-                    //print to scroll message window and console
-                    std::cout << mouseclickss.str() << std::endl;
-                    m_Scroll->addMessage(mouseclickss.str(), FONT_NORMAL, m_Palettes[0][SCROLL_FONT_PAL_GREEN]);
-
-                    //if mouse was clicked within world view
-                    //if main ui is displayed
-                    if(dbg_showmainui)
+                    if(m_Mouse->getMousePositionX() >= SCREEN_WORLD_POS_X && m_Mouse->getMousePositionX() <= (SCREEN_WORLD_POS_X + SCREEN_WORLD_WIDTH) &&
+                       m_Mouse->getMousePositionY() >= SCREEN_WORLD_POS_Y && m_Mouse->getMousePositionY() <= (SCREEN_WORLD_POS_Y + SCREEN_WORLD_HEIGHT))
                     {
-                        if(m_Mouse->getMousePositionX() >= SCREEN_WORLD_POS_X && m_Mouse->getMousePositionX() <= (SCREEN_WORLD_POS_X + SCREEN_WORLD_WIDTH) &&
-                           m_Mouse->getMousePositionY() >= SCREEN_WORLD_POS_Y && m_Mouse->getMousePositionY() <= (SCREEN_WORLD_POS_Y + SCREEN_WORLD_HEIGHT))
-                        {
-                            vector2di mousePosConverted = *m_Mouse->getMousePosition();
-                            mousePosConverted.X = float(m_Mouse->getMousePositionX()-SCREEN_WORLD_POS_X) / (float(SCREEN_WORLD_WIDTH) / float(SCREEN_WIDTH));
-                            mousePosConverted.Y = float(m_Mouse->getMousePositionY()-SCREEN_WORLD_POS_Y) / (float(SCREEN_WORLD_HEIGHT) / float(SCREEN_HEIGHT));
-
-                            std::cout << "screen width = " << SCREEN_WIDTH << std::endl;
-                            std::cout << "screen height = " << SCREEN_HEIGHT << std::endl;
-                            std::cout << "world pos x = " << SCREEN_WORLD_POS_X << std::endl;
-                            std::cout << "world pos y = " << SCREEN_WORLD_POS_Y << std::endl;
-                            std::cout << "world width = " << SCREEN_WORLD_WIDTH << std::endl;
-                            std::cout << "world height = " << SCREEN_WORLD_HEIGHT << std::endl;
-                            std::cout << "mouse clicked converted @" << mousePosConverted.X << "," << mousePosConverted.Y << std::endl;
-
-                            m_Mouse->m_CameraMouseRay = m_ColMgr->getRayFromScreenCoordinates(mousePosConverted, m_Camera);
-                        }
-                    }
-                    //no main ui, world view is full screen
-                    else
-                    {
+                        vector2di mousePosConverted = *m_Mouse->getMousePosition();
+                        mousePosConverted.X = float(m_Mouse->getMousePositionX()-SCREEN_WORLD_POS_X) / (float(SCREEN_WORLD_WIDTH) / float(SCREEN_WIDTH));
+                        mousePosConverted.Y = float(m_Mouse->getMousePositionY()-SCREEN_WORLD_POS_Y) / (float(SCREEN_WORLD_HEIGHT) / float(SCREEN_HEIGHT));
 
                         std::cout << "screen width = " << SCREEN_WIDTH << std::endl;
                         std::cout << "screen height = " << SCREEN_HEIGHT << std::endl;
@@ -796,64 +783,77 @@ void Game::processEvents(const SEvent *event)
                         std::cout << "world pos y = " << SCREEN_WORLD_POS_Y << std::endl;
                         std::cout << "world width = " << SCREEN_WORLD_WIDTH << std::endl;
                         std::cout << "world height = " << SCREEN_WORLD_HEIGHT << std::endl;
+                        std::cout << "mouse clicked converted @" << mousePosConverted.X << "," << mousePosConverted.Y << std::endl;
 
-                        m_Mouse->m_CameraMouseRay = m_ColMgr->getRayFromScreenCoordinates(*m_Mouse->getMousePosition(), m_Camera);
-
+                        m_Mouse->m_CameraMouseRay = m_ColMgr->getRayFromScreenCoordinates(mousePosConverted, m_Camera);
                     }
-
-                    /*
-                    //check ray collision
-                    vector3df intersection;
-                    triangle3df triangle;
-                    ISceneNode *selectedSceneNode = m_ColMgr->getSceneNodeAndCollisionPointFromRay(m_CameraMouseRay, intersection, triangle, 0);
-                    if(selectedSceneNode != NULL)
-                    {
-                        std::cout << "mouse ray hit something\n";
-                        selectedSceneNode->setVisible(false);
-                    }
-                    else std::cout << "mouse ray did not hit anything\n";
-                    */
-
-                    //first try to get an object
-                    ISceneNode *selectedSceneNode = m_ColMgr->getSceneNodeFromRayBB(m_Mouse->m_CameraMouseRay, ID_IsObject);
-                    if(selectedSceneNode != NULL)
-                    {
-                        std::cout << "OBJ HIT!\n";
-                    }
-                    else
-                    {
-                        selectedSceneNode = m_ColMgr->getSceneNodeFromRayBB(m_Mouse->m_CameraMouseRay, ID_IsMap);
-                        if(selectedSceneNode != NULL)
-                        {
-                            std::cout << "MAP HIT!\n";
-                        }
-                    }
-                    if(selectedSceneNode != NULL) std::cout << "Name of hit node = " << selectedSceneNode->getName() << std::endl;
-
                 }
-                //else right mouse button pressed
-                else if(event->MouseInput.Event == EMIE_RMOUSE_PRESSED_DOWN)
+                //no main ui, world view is full screen
+                else
                 {
 
+                    std::cout << "screen width = " << SCREEN_WIDTH << std::endl;
+                    std::cout << "screen height = " << SCREEN_HEIGHT << std::endl;
+                    std::cout << "world pos x = " << SCREEN_WORLD_POS_X << std::endl;
+                    std::cout << "world pos y = " << SCREEN_WORLD_POS_Y << std::endl;
+                    std::cout << "world width = " << SCREEN_WORLD_WIDTH << std::endl;
+                    std::cout << "world height = " << SCREEN_WORLD_HEIGHT << std::endl;
+
+                    m_Mouse->m_CameraMouseRay = m_ColMgr->getRayFromScreenCoordinates(*m_Mouse->getMousePosition(), m_Camera);
+
                 }
-                //else mouse wheel moved
-                else if(event->MouseInput.Event == EMIE_MOUSE_WHEEL)
+
+                /*
+                //check ray collision
+                vector3df intersection;
+                triangle3df triangle;
+                ISceneNode *selectedSceneNode = m_ColMgr->getSceneNodeAndCollisionPointFromRay(m_CameraMouseRay, intersection, triangle, 0);
+                if(selectedSceneNode != NULL)
                 {
-                    //mouse wheel up
-                    if(event->MouseInput.Wheel > 0)
+                    std::cout << "mouse ray hit something\n";
+                    selectedSceneNode->setVisible(false);
+                }
+                else std::cout << "mouse ray did not hit anything\n";
+                */
+
+                //first try to get an object
+                ISceneNode *selectedSceneNode = m_ColMgr->getSceneNodeFromRayBB(m_Mouse->m_CameraMouseRay, ID_IsObject);
+                if(selectedSceneNode != NULL)
+                {
+                    std::cout << "OBJ HIT!\n";
+                }
+                else
+                {
+                    selectedSceneNode = m_ColMgr->getSceneNodeFromRayBB(m_Mouse->m_CameraMouseRay, ID_IsMap);
+                    if(selectedSceneNode != NULL)
                     {
-                        m_Camera->setFOV( m_Camera->getFOV()*0.9);
+                        std::cout << "MAP HIT!\n";
                     }
-                    //mouse wheel down
-                    else if(event->MouseInput.Wheel < 0)
-                    {
-                        m_Camera->setFOV( m_Camera->getFOV()*1.1);
-                    }
+                }
+                if(selectedSceneNode != NULL) std::cout << "Name of hit node = " << selectedSceneNode->getName() << std::endl;
+
+            }
+            //else right mouse button pressed
+            else if(event->MouseInput.Event == EMIE_RMOUSE_PRESSED_DOWN)
+            {
+
+            }
+            //else mouse wheel moved
+            else if(event->MouseInput.Event == EMIE_MOUSE_WHEEL)
+            {
+                //mouse wheel up
+                if(event->MouseInput.Wheel > 0)
+                {
+                    m_Camera->setFOV( m_Camera->getFOV()*0.9);
+                }
+                //mouse wheel down
+                else if(event->MouseInput.Wheel < 0)
+                {
+                    m_Camera->setFOV( m_Camera->getFOV()*1.1);
                 }
             }
-        }//end play mode events
-
-    }//end input handling
+        }
+    }//end play mode events
 }
 
 bool Game::setInputContext(int ncontext)

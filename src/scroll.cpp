@@ -40,6 +40,13 @@ bool Scroll::startInputMode(std::string promptstr)
     //draw prompt
     addMessage(promptstr, FONT_NORMAL);
 
+    //create cursor graphic from current prompt font and color
+    UWFont *tfont = m_MsgBuffer.back().font;
+    IImage *newimg = gptr->getDriver()->createImage(ECF_A1R5G5B5, dimension2d<u32>(tfont->m_WidestCharacter, tfont->m_Height ));
+    newimg->fill(m_MsgBuffer.back().color);
+    m_CursorGraphic = gptr->getDriver()->addTexture( "temp", newimg );
+    newimg->drop();
+
     //tell game that input context is scroll input entry
     gptr->setInputContext(IMODE_SCROLL_ENTRY);
 }
@@ -54,9 +61,17 @@ std::string Scroll::endInputMode()
     //copy input string and delete dynamic
     retstring = *m_InputModeString;
     delete m_InputModeString;
+    m_InputModeString = NULL;
+
+    //destroy cursor graphic
+    m_CursorGraphic->drop();
+    m_CursorGraphic = NULL;
 
     //tell game that scroll input is done and return to previous context
     gptr->setInputContext( gptr->getPreviousInputContext());
+
+    //add string to message buf (assumes last message was for prompt)
+    m_MsgBuffer.back().msg += retstring;
 
     //return copied string
     return retstring;
@@ -68,10 +83,31 @@ void Scroll::addInputCharacter(int cval)
 
     if(cval < 0 || cval >= 127) return;
 
-    //special keys (backspace, escape, return, delete)
+    //handle key presses
 
-    //add character to input string
-    m_InputModeString->push_back(char(cval));
+    switch(cval)
+    {
+    case KEY_ESCAPE:
+        //exit key entry mode
+        endInputMode();
+        break;
+    case KEY_RETURN:
+        //exit key entry mode
+        endInputMode();
+        break;
+    case KEY_BACK:
+        //remove character
+        if(m_InputModeString->length() > 0) m_InputModeString->resize( m_InputModeString->length()-1);
+        break;
+    case KEY_DELETE:
+        //delete next character
+        break;
+    default:
+        //add character to string
+        m_InputModeString->push_back(char(cval));
+        break;
+    }
+
 }
 
 void Scroll::draw()
@@ -95,11 +131,33 @@ void Scroll::draw()
 
             //draw message
             drawFontString(m_MsgBuffer[i + m_ScrollStartIndex].font,
-                           m_MsgBuffer[i + m_ScrollStartIndex].msg, mpos,
+                           m_MsgBuffer[i + m_ScrollStartIndex].msg,
+                           mpos,
                            m_MsgBuffer[i + m_ScrollStartIndex].color );
 
-            //if it's the last message, and am in input mode, draw input string
-            wip
+            //if it's the last message, and in input mode, draw input string
+            if(i + m_ScrollStartIndex == int(m_MsgBuffer.size())-1 && gptr->getInputContext() == IMODE_SCROLL_ENTRY)
+            {
+                //if input mode string is not null
+                if(m_InputModeString != NULL)
+                {
+                    //draw message again but attach input mode string
+                    drawFontString(m_MsgBuffer[i + m_ScrollStartIndex].font,
+                                   m_MsgBuffer[i + m_ScrollStartIndex].msg + *m_InputModeString,
+                                   mpos,
+                                   m_MsgBuffer[i + m_ScrollStartIndex].color );
+
+                    //draw a cursor
+                    if(m_CursorGraphic != NULL)
+                    {
+                        //get width of message
+                        int msgwidth = getStringWidth(m_MsgBuffer[i + m_ScrollStartIndex].font,  std::string(m_MsgBuffer[i+m_ScrollStartIndex].msg + *m_InputModeString) );
+                        gptr->getDriver()->draw2DImage( m_CursorGraphic, position2d<s32>(mpos.X + msgwidth, mpos.Y ));
+                    }
+
+                }
+
+            }//end of input mode drawing
         }
 
     }

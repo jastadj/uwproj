@@ -140,7 +140,7 @@ int loadFont(std::string tfilename, UWFont *font)
     }
 
     //save widest character value
-    font->m_WidestCharacter = widestcharacter;
+    font->m_WidestCharacter = widestcharacter * SCREEN_SCALE;
 
     //create clip rects
     for(int j = 0; j < charstoread; j++)
@@ -252,4 +252,27 @@ bool drawFontString(UWFont *tfont, std::string tstring, position2d<s32> tpos, SC
     }
 
     return true;
+}
+
+int getStringWidth(UWFont *tfont, std::string tstring)
+{
+    if(tfont == NULL) return 0;
+
+    int totwidth = 0;
+
+    for(int i = 0; i < int(tstring.length()); i++)
+    {
+        //get value of character
+        int charval = int( tstring[i]);
+
+        //make sure character is valid
+        if(charval >= 0 && charval < 127)
+        {
+            //add character width
+            totwidth += tfont->m_Clips[charval].getWidth();
+        }
+
+    }
+
+    return totwidth;
 }

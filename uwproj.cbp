@@ -50,6 +50,7 @@
 		<Unit filename="include/strings.hpp" />
 		<Unit filename="include/thread.hpp" />
 		<Unit filename="include/tools.hpp" />
+		<Unit filename="src/event.cpp" />
 		<Unit filename="src/font.cpp" />
 		<Unit filename="src/game.cpp" />
 		<Unit filename="src/graphics.cpp" />
