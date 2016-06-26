@@ -143,6 +143,7 @@ private:
 
     //mainloop
     void mainLoop();
+    void processEvents(const SEvent *event);
 
     //main UI
     int drawMainUI();
