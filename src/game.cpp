@@ -174,10 +174,12 @@ int Game::start()
     m_DoShutdown = true;
     }
 
+    /*
     for(int i = 0; i < int(m_Threads.size()); i++)
     {
         m_Threads[i]->WaitForInternalThreadToExit();
     }
+    */
 
     return 0;
 }

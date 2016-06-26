@@ -38,18 +38,21 @@
 			<Add library="lib/irrlicht-1.8.3/libIrrlicht.a" />
 			<Add directory="lib/irrlicht-1.8.3" />
 		</Linker>
-		<Unit filename="font.cpp" />
 		<Unit filename="include/font.hpp" />
 		<Unit filename="include/game.hpp" />
 		<Unit filename="include/level.hpp" />
 		<Unit filename="include/mouse.hpp" />
 		<Unit filename="include/object.hpp" />
+		<Unit filename="include/scroll.hpp" />
+		<Unit filename="include/thread.hpp" />
 		<Unit filename="include/tools.hpp" />
+		<Unit filename="src/font.cpp" />
 		<Unit filename="src/game.cpp" />
 		<Unit filename="src/level.cpp" />
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/mouse.cpp" />
 		<Unit filename="src/object.cpp" />
+		<Unit filename="src/scroll.cpp" />
 		<Unit filename="src/tools.cpp" />
 		<Extensions>
 			<code_completion />

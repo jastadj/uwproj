@@ -46,6 +46,7 @@ MouseUpdateThread::~MouseUpdateThread()
 
 void MouseUpdateThread::InternalThreadEntry()
 {
+    std::cout << "Starting mouse update thread...\n";
     while(!(*shutdownflag) )
     {
         m_Mouse->updatePosition();
