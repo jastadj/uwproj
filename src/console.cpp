@@ -67,5 +67,11 @@ void Console::parse(std::string cmdstring)
                 }
             }
         }
+        else if(words[0] == "stringdump")
+        {
+            std::cout << "Dumping strings to stringdump.txt\n";
+            addMessage("Dumping strings.");
+            gptr->dbg_stringdump();
+        }
     }
 }

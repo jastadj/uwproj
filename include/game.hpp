@@ -150,6 +150,7 @@ private:
     bool dbg_showmainui;
     bool dbg_dodrawpal;
     void dbg_drawpal(std::vector<SColor> *tpal);
+    void dbg_stringdump();
     void reconfigureAllLevelMeshes();
     void reconfigureAllLevelObjects();
 

@@ -1641,3 +1641,25 @@ void Game::dbg_drawpal(std::vector<SColor> *tpal)
         drawFontString(&m_FontNormal, mss.str(), *m_Mouse->getMousePosition() + vector2di(16,16));
     }
 }
+
+void Game::dbg_stringdump()
+{
+    std::ofstream ofile;
+
+    ofile.open("stringdump.txt");
+
+    for(int i = 0; i < int(m_StringBlocks.size()); i++)
+    {
+        ofile << "index        #" << i << std::endl;
+        ofile << "id           #" << m_StringBlocks[i].id << std::endl;
+        ofile << "string count =" << m_StringBlocks[i].strings.size() << std::endl;
+        for(int n = 0; n < int(m_StringBlocks[i].strings.size()); n++)
+        {
+            ofile << "string " << n << std::endl;
+            ofile << m_StringBlocks[i].strings[n] << std::endl;
+        }
+        ofile << std::endl;
+    }
+
+    ofile.close();
+}
