@@ -189,6 +189,7 @@ public:
 
     //strings
     std::string getDefaultString() { return "no string";}
+    std::string getString(int blockindex, int stringindex);
 
     //fonts
     UWFont *getNormalFont() { return &m_FontNormal;}

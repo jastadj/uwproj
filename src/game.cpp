@@ -479,6 +479,9 @@ void Game::mainLoop()
     // how long it was since the last frame
     u32 then = m_Device->getTimer()->getTime();
 
+    //welcome message
+    m_Scroll->addMessage(getString(0,13));
+
     //main loop
     while(m_Device->run())
     {
@@ -1613,6 +1616,16 @@ void Game::addMessage(std::string msgstring, int fonttype, SColor fcolor)
 void Game::sendToConsole(std::string nstring)
 {
     m_Console->parse(nstring);
+}
+
+std::string Game::getString(int blockindex, int stringindex)
+{
+
+    if(blockindex < 0 || blockindex >= int(m_StringBlocks.size()) ) return "INVALID";
+
+    if( stringindex < 0 || stringindex >= int(m_StringBlocks[blockindex].strings.size()) ) return "INVALID";
+
+    return m_StringBlocks[blockindex].strings[stringindex];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
