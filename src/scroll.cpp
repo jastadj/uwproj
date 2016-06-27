@@ -30,12 +30,12 @@ Scroll::~Scroll()
 
 }
 
-bool Scroll::startInputMode(std::string promptstr, std::string *tstring)
+bool Scroll::startInputMode(std::string *tstring, std::string promptstr)
 {
     if(m_InputModeString != NULL) return false;
 
     //get reference to target string, where input is going to be stored
-    m_InputModeString = tstring
+    m_InputModeString = tstring;
 
     //draw prompt
     addMessage(promptstr, FONT_NORMAL);
@@ -62,9 +62,6 @@ void Scroll::endInputMode()
         std::cout << "Error, input mode string reference is null??\n";
     }
 
-    //copy input string and delete dynamic
-    m_InputModeString = NULL;
-
     //destroy cursor graphic
     m_CursorGraphic->drop();
     m_CursorGraphic = NULL;
@@ -73,7 +70,13 @@ void Scroll::endInputMode()
     gptr->setInputContext( gptr->getPreviousInputContext());
 
     //add string to message buf (assumes last message was for prompt)
-    m_MsgBuffer.back().msg += retstring;
+    m_MsgBuffer.back().msg += *m_InputModeString;
+
+    //send string to console parser
+    gptr->sendToConsole(*m_InputModeString);
+
+    //copy input string and delete dynamic
+    m_InputModeString = NULL;
 }
 
 void Scroll::addInputCharacter(int cval)
@@ -102,8 +105,9 @@ void Scroll::addInputCharacter(int cval)
         //delete next character
         break;
     default:
+        //ignore everything else below the space character (32)
         //add character to string
-        m_InputModeString->push_back(char(cval));
+        if(cval >= 32) m_InputModeString->push_back(char(cval));
         break;
     }
 

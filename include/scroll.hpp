@@ -71,7 +71,7 @@ public:
     void addMessage(std::string msgstring, int fonttype = FONT_NORMAL, SColor fcolor = m_DefaultColor);
 
     //input mode
-    bool startInputMode(std::string promptstr = std::string(">"), std::string *tstring);
+    bool startInputMode( std::string *tstring, std::string promptstr = std::string(">"));
     void endInputMode();
     void addInputCharacter(int cval);
 

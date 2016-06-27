@@ -205,6 +205,9 @@ public:
     IMetaTriangleSelector *getMetaTriangleSelector() { return m_MetaTriangleSelector;}
     ICameraSceneNode *getCamera() { return m_Camera;}
 
+    //console
+    void sendToConsole(std::string nstring);
+
     friend MyEventReceiver;
 };
 #endif // CLASS_GAME

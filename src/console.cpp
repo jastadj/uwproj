@@ -20,5 +20,8 @@ void Console::addMessage(std::string msgstring, int fonttype, SColor fcolor)
 
 void Console::parse(std::string cmdstring)
 {
-
+    if(cmdstring == "test")
+    {
+        addMessage("this is a test");
+    }
 }

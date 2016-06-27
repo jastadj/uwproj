@@ -640,8 +640,20 @@ void Game::processEvent(const SEvent *event)
         {
             if(event->KeyInput.PressedDown)
             {
-                // pass key down to scroll
-                m_Scroll->addInputCharacter(event->KeyInput.Key);
+                //note, some keys, like the period, are not recognized properly
+                //need to investigate
+                m_Scroll->addInputCharacter( int(event->KeyInput.Char) );
+
+                /*
+                int keyval = event->KeyInput.Key;
+
+                if(keyval >= 65 && keyval <= 90)
+                {
+                    if(event->KeyInput.Shift) m_Scroll->addInputCharacter(keyval);
+                    else m_Scroll->addInputCharacter( keyval + 32);
+                }
+                else m_Scroll->addInputCharacter(keyval);
+                */
             }
         }
     }//end scroll entry event
@@ -659,7 +671,7 @@ void Game::processEvent(const SEvent *event)
                 else if(event->KeyInput.Key == KEY_OEM_3)
                 {
                     m_Console->m_String = std::string("");
-                    m_Scroll->startInputMode(">", &m_Console->m_String);
+                    m_Scroll->startInputMode(&m_Console->m_String);
                 }
                 else if(event->KeyInput.Key == KEY_SPACE)
                 {
@@ -1554,7 +1566,10 @@ void Game::addMessage(std::string msgstring, int fonttype, SColor fcolor)
     m_Scroll->addMessage(msgstring, fonttype, fcolor);
 }
 
-
+void Game::sendToConsole(std::string nstring)
+{
+    m_Console->parse(nstring);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////
 //  DEBUG
