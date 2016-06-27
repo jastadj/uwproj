@@ -19,6 +19,7 @@
 #include "thread.hpp"
 #include "mouse.hpp"
 #include "scroll.hpp"
+#include "player.hpp"
 
 #define DEBUG_NO_START 0
 #define FULLSCREEN 0
@@ -80,6 +81,9 @@ private:
     int m_LightRadius;
     SLight m_LightData;
 
+    //player
+    Player *m_Player;
+
     //threads
     std::vector<MyThreadClass*> m_Threads;
 
@@ -93,6 +97,7 @@ private:
     int initCamera();
     int initMouse();
     int initObjects();
+    int initPlayer();
     int initMainUI();
 
 

@@ -13,6 +13,7 @@ Game::Game()
     m_MetaTriangleSelector = NULL;
     m_Mouse = NULL;
     m_Receiver = NULL;
+    m_Player = NULL;
     m_InputContext = IMODE_PLAY;
     m_PreviousInputContext = IMODE_PLAY;
 
@@ -161,6 +162,12 @@ int Game::start()
         else std::cout << mLevels.size() << " levels loaded.\n";
 
     //mLevels[0].printDebug();
+
+    std::cout << "Initializing player...";
+    loadScreen("Initializing player...");
+        errorcode = initPlayer();
+        if(errorcode) {std::cout << "Error initializing player!  ERROR CODE " << errorcode << "\n"; return -1;}
+        else std::cout << "done.\n";
 
     if(!DEBUG_NO_START)
     {
@@ -325,6 +332,15 @@ int Game::initCamera()
 
 
 
+
+    return 0;
+}
+
+int Game::initPlayer()
+{
+    if(m_Player != NULL) delete m_Player;
+
+    m_Player = new Player;
 
     return 0;
 }
