@@ -81,9 +81,17 @@ void Scroll::endInputMode()
 
 void Scroll::addInputCharacter(int cval)
 {
-    if(m_InputModeString == NULL) return;
+    if(m_InputModeString == NULL)
+    {
+        std::cout << "Input mode string reference is null, returning...\n";
+        return;
+    }
 
-    if(cval < 0 || cval >= 127) return;
+    if(cval < 0 || cval >= 127)
+    {
+        std::cout << "Input mode key val:" << cval << " is not valid [0-127]\n";
+        return;
+    }
 
     //handle key presses
 
@@ -100,9 +108,6 @@ void Scroll::addInputCharacter(int cval)
     case KEY_BACK:
         //remove character
         if(m_InputModeString->length() > 0) m_InputModeString->resize( m_InputModeString->length()-1);
-        break;
-    case KEY_DELETE:
-        //delete next character
         break;
     default:
         //ignore everything else below the space character (32)

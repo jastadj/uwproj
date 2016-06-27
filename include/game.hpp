@@ -209,5 +209,6 @@ public:
     void sendToConsole(std::string nstring);
 
     friend MyEventReceiver;
+    friend Console;
 };
 #endif // CLASS_GAME

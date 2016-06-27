@@ -30,7 +30,7 @@ Game::Game()
     //debug build options
 #ifdef DEBUG
     dbg_noclip = true;
-    dbg_nolighting = true;
+    dbg_nolighting = false;
 #endif
 }
 
@@ -279,11 +279,11 @@ int Game::initCamera()
     m_LightRadius = 5*8; // 5 tiles * tile units
     m_CameraLight = m_SMgr->addLightSceneNode(0, vector3df(0,0,0), SColorf(1.0f, 1.0f, 1.0f, 1.f), 4.0f);
     m_CameraLight->setID(ID_IsNotPickable);
-    m_CameraLight->setLightData(m_LightData);
     m_CameraLight->setLightType(video::ELT_POINT);
-    m_CameraLight->getLightData().Attenuation = vector3df(0, 1.f/(m_LightRadius/40), 0);
+    //m_CameraLight->getLightData().Attenuation = vector3df(0, 1.f/(m_LightRadius/40), 0);
+    m_CameraLight->getLightData().Attenuation = vector3df(0, 0.5, 0);
     m_CameraLight->enableCastShadow(false);
-    m_CameraLight->setRadius(m_LightRadius/40);
+    //m_CameraLight->setRadius(m_LightRadius/40);
     m_LightData = m_CameraLight->getLightData();
 
 
@@ -642,8 +642,8 @@ void Game::processEvent(const SEvent *event)
             {
                 //note, some keys, like the period, are not recognized properly
                 //need to investigate
+                std::cout << "debug key char=" << int(event->KeyInput.Char) << std::endl;
                 m_Scroll->addInputCharacter( int(event->KeyInput.Char) );
-
                 /*
                 int keyval = event->KeyInput.Key;
 
