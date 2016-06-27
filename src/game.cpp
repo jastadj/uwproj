@@ -630,23 +630,41 @@ void Game::handleInputs()
 
         if(m_Receiver->isKeyPressed(KEY_KEY_W))
         {
-            m_CameraVel.Z = frameDeltaTime * MOVE_SPEED;
+            vector3df vel = m_Player->getVelocity();
+            vel.Z = frameDeltaTime * MOVE_SPEED;
+            m_Player->setVelocity(vel);
         }
         else if(m_Receiver->isKeyPressed(KEY_KEY_S) )
         {
-            m_CameraVel.Z = -frameDeltaTime * MOVE_SPEED;
+            vector3df vel = m_Player->getVelocity();
+            vel.Z = -frameDeltaTime * MOVE_SPEED;
+            m_Player->setVelocity(vel);
         }
-        else m_CameraVel.Z = 0;
+        else
+        {
+            vector3df vel = m_Player->getVelocity();
+            vel.Z = 0;
+            m_Player->setVelocity(vel);
+        }
 
         if(m_Receiver->isKeyPressed(KEY_KEY_E))
         {
-            m_CameraVel.Y = frameDeltaTime * MOVE_SPEED;
+            vector3df vel = m_Player->getVelocity();
+            vel.Y = frameDeltaTime * MOVE_SPEED;
+            m_Player->setVelocity(vel);
         }
         else if(m_Receiver->isKeyPressed(KEY_KEY_Q))
         {
-            m_CameraVel.Y = -frameDeltaTime * MOVE_SPEED;
+            vector3df vel = m_Player->getVelocity();
+            vel.Y = -frameDeltaTime * MOVE_SPEED;
+            m_Player->setVelocity(vel);
         }
-        else m_CameraVel.Y = 0;
+        else
+        {
+            vector3df vel = m_Player->getVelocity();
+            vel.Y = 0;
+            m_Player->setVelocity(vel);
+        }
     }
 
 }
@@ -737,9 +755,9 @@ void Game::processEvent(const SEvent *event)
                 }
                 else if(m_Receiver->isKeyPressed(KEY_F1))
                 {
-                    m_CameraPos = m_Camera->getPosition();
-                    Tile *ttile = mLevels[m_CurrentLevel].getTile(int(m_CameraPos.Z)/UNIT_SCALE, int(m_CameraPos.X)/UNIT_SCALE);
-                    std::cout << "Camera Position : " << m_CameraPos.X << "," << m_CameraPos.Y << "," << m_CameraPos.Z << std::endl;
+                    vector3df ppos = m_Player->getPosition();
+                    Tile *ttile = mLevels[m_CurrentLevel].getTile(int(ppos.Z)/UNIT_SCALE, int(ppos.X)/UNIT_SCALE);
+                    std::cout << "Player Position : " << ppos.X << "," << ppos.Y << "," << ppos.Z << std::endl;
                     std::cout << "Camera ID = " << m_Camera->getID() << ", Camera Target ID = " << m_CameraTarget->getID() << std::endl;
                     if(ttile != NULL)
                     {
@@ -768,7 +786,7 @@ void Game::processEvent(const SEvent *event)
                 }
                 else if(m_Receiver->isKeyPressed(KEY_F5))
                 {
-                    m_CameraPos = m_Camera->getPosition();
+                    vector3df m_CameraPos(m_Camera->getPosition());
                     std::cout << "CAMERA_POS:" << m_CameraPos.X << "," << m_CameraPos.Y << "," << m_CameraPos.Z << std::endl;
                 }
                 else if(m_Receiver->isKeyPressed(KEY_F6))
@@ -972,13 +990,16 @@ void Game::updateCamera()
 */
 
     //if collision process properly
+    //modifier used to apply offset from floor position to eye level standing height
+    const vector3df standingmod(0, STANDING_HEIGHT, 0);
+
     if(processCollision(&ppos, &cvelmod))
     {
         //m_CameraPos.Y = ttile->getHeight()+3;
         m_Player->setPosition(ppos);
 
-        m_Camera->setPosition(m_Player->getPosition());
-        m_CameraTarget->setPosition(m_Player->getPosition() + ctarget);
+        m_Camera->setPosition(m_Player->getPosition() + standingmod);
+        m_CameraTarget->setPosition(m_Player->getPosition() + standingmod + ctarget);
         m_Camera->updateAbsolutePosition();
         m_CameraTarget->updateAbsolutePosition();
         m_Camera->setTarget(m_CameraTarget->getPosition());
@@ -987,12 +1008,12 @@ void Game::updateCamera()
     else
     {
         m_Player->setPosition(current_campos);
-        m_Camera->setPosition(m_Player->getPosition());
-        m_CameraTarget->setPosition(current_camtgt);
+        m_Camera->setPosition(m_Player->getPosition() + standingmod);
+        m_CameraTarget->setPosition(current_camtgt + standingmod);
     }
 
     //update camera light
-    m_CameraLight->setPosition(m_Player->getPosition());
+    m_CameraLight->setPosition(m_Player->getPosition() + standingmod);
 
 
     //m_Camera->setTarget(m_CameraTarget);
@@ -1204,25 +1225,25 @@ bool Game::processCollision(vector3df *pos, vector3df *vel)
         {
         //ramp sloping up to the south...
         case TILETYPE_SL_S:
-            pos->Y = m*(tsubpos.Y) + cheight + STANDING_HEIGHT;
+            pos->Y = m*(tsubpos.Y) + cheight;
             break;
         case TILETYPE_SL_N:
-            pos->Y = -m*(tsubpos.Y) + 1 + cheight + STANDING_HEIGHT;
+            pos->Y = -m*(tsubpos.Y) + 1 + cheight;
             break;
         case TILETYPE_SL_W:
-            pos->Y = -m*(tsubpos.X) + 1 + cheight + STANDING_HEIGHT;
+            pos->Y = -m*(tsubpos.X) + 1 + cheight;
             break;
         case TILETYPE_SL_E:
-            pos->Y = m*(tsubpos.X) + cheight + STANDING_HEIGHT;
+            pos->Y = m*(tsubpos.X) + cheight;
             break;
         default:
             std::cout << "Error calculating slope height, undefined slope!\n";
-            pos->Y = ttile->getHeight()+STANDING_HEIGHT;
+            pos->Y = ttile->getHeight();
             break;
 
         }
     }
-    else pos->Y = ttile->getHeight()+STANDING_HEIGHT;
+    else pos->Y = ttile->getHeight();
 
 
     return true;
