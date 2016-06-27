@@ -266,11 +266,8 @@ int Game::initCamera()
     //already initialized!!
     if(m_Camera != NULL) return -1; // error already initialized!
 
-    m_CameraPos = vector3df(245.5,15,127.5);
-    m_CameraRot = vector3df(0,0,0);
-
     //add camera to scene
-    m_Camera = m_SMgr->addCameraSceneNode(0, m_CameraPos);
+    m_Camera = m_SMgr->addCameraSceneNode(0, vector3df(0,0,0));
     m_Camera->setID(ID_IsNotPickable);
 
     //create an empty scene node in front of the camera as "target"
@@ -341,6 +338,10 @@ int Game::initPlayer()
     if(m_Player != NULL) delete m_Player;
 
     m_Player = new Player;
+
+    //set position
+    //note this is actually stored in the level data and should be pulled for properly
+    m_Player->setPosition(vector3df(245.5,15,127.5));
 
     return 0;
 }
@@ -616,11 +617,15 @@ void Game::handleInputs()
         //check if keys are held for movement
         if(m_Receiver->isKeyPressed(KEY_KEY_A))
         {
-            m_CameraRot.Y -= frameDeltaTime * ROTATION_SPEED;
+            vector3df rot = m_Player->getRotation();
+            rot.Y -= frameDeltaTime * ROTATION_SPEED;
+            m_Player->setRotation(rot);
         }
         else if(m_Receiver->isKeyPressed(KEY_KEY_D))
         {
-            m_CameraRot.Y += frameDeltaTime * ROTATION_SPEED;
+            vector3df rot = m_Player->getRotation();
+            rot.Y += frameDeltaTime * ROTATION_SPEED;
+            m_Player->setRotation(rot);
         }
 
         if(m_Receiver->isKeyPressed(KEY_KEY_W))
@@ -935,22 +940,23 @@ void Game::updateCamera()
     //if(m_CameraVel.Y > -TERMINAL_GRAVITY) m_CameraVel.Y = TERMINAL_GRAVITY * frameDeltaTime;
 
     //capture current camera positions
-    vector3df current_campos = m_CameraPos;
+    vector3df current_campos = m_Player->getPosition();
     vector3df current_camtgt = m_CameraTarget->getPosition();
 
     //create matrix
     matrix4 m;
     //rotate matrix by camera rotation
-    m.setRotationDegrees(m_CameraRot);
+    m.setRotationDegrees(m_Player->getRotation());
     //create target position (camera target relative to camera - see camera init)
     vector3df ctarget = vector3df(0,0,1);
-    vector3df cvelmod = m_CameraVel;
+    vector3df cvelmod = m_Player->getVelocity();
     //vector3df cpos = m_CameraVel;
     //transform camera target (relative to camera node) to take rotation into account
     m.transformVect(ctarget);
     m.transformVect(cvelmod);
     //m_CameraTarget->setPosition(m_CameraPos +m_CameraVel);
-    m_CameraPos += cvelmod;
+    vector3df ppos = m_Player->getPosition();
+    ppos += cvelmod;
     //node->updateAbsolutePosition();
 
 /*
@@ -966,12 +972,13 @@ void Game::updateCamera()
 */
 
     //if collision process properly
-    if(processCollision(&m_CameraPos, &cvelmod))
+    if(processCollision(&ppos, &cvelmod))
     {
         //m_CameraPos.Y = ttile->getHeight()+3;
+        m_Player->setPosition(ppos);
 
-        m_Camera->setPosition(m_CameraPos);
-        m_CameraTarget->setPosition(m_CameraPos + ctarget);
+        m_Camera->setPosition(m_Player->getPosition());
+        m_CameraTarget->setPosition(m_Player->getPosition() + ctarget);
         m_Camera->updateAbsolutePosition();
         m_CameraTarget->updateAbsolutePosition();
         m_Camera->setTarget(m_CameraTarget->getPosition());
@@ -979,13 +986,13 @@ void Game::updateCamera()
     //else if it didn't (tile null or solid?), revert
     else
     {
-        m_CameraPos = current_campos;
-        m_Camera->setPosition(m_CameraPos);
+        m_Player->setPosition(current_campos);
+        m_Camera->setPosition(m_Player->getPosition());
         m_CameraTarget->setPosition(current_camtgt);
     }
 
     //update camera light
-    m_CameraLight->setPosition(m_CameraPos);
+    m_CameraLight->setPosition(m_Player->getPosition());
 
 
     //m_Camera->setTarget(m_CameraTarget);
