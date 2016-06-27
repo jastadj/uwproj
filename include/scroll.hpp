@@ -24,6 +24,7 @@ enum SCROLLMSGFONTS
 };
 
 class Game;
+class UWFont;
 
 struct ScrollMessage
 {
@@ -70,8 +71,8 @@ public:
     void addMessage(std::string msgstring, int fonttype = FONT_NORMAL, SColor fcolor = m_DefaultColor);
 
     //input mode
-    bool startInputMode(std::string promptstr = std::string(">"));
-    std::string endInputMode();
+    bool startInputMode(std::string promptstr = std::string(">"), std::string *tstring);
+    void endInputMode();
     void addInputCharacter(int cval);
 
 };

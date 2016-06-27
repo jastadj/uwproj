@@ -9,7 +9,7 @@
 
 
 #include "irrcommon.hpp"
-
+#include "console.hpp"
 #include "event.hpp"
 #include "strings.hpp"
 #include "graphics.hpp"
@@ -45,6 +45,7 @@
 class Mouse;
 class Scroll;
 class MyEventReceiver;
+class Console;
 
 enum {ID_IsNotPickable = 0, ID_IsMap = 1 << 0, ID_IsObject = 1 << 1};
 enum {IMODE_PLAY, IMODE_SCROLL_ENTRY, IMODE_TOTAL};
@@ -54,6 +55,7 @@ class Game
 private:
     Game();
     static Game *mInstance;
+    Console *m_Console;
     bool m_DoShutdown;
 
     //irrlicht renderer
@@ -191,6 +193,9 @@ public:
     int getInputContext() { return m_InputContext;}
     int getPreviousInputContext() { return m_PreviousInputContext;}
     bool setInputContext(int ncontext);
+
+    //scroll messages
+    void addMessage(std::string msgstring, int fonttype = 0, SColor fcolor = SColor(255,255,255,255));
 
     //get irrlicht components
     ISceneManager *getSceneManager() { return m_SMgr;}

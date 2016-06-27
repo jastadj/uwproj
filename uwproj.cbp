@@ -38,6 +38,7 @@
 			<Add library="lib/irrlicht-1.8.3/libIrrlicht.a" />
 			<Add directory="lib/irrlicht-1.8.3" />
 		</Linker>
+		<Unit filename="include/console.hpp" />
 		<Unit filename="include/event.hpp" />
 		<Unit filename="include/font.hpp" />
 		<Unit filename="include/game.hpp" />
@@ -51,6 +52,7 @@
 		<Unit filename="include/thread.hpp" />
 		<Unit filename="include/timer.hpp" />
 		<Unit filename="include/tools.hpp" />
+		<Unit filename="src/console.cpp" />
 		<Unit filename="src/event.cpp" />
 		<Unit filename="src/font.cpp" />
 		<Unit filename="src/game.cpp" />

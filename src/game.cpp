@@ -48,6 +48,10 @@ int Game::start()
 
     std::cout << "Game started.\n";
 
+    std::cout << "Initializing console...";
+    m_Console = Console::getInstance();
+    std::cout << "done.\n";
+
     //init irrlicht
     std::cout << "Initialzing irrlicht...";
         errorcode = initIrrlicht();
@@ -654,7 +658,8 @@ void Game::processEvent(const SEvent *event)
                 if(event->KeyInput.Key == KEY_ESCAPE) m_Device->closeDevice();
                 else if(event->KeyInput.Key == KEY_OEM_3)
                 {
-                    m_Scroll->startInputMode();
+                    m_Console->m_String = std::string("");
+                    m_Scroll->startInputMode(">", &m_Console->m_String);
                 }
                 else if(event->KeyInput.Key == KEY_SPACE)
                 {
@@ -1544,7 +1549,10 @@ SMesh *Game::getSquareMesh(int ul, int ur, int br, int bl)
 
 }
 
-
+void Game::addMessage(std::string msgstring, int fonttype, SColor fcolor)
+{
+    m_Scroll->addMessage(msgstring, fonttype, fcolor);
+}
 
 
 

@@ -30,12 +30,12 @@ Scroll::~Scroll()
 
 }
 
-bool Scroll::startInputMode(std::string promptstr)
+bool Scroll::startInputMode(std::string promptstr, std::string *tstring)
 {
     if(m_InputModeString != NULL) return false;
 
-    //create input mode string
-    m_InputModeString = new std::string;
+    //get reference to target string, where input is going to be stored
+    m_InputModeString = tstring
 
     //draw prompt
     addMessage(promptstr, FONT_NORMAL);
@@ -54,16 +54,15 @@ bool Scroll::startInputMode(std::string promptstr)
     gptr->setInputContext(IMODE_SCROLL_ENTRY);
 }
 
-std::string Scroll::endInputMode()
+void Scroll::endInputMode()
 {
-    std::string retstring;
-
     //for some reason there was no dynamic???
-    if(m_InputModeString == NULL) return "ERROR";
+    if(m_InputModeString == NULL)
+    {
+        std::cout << "Error, input mode string reference is null??\n";
+    }
 
     //copy input string and delete dynamic
-    retstring = *m_InputModeString;
-    delete m_InputModeString;
     m_InputModeString = NULL;
 
     //destroy cursor graphic
@@ -75,9 +74,6 @@ std::string Scroll::endInputMode()
 
     //add string to message buf (assumes last message was for prompt)
     m_MsgBuffer.back().msg += retstring;
-
-    //return copied string
-    return retstring;
 }
 
 void Scroll::addInputCharacter(int cval)
