@@ -3,6 +3,9 @@
 MyEventReceiver::MyEventReceiver(Game *ngame)
 {
     gptr = ngame;
+
+    //null out all keys
+    for(int i = 0; i < KEY_KEY_CODES_COUNT; i++) Keys[i] = false;
 }
 
 bool MyEventReceiver::OnEvent(const SEvent &event)

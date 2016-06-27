@@ -30,7 +30,7 @@ Game::Game()
     //debug build options
 #ifdef DEBUG
     dbg_noclip = true;
-    dbg_nolighting = false;
+    dbg_nolighting = true;
 #endif
 }
 
