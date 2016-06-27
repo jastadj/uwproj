@@ -2,6 +2,7 @@
 #define CLASS_PLAYER
 
 #include "irrcommon.hpp"
+#include <string>
 
 class Player
 {
@@ -11,9 +12,13 @@ private:
     vector3df m_Rotation;
     vector3df m_Velocity;
 
+    std::string m_Name;
+
 public:
     Player();
     ~Player();
+
+    std::string getName() { return m_Name;}
 
     vector3df getPosition() { return m_Position;}
     vector3df getRotation() { return m_Rotation;}

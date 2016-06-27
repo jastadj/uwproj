@@ -480,7 +480,7 @@ void Game::mainLoop()
     u32 then = m_Device->getTimer()->getTime();
 
     //welcome message
-    m_Scroll->addMessage(getString(0,13));
+    m_Scroll->addMessage( std::string(m_Player->getName() + " " + getString(0,256)) );
 
     //main loop
     while(m_Device->run())
