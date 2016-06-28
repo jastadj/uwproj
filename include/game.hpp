@@ -56,6 +56,7 @@ enum {IMODE_PLAY, IMODE_SCROLL_ENTRY, IMODE_TOTAL};
 
 struct UIAnimation
 {
+    std::string name;
     int state;
     std::vector<int> sequence;
     int current;

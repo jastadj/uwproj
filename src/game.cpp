@@ -901,16 +901,37 @@ int Game::drawMainUI()
     m_Scroll->draw();
 
     //draw ui dragons
-    //left dragon
+    //left dragon 36,134
     //body
     m_Driver->draw2DImage( m_DragonsTXT[0], position2d<s32>(UI_DRAGON_LEFT), rect<s32>(position2d<s32>(0,0), dimension2d<u32>(m_DragonsTXT[0]->getSize()) ), NULL, SColor(255,255,255,255), true);
-    //head
-    m_Driver->draw2DImage( m_DragonsTXT[1], position2d<s32>(UI_DRAGON_LEFT) + position2d<s32>(0,11*SCREEN_SCALE), rect<s32>(position2d<s32>(0,0), dimension2d<u32>(m_DragonsTXT[1]->getSize()) ), NULL, SColor(255,255,255,255), true);
+    //head clipped
+    m_Driver->draw2DImage( m_DragonsTXT[1],
+                           position2d<s32>(UI_DRAGON_LEFT) + position2d<s32>(0,11*SCREEN_SCALE),
+                           rect<s32>(position2d<s32>(0,0),dimension2d<u32>(m_DragonsTXT[1]->getSize() + dimension2d<u32>(-25*SCREEN_SCALE,-11*SCREEN_SCALE)) ),
+                           //rect<s32>(position2d<s32>(0,0),dimension2d<u32>(m_DragonsTXT[1]->getSize()) ),
+                           NULL,
+                           SColor(255,255,255,255),
+                           true);
+    //head animated
+    m_Driver->draw2DImage( m_DragonsTXT[6],
+                           position2d<s32>(UI_DRAGON_LEFT) + position2d<s32>(12*SCREEN_SCALE,11*SCREEN_SCALE),
+                           rect<s32>(position2d<s32>(0,0),dimension2d<u32>(m_DragonsTXT[6]->getSize() ) ),
+                           NULL,
+                           SColor(255,255,255,255),
+                           true);
+    //legs animated
+    //anim index 1
+    m_Driver->draw2DImage( m_DragonsTXT[2 + m_UIAnimations[1].current],
+                           position2d<s32>(UI_DRAGON_LEFT) + position2d<s32>(4*SCREEN_SCALE,21*SCREEN_SCALE),
+                           rect<s32>(position2d<s32>(0,0),dimension2d<u32>(m_DragonsTXT[2 + m_UIAnimations[1].current]->getSize() ) ),
+                           NULL,
+                           SColor(255,255,255,255),
+                           true);
     //tail
+    //anim index 0
     m_Driver->draw2DImage( m_DragonsTXT[14 + m_UIAnimations[0].current],
                           position2d<s32>(UI_DRAGON_LEFT) + position2d<s32>(4*SCREEN_SCALE,-69*SCREEN_SCALE),
-                          rect<s32>(position2d<s32>(0,0),
-                          dimension2d<u32>(m_DragonsTXT[14 + m_UIAnimations[0].current]->getSize()) ),
+                          rect<s32>(position2d<s32>(0,0),dimension2d<u32>(m_DragonsTXT[14 + m_UIAnimations[0].current]->getSize()) ),
                           NULL,
                           SColor(255,255,255,255),
                           true);
@@ -1299,9 +1320,20 @@ int Game::initMainUI()
     m_Scroll = new Scroll(this);
 
     //init ui animations
+    //index 0 - left tail
     UIAnimation newanim;
-    int tailanim[] = {0,1,2,3,2,1};
-    newanim.sequence = std::vector<int>(tailanim, tailanim+6);
+    newanim.name = "left_tail";
+    int lefttailanim[] = {0,1,2,3,2,1};
+    newanim.sequence = std::vector<int>(lefttailanim, lefttailanim+6);
+    newanim.timing = 200;
+    newanim.state = 0;
+    m_UIAnimations.push_back(newanim);
+
+    //index 1 - left legs
+    newanim = UIAnimation();;
+    newanim.name = "left_legs";
+    int leftleganim[] = {0,1,2,3};
+    newanim.sequence = std::vector<int>(leftleganim, leftleganim+4);
     newanim.timing = 200;
     newanim.state = 0;
     m_UIAnimations.push_back(newanim);

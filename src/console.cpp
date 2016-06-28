@@ -73,10 +73,21 @@ void Console::parse(std::string cmdstring)
             addMessage("Dumping strings.");
             gptr->dbg_stringdump();
         }
-        else if(words[0] == "lefttail")
+        else if(words[0] == "uianim")
         {
-            addMessage("Animating left tail...");
-            gptr->m_UIAnimations[0].state = 1;
+            if(int(words.size()) == 2)
+            {
+                int aindex = atoi(words[1].c_str());
+
+                if(aindex >= 0 && aindex < int(gptr->m_UIAnimations.size()) )
+                {
+                    addMessage( std::string("Animating main UI " + gptr->m_UIAnimations[aindex].name) );
+                    gptr->m_UIAnimations[aindex].state = 1;
+                }
+                else addMessage("uianim index out of bounds");
+            }
+            else addMessage("uinim incorrect parameters");
+
         }
     }
 }
