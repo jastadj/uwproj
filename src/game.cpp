@@ -631,11 +631,13 @@ void Game::processEvent(const SEvent *event)
                 }
                 else if(event->KeyInput.Key == KEY_KEY_Z)
                 {
-                    if(m_Mouse->isDebugMode()) m_Mouse->increaseDebugTexture(-1);
+                    if(m_Mouse->isDebugMode())
+                        std::cout << "debug texture index = " << m_Mouse->increaseDebugTexture(-1) << std::endl;
                 }
                 else if(event->KeyInput.Key == KEY_KEY_X)
                 {
-                    if(m_Mouse->isDebugMode()) m_Mouse->increaseDebugTexture(1);
+                    if(m_Mouse->isDebugMode())
+                        std::cout << "debug texture index = " << m_Mouse->increaseDebugTexture(1) << std::endl;
                 }
                 else if(m_Receiver->isKeyPressed(KEY_F1))
                 {
@@ -843,7 +845,48 @@ int Game::drawMainUI()
 {
     const static rect<s32> screen_rect( position2d<s32>(0,0), dimension2d<u32>(SCREEN_WIDTH, SCREEN_HEIGHT));
     const static rect<s32> scroll_edge_rect( position2d<s32>(0,0), dimension2d<u32>(m_ScrollEdgeTXT[0]->getSize()) );
+
     const static SColor m_ScrollFillColor = m_Palettes[0][SCROLL_PAL_INDEX];
+
+    //update animation states
+    for(int i = 0; i < int(m_UIAnimations.size()); i++)
+    {
+        //animation state of 0 means not animating, use first frame in sequnce as current
+        //animation state of 1 means animation was triggered, set current to next frame and reset timer, set state to 2
+        //animation state of 2 means animation is running, pick frame based on timing
+
+        if(m_UIAnimations[i].state == 0) m_UIAnimations[i].current = m_UIAnimations[i].sequence[0];
+        else if(m_UIAnimations[i].state == 1)
+        {
+            //if animation only has 1 frame, not an animation!
+            if( int(m_UIAnimations[i].sequence.size()) == 1)
+            {
+                std::cout << "Invalid UI animation!  Only has 1 frame!  Error for index # " << i << std::endl;
+                continue;
+            }
+
+            m_UIAnimations[i].state = 2;
+            m_UIAnimations[i].timer.reset();
+            m_UIAnimations[i].current = m_UIAnimations[i].sequence[1];
+        }
+        else if(m_UIAnimations[i].state == 2)
+        {
+            //get current elapsed time of animation
+            u32 elapsedtime = m_UIAnimations[i].timer.getElapsedTime();
+
+            //if timer has exceeded animation time, reset state back to 0
+            if(elapsedtime >= m_UIAnimations[i].timing * int(m_UIAnimations[i].sequence.size()-1) )
+            {
+                m_UIAnimations[i].state = 0;
+                m_UIAnimations[i].current = m_UIAnimations[i].sequence[0];
+            }
+            //else get index of current frame in sequence based on timing
+            else
+            {
+                m_UIAnimations[i].current = m_UIAnimations[i].sequence[ (m_UIAnimations[i].timer.getElapsedTime() / m_UIAnimations[i].timing)+1];
+            }
+        }
+    }
 
     //draw main ui graphic
     m_Driver->draw2DImage( m_BitmapsTXT[2], position2d<s32>(0,0), screen_rect, NULL, SColor(255,255,255,255), true);
@@ -857,6 +900,25 @@ int Game::drawMainUI()
     //draw scroll messages
     m_Scroll->draw();
 
+    //draw ui dragons
+    //left dragon
+    //body
+    m_Driver->draw2DImage( m_DragonsTXT[0], position2d<s32>(UI_DRAGON_LEFT), rect<s32>(position2d<s32>(0,0), dimension2d<u32>(m_DragonsTXT[0]->getSize()) ), NULL, SColor(255,255,255,255), true);
+    //head
+    m_Driver->draw2DImage( m_DragonsTXT[1], position2d<s32>(UI_DRAGON_LEFT) + position2d<s32>(0,11*SCREEN_SCALE), rect<s32>(position2d<s32>(0,0), dimension2d<u32>(m_DragonsTXT[1]->getSize()) ), NULL, SColor(255,255,255,255), true);
+    //tail
+    m_Driver->draw2DImage( m_DragonsTXT[14 + m_UIAnimations[0].current],
+                          position2d<s32>(UI_DRAGON_LEFT) + position2d<s32>(4*SCREEN_SCALE,-69*SCREEN_SCALE),
+                          rect<s32>(position2d<s32>(0,0),
+                          dimension2d<u32>(m_DragonsTXT[14 + m_UIAnimations[0].current]->getSize()) ),
+                          NULL,
+                          SColor(255,255,255,255),
+                          true);
+
+    //right dragon
+    m_Driver->draw2DImage( m_DragonsTXT[18], position2d<s32>(UI_DRAGON_RIGHT), rect<s32>(position2d<s32>(0,0), dimension2d<u32>(m_DragonsTXT[18]->getSize()) ), NULL, SColor(255,255,255,255), true);
+    m_Driver->draw2DImage( m_DragonsTXT[19], position2d<s32>(UI_DRAGON_RIGHT) + position2d<s32>(-24*SCREEN_SCALE, 11*SCREEN_SCALE), rect<s32>(position2d<s32>(0,0), dimension2d<u32>(m_DragonsTXT[19]->getSize()) ), NULL, SColor(255,255,255,255), true);
+    m_Driver->draw2DImage( m_DragonsTXT[32], position2d<s32>(UI_DRAGON_RIGHT) + position2d<s32>(-4*SCREEN_SCALE, -69*SCREEN_SCALE), rect<s32>(position2d<s32>(0,0), dimension2d<u32>(m_DragonsTXT[32]->getSize()) ), NULL, SColor(255,255,255,255), true);
 }
 
 void Game::updateCamera()
@@ -1235,6 +1297,14 @@ int Game::initMainUI()
 
     //create scroll object
     m_Scroll = new Scroll(this);
+
+    //init ui animations
+    UIAnimation newanim;
+    int tailanim[] = {0,1,2,3,2,1};
+    newanim.sequence = std::vector<int>(tailanim, tailanim+6);
+    newanim.timing = 200;
+    newanim.state = 0;
+    m_UIAnimations.push_back(newanim);
 
     return 0;
 }

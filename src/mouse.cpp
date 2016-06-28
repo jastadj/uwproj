@@ -35,20 +35,12 @@ void Mouse::draw()
 
     if(dbg_textures != NULL)
     {
-        //correct texture index if out of bounds
-        if(dbg_textureindex < 0) dbg_textureindex = int(dbg_textures->size()-1);
-        else if(dbg_textureindex >= int(dbg_textures->size())) dbg_textureindex = 0;
-
-        vector2di tsize( (*dbg_textures)[dbg_textureindex]->getSize().Width,
-                         (*dbg_textures)[dbg_textureindex]->getSize().Height);
-        tsize.X = tsize.X/2;
-        tsize.Y = tsize.Y/2;
-
         core::rect<s32> screen_rect( position2d<s32>(0,0), (*dbg_textures)[dbg_textureindex]->getSize());
-        m_Driver->draw2DImage( (*dbg_textures)[dbg_textureindex], m_MousePos - tsize, screen_rect, NULL, SColor(255,255,255,255), true);
+        m_Driver->draw2DImage( (*dbg_textures)[dbg_textureindex], m_MousePos, screen_rect, NULL, SColor(255,255,255,255), true);
     }
     else
     {
+        //get offset to center cursor graphic
         vector2di tsize(m_Texture->getSize().Width, m_Texture->getSize().Height);
         tsize.X = tsize.X/2;
         tsize.Y = tsize.Y/2;
@@ -57,6 +49,16 @@ void Mouse::draw()
         m_Driver->draw2DImage( m_Texture, m_MousePos - tsize, screen_rect, NULL, SColor(255,255,255,255), true);
     }
 
+}
+
+int Mouse::increaseDebugTexture(int nval)
+{
+    dbg_textureindex += nval;
+
+    if(dbg_textureindex < 0) dbg_textureindex = int(dbg_textures->size()-1);
+    else if(dbg_textureindex >= int(dbg_textures->size()) ) dbg_textureindex = 0;
+
+    return dbg_textureindex;
 }
 
 ////////////////////////////////////////////////////////////

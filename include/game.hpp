@@ -20,6 +20,7 @@
 #include "mouse.hpp"
 #include "scroll.hpp"
 #include "player.hpp"
+#include "timer.hpp"
 
 #define DEBUG_NO_START 0
 #define FULLSCREEN 0
@@ -33,6 +34,8 @@
 #define SCREEN_WORLD_POS_Y 18*SCREEN_SCALE
 #define SCREEN_WORLD_WIDTH 175*SCREEN_SCALE
 #define SCREEN_WORLD_HEIGHT 114*SCREEN_SCALE
+#define UI_DRAGON_LEFT 36*SCREEN_SCALE,134*SCREEN_SCALE
+#define UI_DRAGON_RIGHT 228*SCREEN_SCALE,134*SCREEN_SCALE
 #define UNIT_SCALE 4
 #define TILE_UNIT 8
 #define GRAVITY_ACCEL 0.001
@@ -50,6 +53,15 @@ class Console;
 
 enum {ID_IsNotPickable = 0, ID_IsMap = 1 << 0, ID_IsObject = 1 << 1};
 enum {IMODE_PLAY, IMODE_SCROLL_ENTRY, IMODE_TOTAL};
+
+struct UIAnimation
+{
+    int state;
+    std::vector<int> sequence;
+    int current;
+    int timing;
+    Timer timer;
+};
 
 class Game
 {
@@ -148,6 +160,7 @@ private:
     //main UI
     int drawMainUI();
     Scroll *m_Scroll;
+    std::vector<UIAnimation> m_UIAnimations;
 
     //debug
     bool dbg_noclip;

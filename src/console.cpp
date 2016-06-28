@@ -73,5 +73,10 @@ void Console::parse(std::string cmdstring)
             addMessage("Dumping strings.");
             gptr->dbg_stringdump();
         }
+        else if(words[0] == "lefttail")
+        {
+            addMessage("Animating left tail...");
+            gptr->m_UIAnimations[0].state = 1;
+        }
     }
 }

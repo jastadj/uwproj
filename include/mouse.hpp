@@ -44,7 +44,7 @@ public:
     bool isDebugMode() { if(dbg_textures == NULL) return false; else return true;}
     void setDebugTexture(std::vector<ITexture*> *dtextures) {dbg_textures = dtextures;}
     void setDebugTextureIndex(int nindex) { dbg_textureindex = nindex;}
-    void increaseDebugTexture(int nval) {dbg_textureindex += nval;}
+    int increaseDebugTexture(int nval);
 };
 
 //mouse update thread
