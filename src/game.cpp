@@ -341,7 +341,7 @@ int Game::initPlayer()
 
     //set position
     //note this is actually stored in the level data and should be pulled for properly
-    m_Player->setPosition(vector3df(245.5,15,127.5));
+    m_Player->setPosition(vector3df(245.5,12,127.5));
 
     return 0;
 }
@@ -880,6 +880,32 @@ void Game::processEvent(const SEvent *event)
                 if(selectedSceneNode != NULL)
                 {
                     std::cout << "OBJ HIT!\n";
+                    std::cout << "Name of hit node = " << selectedSceneNode->getName() << std::endl;
+
+                    //get object id from node name
+                    std::string objidstr = std::string(selectedSceneNode->getName());
+
+                    objidstr = objidstr.substr(4);
+                    int tid = atoi(objidstr.c_str());
+                    std::cout << "object instance id:" << tid << std::endl;
+                    //find object
+                    ObjectInstance *objptr = NULL;
+                    for(int j = 0; j < int(mLevels[m_CurrentLevel].getObjectsMaster()->size()); j++)
+                    {
+                        if( (*mLevels[m_CurrentLevel].getObjectsMaster())[j]->getInstanceID() == tid)
+                        {
+                            objptr = (*mLevels[m_CurrentLevel].getObjectsMaster())[j];
+                            break;
+                        }
+                    }
+
+                    if(objptr != NULL)
+                    {
+                        std::cout << "Object ID " << tid << " found.  Object name=" << getString(3, objptr->getRefID()) << std::endl;
+                        lookAtObject(objptr);
+                    }
+
+
                 }
                 else
                 {
@@ -887,9 +913,10 @@ void Game::processEvent(const SEvent *event)
                     if(selectedSceneNode != NULL)
                     {
                         std::cout << "MAP HIT!\n";
+                        std::cout << "Name of hit node = " << selectedSceneNode->getName() << std::endl;
                     }
+                    else std::cout << "...MISS?\n";
                 }
-                if(selectedSceneNode != NULL) std::cout << "Name of hit node = " << selectedSceneNode->getName() << std::endl;
 
             }
             //else right mouse button pressed
@@ -1297,8 +1324,6 @@ int Game::initObjects()
        Object *newobject = new Object;
        if(i < int(m_ObjectsTXT.size()) ) newobject->setTexture( m_ObjectsTXT[i]);
 
-       if(i < int(m_StringBlocks[3].strings.size())) newobject->setDescription( m_StringBlocks[3].strings[i]);
-
        m_Objects.push_back(newobject);
    }
 
@@ -1626,6 +1651,37 @@ std::string Game::getString(int blockindex, int stringindex)
     if( stringindex < 0 || stringindex >= int(m_StringBlocks[blockindex].strings.size()) ) return "INVALID";
 
     return m_StringBlocks[blockindex].strings[stringindex];
+}
+
+std::string Game::lookAtObject(ObjectInstance *tobj)
+{
+    if(tobj == NULL) return "ERROR";
+
+    //lets assume singular name, description separated by & symbol
+    size_t tpos = 0;
+    std::string rawdesc = getString(3, tobj->getRefID());
+    std::string processeddesc = "";
+
+    tpos = rawdesc.find_first_of('&');
+
+     if(tpos == std::string::npos) processeddesc = rawdesc;
+     else processeddesc = rawdesc.substr(0, tpos);
+
+     //replace _ character with white space
+     for(int i = 0; i < int(processeddesc.length()); i++)
+     {
+         if(processeddesc[i] == '_')
+         {
+             processeddesc[i] = ' ';
+         }
+     }
+
+    processeddesc = getString(0, 260) + processeddesc + getString(0,83);
+
+    //send to scroll message
+    m_Scroll->addMessage(processeddesc);
+
+    return processeddesc;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////

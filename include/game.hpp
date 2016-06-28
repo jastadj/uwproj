@@ -186,6 +186,7 @@ public:
     //objects
     bool updateObject(ObjectInstance *tobj, Tile *ttile);
     Object *getObject(int id);
+    std::string lookAtObject(ObjectInstance *tobj);
 
     //strings
     std::string getDefaultString() { return "no string";}

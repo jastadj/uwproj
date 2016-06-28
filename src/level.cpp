@@ -1334,7 +1334,6 @@ void Tile::printDebug()
     std::cout << "OBJECTS : " << mObjects.size() << std::endl;
     for(int i = 0; i < int(mObjects.size()); i++)
     {
-        std::cout << "     " << i << ":" << mObjects[i]->getDescription() << std::endl;
         //debug
         mObjects[i]->printDebug();
     }

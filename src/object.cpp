@@ -16,10 +16,6 @@ Object::Object()
 
     //set default texture to question mark
     m_TXT = gptr->getDefaultTexture();
-
-    //set default description
-    m_Description = gptr->getDefaultString();
-
 }
 
 Object::~Object()
@@ -68,9 +64,11 @@ bool ObjectInstance::setBillboard(IBillboardSceneNode *tbb)
 
 void ObjectInstance::printDebug()
 {
+    Game *gptr = Game::getInstance();
+
     std::cout << "\nObject Instance:\n";
     std::cout << "----------------\n";
-    std::cout << "Desc : " << getDescription() << std::endl;
+    std::cout << "Desc : " << gptr->getString(3, getRefID()) << std::endl;
     std::cout << "Ref ID   : 0x" << std::hex << getRefID() << std::dec << std::endl;
     std::cout << "Instance ID : 0x" << std::hex << getInstanceID() << std::dec << std::endl;
     std::cout << "Flags : " << m_Flags << std::endl;

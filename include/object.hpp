@@ -12,18 +12,15 @@ private:
     int m_ID;
 
     ITexture *m_TXT;
-    std::string m_Description;
 
 public:
     Object();
     ~Object();
 
     ITexture *getTexture() { return m_TXT;}
-    std::string getDescription() { return m_Description;}
     int getID() { return m_ID;}
 
     void setTexture(ITexture *ntxt) { m_TXT = ntxt;}
-    void setDescription(std::string ndesc) { m_Description = ndesc;}
 
     int getObjectCount() { return m_TotalObjects;}
 };
@@ -65,12 +62,10 @@ public:
     int getRefID() { return m_Ref->getID();}
     int getInstanceID() { return m_InstanceID;}
     ITexture *getTexture() { return m_Ref->getTexture();}
-    std::string getDescription() { return m_Ref->getDescription();}
 
     //billboard
     IBillboardSceneNode *getBillboard() { return m_Billboard;}
     bool setBillboard(IBillboardSceneNode *tbb);
-
 
     //object flags
     int getFlags() { return m_Flags;}
