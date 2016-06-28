@@ -122,6 +122,8 @@ int Game::start()
         if(errorcode) {std::cout << "Error loading mode button graphics!  ERROR CODE " << errorcode << "\n"; return -1;}
         errorcode = loadGraphic("UWDATA\\optb.gr", &m_ModeButtonsMiscTXT);
         if(errorcode) {std::cout << "Error loading mode button misc graphics!  ERROR CODE " << errorcode << "\n"; return -1;}
+        errorcode = loadGraphic("UWDATA\\dragons.gr", &m_DragonsTXT);
+        if(errorcode) {std::cout << "Error loading dragon graphics!  ERROR CODE " << errorcode << "\n"; return -1;}
         std::cout << std::endl;
 
     std::cout << "Loading bitmaps...";
@@ -358,7 +360,7 @@ void Game::mainLoop()
 
 
     //texture testing
-    m_Mouse->setDebugTexture(&m_ModeButtonsTXT);
+    m_Mouse->setDebugTexture(&m_DragonsTXT);
 
 
 
@@ -849,8 +851,8 @@ int Game::drawMainUI()
     //draw scroll components (edges and main scroll window)
     int scrolledgestate = m_Scroll->getScrollEdgeState();
     m_Driver->draw2DRectangle(m_ScrollFillColor, m_Scroll->getScrollRect());
-    m_Driver->draw2DImage( m_ScrollEdgeTXT[scrolledgestate], position2d<s32>(SCROLL_EDGE_LEFT_X, SCROLL_EDGE_Y), scroll_edge_rect, NULL, SColor(255,255,255,255), true);
-    m_Driver->draw2DImage( m_ScrollEdgeTXT[scrolledgestate+5], position2d<s32>(SCROLL_EDGE_RIGHT_X, SCROLL_EDGE_Y), scroll_edge_rect, NULL, SColor(255,255,255,255), true);
+    m_Driver->draw2DImage( m_ScrollEdgeTXT[scrolledgestate], position2d<s32>(SCROLL_EDGE_LEFT), scroll_edge_rect, NULL, SColor(255,255,255,255), true);
+    m_Driver->draw2DImage( m_ScrollEdgeTXT[scrolledgestate+5], position2d<s32>(SCROLL_EDGE_RIGHT), scroll_edge_rect, NULL, SColor(255,255,255,255), true);
 
     //draw scroll messages
     m_Scroll->draw();

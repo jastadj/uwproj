@@ -120,6 +120,7 @@ private:
     std::vector<ITexture*> m_ScrollEdgeTXT;
     std::vector<ITexture*> m_ModeButtonsTXT;
     std::vector<ITexture*> m_ModeButtonsMiscTXT;
+    std::vector<ITexture*> m_DragonsTXT;
 
     //fonts
     UWFont m_FontNormal;

@@ -13,7 +13,7 @@ Scroll::Scroll(Game *ngame)
     m_InputModeString = NULL;
     m_CursorGraphic = NULL;
 
-    m_ScrollRect = rect<s32>(position2d<s32>(SCROLL_POS_X, SCROLL_POS_Y), dimension2d<u32>(SCROLL_WIDTH, SCROLL_HEIGHT) );
+    m_ScrollRect = rect<s32>(position2d<s32>(SCROLL_POS), dimension2d<u32>(SCROLL_DIM) );
 
     if(SCROLL_DEFAULT_FONT_PAL >= 0 && SCROLL_DEFAULT_FONT_PAL < int((*gptr->getPalletes())[0].size()) )
         m_DefaultColor = (*gptr->getPalletes())[0][SCROLL_DEFAULT_FONT_PAL];
