@@ -360,7 +360,7 @@ void Game::mainLoop()
 
 
     //texture testing
-    m_Mouse->setDebugTexture(&m_DragonsTXT);
+    //m_Mouse->setDebugTexture(&m_DragonsTXT);
 
 
 
