@@ -118,6 +118,10 @@ int Game::start()
         if(errorcode) {std::cout << "Error loading inventory graphics!  ERROR CODE " << errorcode << "\n"; return -1;}
         errorcode = loadGraphic("UWDATA\\scrledge.gr", &m_ScrollEdgeTXT);
         if(errorcode) {std::cout << "Error loading scroll graphics!  ERROR CODE " << errorcode << "\n"; return -1;}
+        errorcode = loadGraphic("UWDATA\\optbtns.gr", &m_ModeButtonsTXT);
+        if(errorcode) {std::cout << "Error loading mode button graphics!  ERROR CODE " << errorcode << "\n"; return -1;}
+        errorcode = loadGraphic("UWDATA\\optb.gr", &m_ModeButtonsMiscTXT);
+        if(errorcode) {std::cout << "Error loading mode button misc graphics!  ERROR CODE " << errorcode << "\n"; return -1;}
         std::cout << std::endl;
 
     std::cout << "Loading bitmaps...";
@@ -353,125 +357,10 @@ void Game::mainLoop()
     bool drawaxis = true;
 
 
-
-    //light1->getLightData().DiffuseColor = SColor(100,100,100,100);
-    //light1->getLightData().SpecularColor = SColor(0,0,0,0);
-    //light1->enableCastShadow(false);
-    //m_SMgr->setAmbientLight( SColor(100,100,100,100));
-
-
-
-/*
-    //test
-    int txtindex = 0;
-    SMesh *squaremesh = getSquareMesh(UNIT_SCALE*8, UNIT_SCALE*8);
-    IMeshSceneNode *mysquare = m_SMgr->addMeshSceneNode(squaremesh);
-        mysquare->setPosition(vector3df(0,UNIT_SCALE*8 , 0));
-        mysquare->setRotation(vector3df(180, 270, 0));
-        mysquare->setMaterialTexture(0, m_Wall64TXT[txtindex]);
-        mysquare->setMaterialFlag(video::EMF_BACK_FACE_CULLING, true);
-        mysquare->setMaterialFlag(video::EMF_LIGHTING, false);
-        //mycube->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
-        //mycube->setMaterialFlag(video::EMF_BLEND_OPERATION, true);
-        //mycube->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
-        mysquare->updateAbsolutePosition();
-    squaremesh->drop();
-*/
-
-    //test 2
-    /*
-    SMesh *mycubemesh = getCubeMesh(5);
-    IMeshSceneNode *mycube = m_SMgr->addMeshSceneNode(mycubemesh);
-    mycube->setPosition( vector3df(15,5,0));
-    mycube->setScale(vector3df(2,2,2));
-    mycube->setMaterialTexture(0, m_Wall64TXT[0]);
-    mycube->setMaterialFlag(video::EMF_LIGHTING,false);
-    mycubemesh->drop();
-    */
-
-    /*
-    //create mesh
-    SMesh *mycubemesh = getCubeMesh(128);
-    //create scene node octree type
-    IMeshSceneNode *mycube = m_SMgr->addOctreeSceneNode(mycubemesh, 0, IDFlag_IsPickable);
-    mycube->setPosition( vector3df(-64,-128*2,64));
-    mycube->setMaterialTexture(0, m_Wall64TXT[0]);
-    mycube->setMaterialFlag(video::EMF_LIGHTING,false);
-    mycubemesh->drop();
-
-    //use selector to add to cube mesh
-    scene::ITriangleSelector *selector = m_SMgr->createOctreeTriangleSelector(mycube->getMesh(), mycube, 128);
-    mycube->setTriangleSelector(selector);
-
-    const aabbox3d<f32>& mybbox = mycube->getBoundingBox();
-    vector3df mybboxradius = mybbox.MaxEdge - mybbox.getCenter();
-
-    //create collision response between selector and camera
-    ISceneNodeAnimator* anim = m_SMgr->createCollisionResponseAnimator(selector, m_Camera, mybboxradius,vector3df(0,-10,0));
-    selector->drop(); // As soon as we're done with the selector, drop it.
-    m_Camera->addAnimator(anim);
-    anim->drop();  // And likewise, drop the animator when we're done referring to it.
-    */
-
-    //collision testing
-    /*
-    int cubesize = 4;
-    m_Camera->setPosition( vector3df(2,20,2));
-    m_Camera->setRotation( vector3df(0,0,0));
-    for(int i = 0; i < 64; i++)
-    {
-        for(int n = 0; n < 64; n++)
-        {
-            SMesh *mycubemesh = getSquareMesh(0,0,0,0);
-            //create scene node octree type
-            IMeshSceneNode *mycube = m_SMgr->addOctreeSceneNode(mycubemesh);
-            mycube->setPosition( vector3df(i*cubesize,0,n*cubesize));
-            mycube->setMaterialTexture(0, m_Wall64TXT[0]);
-            mycube->setMaterialFlag(video::EMF_LIGHTING,false);
-            mycubemesh->drop();
-            configMeshSceneNode(mycube);
-            registerForCollision(mycube);
-        }
-    }
-    */
-
-    //init collision
-    /*
-    const aabbox3d<f32> mybbox(0,0,0,UNIT_SCALE, UNIT_SCALE, UNIT_SCALE);
-    vector3df mybboxradius = mybbox.MaxEdge - mybbox.getCenter();
-    //create collision response between meta selector and camera
-    ISceneNodeAnimator* anim = m_SMgr->createCollisionResponseAnimator(m_MetaTriangleSelector, m_Camera, mybboxradius,vector3df(0,GRAVITY,0));
-    m_Camera->addAnimator(anim);
-    //animator no longer needed, drop it
-    anim->drop();
-    */
-
-
     //texture testing
-    /*
-    std::vector<ITexture*> *testtextures = &m_ScrollEdgeTXT;
-    int testtexturesindex = 0;
-    m_Mouse->setTexture( (*testtextures)[testtexturesindex]);
-    */
+    m_Mouse->setDebugTexture(&m_ModeButtonsTXT);
 
 
-
-    //billboard test
-    /*
-    IBillboardSceneNode *mybillboard = m_SMgr->addBillboardSceneNode();
-    mybillboard->setPosition( vector3df(244.48,15,133.649));
-    mybillboard->setMaterialTexture(0, m_ObjectsTXT[0]);
-    mybillboard->setSize( dimension2d<f32>(2,2));
-    configBillboardSceneNode(mybillboard);
-    //mybillboard->setMaterialFlag(EMF_COLOR_MASK, true);
-    //mybillboard->setMaterialType(EMT_TRANSPARENT_ALPHA_CHANNEL);
-    */
-
-
-    //dimension2du d = core::dimension2du(320, 200);
-    //m_Driver->OnResize(d);
-    // now irrlicht internally ajusted device's resolution, but active camera will not update its aspect ratio automatically (which is OK, because you may no need it), so if you want the camera to be OK after this resize, you need to write also something like:
-    //m_SMgr->getActiveCamera()->setAspectRatio((float)d.Width/d.Height);
 
     int lastFPS = -1;
 
@@ -740,21 +629,11 @@ void Game::processEvent(const SEvent *event)
                 }
                 else if(event->KeyInput.Key == KEY_KEY_Z)
                 {
-                    /*
-                    testtexturesindex--;
-                    if(testtexturesindex < 0) testtexturesindex = int(testtextures->size()-1);
-                    m_Mouse->setTexture( (*testtextures)[testtexturesindex]);
-                    std::cout << "test texture index = " << testtexturesindex << std::endl;
-                    */
+                    if(m_Mouse->isDebugMode()) m_Mouse->increaseDebugTexture(-1);
                 }
                 else if(event->KeyInput.Key == KEY_KEY_X)
                 {
-                    /*
-                    testtexturesindex++;
-                    if(testtexturesindex >= int(testtextures->size()) ) testtexturesindex = 0;
-                    m_Mouse->setTexture( (*testtextures)[testtexturesindex]);
-                    std::cout << "test texture index = " << testtexturesindex << std::endl;
-                    */
+                    if(m_Mouse->isDebugMode()) m_Mouse->increaseDebugTexture(1);
                 }
                 else if(m_Receiver->isKeyPressed(KEY_F1))
                 {

@@ -19,6 +19,10 @@ private:
     IVideoDriver *m_Driver;
     IrrlichtDevice *m_Device;
 
+    //debug
+    std::vector<ITexture*> *dbg_textures;
+    int dbg_textureindex;
+
 public:
     Mouse(Game *tgame);
     ~Mouse();
@@ -34,6 +38,13 @@ public:
     int getMousePositionX() { return m_MousePos.X;}
     int getMousePositionY() { return m_MousePos.Y;}
     vector2di *getMousePosition() { return &m_MousePos;}
+
+    //debug
+    // note : texture index corrected in draw function
+    bool isDebugMode() { if(dbg_textures == NULL) return false; else return true;}
+    void setDebugTexture(std::vector<ITexture*> *dtextures) {dbg_textures = dtextures;}
+    void setDebugTextureIndex(int nindex) { dbg_textureindex = nindex;}
+    void increaseDebugTexture(int nval) {dbg_textureindex += nval;}
 };
 
 //mouse update thread

@@ -10,6 +10,13 @@ Mouse::Mouse(Game *tgame)
     //get references
     m_Device = gptr->getDevice();
     m_Driver = gptr->getDriver();
+
+    //disable mouse cursor
+    m_Device->getCursorControl()->setVisible(false);
+
+    //debug
+    dbg_textures = NULL;
+    dbg_textureindex = 0;
 }
 
 void Mouse::updatePosition()
@@ -24,17 +31,32 @@ void Mouse::setTexture(ITexture *ttxt)
 
 void Mouse::draw()
 {
-    //disable mouse cursor
-    m_Device->getCursorControl()->setVisible(false);
-
     if(m_Texture == NULL) return;
 
-    vector2di tsize(m_Texture->getSize().Width, m_Texture->getSize().Height);
-    tsize.X = tsize.X/2;
-    tsize.Y = tsize.Y/2;
+    if(dbg_textures != NULL)
+    {
+        //correct texture index if out of bounds
+        if(dbg_textureindex < 0) dbg_textureindex = int(dbg_textures->size()-1);
+        else if(dbg_textureindex >= int(dbg_textures->size())) dbg_textureindex = 0;
 
-    core::rect<s32> screen_rect( position2d<s32>(0,0), m_Texture->getSize());
-    m_Driver->draw2DImage( m_Texture, m_MousePos - tsize, screen_rect, NULL, SColor(255,255,255,255), true);
+        vector2di tsize( (*dbg_textures)[dbg_textureindex]->getSize().Width,
+                         (*dbg_textures)[dbg_textureindex]->getSize().Height);
+        tsize.X = tsize.X/2;
+        tsize.Y = tsize.Y/2;
+
+        core::rect<s32> screen_rect( position2d<s32>(0,0), (*dbg_textures)[dbg_textureindex]->getSize());
+        m_Driver->draw2DImage( (*dbg_textures)[dbg_textureindex], m_MousePos - tsize, screen_rect, NULL, SColor(255,255,255,255), true);
+    }
+    else
+    {
+        vector2di tsize(m_Texture->getSize().Width, m_Texture->getSize().Height);
+        tsize.X = tsize.X/2;
+        tsize.Y = tsize.Y/2;
+
+        core::rect<s32> screen_rect( position2d<s32>(0,0), m_Texture->getSize());
+        m_Driver->draw2DImage( m_Texture, m_MousePos - tsize, screen_rect, NULL, SColor(255,255,255,255), true);
+    }
+
 }
 
 ////////////////////////////////////////////////////////////

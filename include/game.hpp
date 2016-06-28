@@ -118,6 +118,8 @@ private:
     std::vector<ITexture*> m_QuestionTXT;
     std::vector<ITexture*> m_InventoryTXT;
     std::vector<ITexture*> m_ScrollEdgeTXT;
+    std::vector<ITexture*> m_ModeButtonsTXT;
+    std::vector<ITexture*> m_ModeButtonsMiscTXT;
 
     //fonts
     UWFont m_FontNormal;
