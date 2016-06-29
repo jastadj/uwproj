@@ -56,9 +56,20 @@ ObjectInstance::~ObjectInstance()
 
 bool ObjectInstance::setBillboard(IBillboardSceneNode *tbb)
 {
-    if(tbb == NULL) return false;
+    if(tbb == NULL)
+    {
+        if(m_Billboard != NULL)
+        {
+            std::cout << "Setting billboard to NULL\n";
+            m_Billboard->remove();
+            m_Billboard = NULL;
+        }
+    }
+    else
+    {
+        m_Billboard = tbb;
+    }
 
-    m_Billboard = tbb;
     return true;
 }
 

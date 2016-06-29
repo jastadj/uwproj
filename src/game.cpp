@@ -729,6 +729,11 @@ void Game::processEvent(const SEvent *event)
 
                         m_Mouse->m_CameraMouseRay = m_ColMgr->getRayFromScreenCoordinates(mousePosConverted, m_Camera);
                     }
+                    //click somewhere in UI
+                    else
+                    {
+                        m_Mouse->m_CameraMouseRay = line3df(vector3df(),vector3df());
+                    }
                 }
                 //no main ui, world view is full screen
                 else
@@ -786,6 +791,9 @@ void Game::processEvent(const SEvent *event)
                     {
                         std::cout << "Object ID " << tid << " found.  Object name=" << getString(3, objptr->getRefID()) << std::endl;
                         lookAtObject(objptr);
+
+                        //debug
+                        objptr->setBillboard(NULL);
                     }
 
 
