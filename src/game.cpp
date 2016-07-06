@@ -471,6 +471,7 @@ void Game::mainLoop()
             if(dbg_dodrawpal) dbg_drawpal(&m_Palettes[0]);
         }
 
+        for(int n = 0; n < int(m_UIInventorySlots.size()); n++)dbg_drawrect(m_UIInventorySlots[n]);
 
 
 
@@ -794,6 +795,7 @@ void Game::processEvent(const SEvent *event)
 
                         //debug
                         objptr->setBillboard(NULL);
+                        m_Player->setInventorySlot(0, objptr);
                     }
 
 
@@ -948,6 +950,17 @@ int Game::drawMainUI()
     m_Driver->draw2DImage( m_DragonsTXT[18], position2d<s32>(UI_DRAGON_RIGHT), rect<s32>(position2d<s32>(0,0), dimension2d<u32>(m_DragonsTXT[18]->getSize()) ), NULL, SColor(255,255,255,255), true);
     m_Driver->draw2DImage( m_DragonsTXT[19], position2d<s32>(UI_DRAGON_RIGHT) + position2d<s32>(-24*SCREEN_SCALE, 11*SCREEN_SCALE), rect<s32>(position2d<s32>(0,0), dimension2d<u32>(m_DragonsTXT[19]->getSize()) ), NULL, SColor(255,255,255,255), true);
     m_Driver->draw2DImage( m_DragonsTXT[32], position2d<s32>(UI_DRAGON_RIGHT) + position2d<s32>(-4*SCREEN_SCALE, -69*SCREEN_SCALE), rect<s32>(position2d<s32>(0,0), dimension2d<u32>(m_DragonsTXT[32]->getSize()) ), NULL, SColor(255,255,255,255), true);
+
+
+    //draw inventory
+    for(int i = 0; i < int(m_UIInventorySlots.size()); i++)
+    {
+        ObjectInstance *tobj = m_Player->getInventorySlot(i);
+        if(tobj != NULL)
+        {
+            m_Driver->draw2DImage( tobj->getTexture(), m_UIInventorySlots[i].UpperLeftCorner, rect<s32>(position2d<s32>(0,0), dimension2d<u32>(tobj->getTexture()->getSize())), NULL, SColor(255,255,255,255), true);
+        }
+    }
 }
 
 void Game::updateCamera()
@@ -1326,6 +1339,15 @@ int Game::initMainUI()
 
     //create scroll object
     m_Scroll = new Scroll(this);
+
+    //create inventory slots
+    m_UIInventorySlots.resize(INV_TOTALSLOTS);
+    for(int i = 0; i < 2; i++)
+        for(int n = 0; n < 4; n++)
+        {
+            m_UIInventorySlots[i*4 + n] = rect<s32>(position2d<s32>( (n*(16+3))*SCREEN_SCALE + 241*SCREEN_SCALE ,(i*(16+2))*SCREEN_SCALE + 82*SCREEN_SCALE),
+                                                   dimension2d<s32>(16*SCREEN_SCALE, 16*SCREEN_SCALE));
+        }
 
     //init ui animations
     //index 0 - left tail
@@ -1766,4 +1788,16 @@ void Game::dbg_stringdump()
     }
 
     ofile.close();
+}
+
+void Game::dbg_drawrect(rect<s32> trect, SColor tcolor)
+{
+    //top
+    m_Driver->draw2DLine(trect.UpperLeftCorner, trect.UpperLeftCorner + position2d<s32>(trect.getWidth(), 0), tcolor );
+    //bottom
+    m_Driver->draw2DLine(trect.UpperLeftCorner + position2d<s32>(0, trect.getHeight()), trect.LowerRightCorner, tcolor);
+    //left
+    m_Driver->draw2DLine(trect.UpperLeftCorner, trect.UpperLeftCorner + position2d<s32>(0, trect.getHeight()), tcolor );
+    //right
+    m_Driver->draw2DLine(trect.UpperLeftCorner + position2d<s32>(trect.getWidth(),0), trect.LowerRightCorner, tcolor);
 }

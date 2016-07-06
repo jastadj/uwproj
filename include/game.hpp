@@ -162,6 +162,7 @@ private:
     int drawMainUI();
     Scroll *m_Scroll;
     std::vector<UIAnimation> m_UIAnimations;
+    std::vector< rect<s32> > m_UIInventorySlots;
 
     //debug
     bool dbg_noclip;
@@ -171,6 +172,7 @@ private:
     bool dbg_dodrawpal;
     void dbg_drawpal(std::vector<SColor> *tpal);
     void dbg_stringdump();
+    void dbg_drawrect(rect<s32> trect, SColor tcolor = SColor(255,255,255,255));
     void reconfigureAllLevelMeshes();
     void reconfigureAllLevelObjects();
 
